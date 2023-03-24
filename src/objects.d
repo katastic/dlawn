@@ -640,8 +640,8 @@ class dude : baseObject
 			isJumping = true;
 			isGrounded = false;
 			}else{
-			vel.y = 0;
-			vel.x = 0;
+			pos = pair(pos, vel.x*.85, -1); //if we're stuck, move us up one out of the ground.
+			vel = 0;
 			isJumping = false;
 			isGrounded = true;
 			}

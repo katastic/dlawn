@@ -342,6 +342,20 @@ void al_save_screen(string path)
 	writefln("Saving screenshot took %d.%ds", secs, msecs);
 	}
 
+void handleMouseAt(int x, int y, viewport v)
+	{
+	float cx = x + v.x - v.ox;
+	float cy = y + v.y + v.oy;
+	
+	if(g.world.map.isInsideMap(pair(cx,cy)))
+		{
+		g.world.map.data.set(ipair(pair(cx, cy)), 0);
+		al_set_target_bitmap(g.world.map.layers[1].data);
+		al_draw_pixel(cx, cy, color(1,0,0,1));
+		}
+	
+	}
+
 void execute()
 	{
 	ALLEGRO_EVENT event;
@@ -397,6 +411,9 @@ void execute()
 					isKeySet(ALLEGRO_KEY_K, g.key_k_down);
 					isKeySet(ALLEGRO_KEY_L, g.key_l_down);
 					isKeySet(ALLEGRO_KEY_Q, g.key_q_down);
+					
+					if(g.key_q_down)handleMouseAt(g.mouse_x, g.mouse_y, g.viewports[0]);
+
 					break;
 					}
 					
