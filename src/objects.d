@@ -582,6 +582,54 @@ class ship : unit
 		if(!isLanded)myGun.actionFire();
 		}
 	}
+		
+class movementStyle
+	{
+	pair* pos;
+	pair* vel;
+	
+	this(ref pair _pos, ref pair _vel)
+		{
+		pos = &_pos;
+		vel = &_vel;
+		}
+	
+	void onTick(){}
+	}
+	
+class fallingStyle : movementStyle
+	{
+	this(ref pair _pos, ref pair _vel)
+		{
+		super(_pos, _vel);
+		}
+
+	override void onTick()
+		{
+		writeln(*pos, " ", *vel);
+		*pos += *vel;
+		}
+	} /+ a component cannot access owner class unless we pass it. This can be good thing but how do we then... do stuff? 
+	it can only operate on its own variables unless we pass them.
+	
+	+/
+	
+class meteor : baseObject
+	{
+	movementStyle moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
+		
+	this(pair _pos)
+		{
+		vel = pair(-.25, .25);
+		super(_pos.x, _pos.y, 0, 0, g.large_asteroid_bmp);
+		moveStyle = new fallingStyle(pos, vel);
+		}
+	
+	override void onTick()
+		{
+		if(moveStyle)moveStyle.onTick();
+		}
+	}
 	
 class dude : baseObject
 	{
@@ -589,7 +637,7 @@ class dude : baseObject
 	bool isJumping = false;
 	
 	this(pair _pos)
-		{
+		{			
 		super(_pos.x, _pos.y, 0, 0, g.dude_bmp);
 		}
 
@@ -599,7 +647,7 @@ class dude : baseObject
 		// we draw RELATIVE to planet.xy, so no using baseObject.draw
 		// TODO how do we rotate angle from center of planet properly? Or do we even need that?
 		float cx=pos.x + v.x - v.ox;
-		float cy=pos.y + v.y + v.oy;
+		float cy=pos.y + v.y - v.oy;
 		if(cx < 0 || cx > SCREEN_W || cy < 0 || cy > SCREEN_H)return false;
 
 		al_draw_center_rotated_bitmap(bmp, cx, cy, 0, 0);
@@ -617,7 +665,6 @@ class dude : baseObject
 			isJumping = true;
 			vel.y = -5;
 			}
-		
 		}
 
 	override void actionLeft()
@@ -640,7 +687,7 @@ class dude : baseObject
 			isJumping = true;
 			isGrounded = false;
 			}else{
-			pos = pair(pos, vel.x*.85, -1); //if we're stuck, move us up one out of the ground.
+			pos = pair(pos, vel.x*.99, -1); //if we're stuck, move us up one out of the ground.
 			vel = 0;
 			isJumping = false;
 			isGrounded = true;
@@ -698,8 +745,8 @@ class baseObject
 	bool draw(viewport v)
 		{
 		al_draw_center_rotated_bitmap(bmp, 
-			pos.x - v.ox + v.x, 
-			pos.y + v.oy + v.y, 
+			pos.x + v.x - v.ox, 
+			pos.y + v.y - v.oy, 
 			angle, 0);
 
 		return true;

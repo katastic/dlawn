@@ -59,12 +59,12 @@ struct layer
 		if(alpha == 0.0)
 			{
 			drawBitmap(data, pair(	0 + v.x - v.ox*scale, 
-									0 + v.y + v.oy*scale));
+									0 + v.y - v.oy*scale));
 			}else{
 			drawTintedBitmap(data,
 								color(1.0, 1.0, 1.0, alpha),
 								pair(	0 + v.x - v.ox*scale, 
-										0 + v.y + v.oy*scale),
+										0 + v.y - v.oy*scale),
 										);
 			}
  		}
@@ -160,11 +160,35 @@ class byteMap
 
 class pixelMap : mapBase
 	{
+	idimen size;
 	string name="test";
 	//ubyte[][] data;
 	byteMap data;
 	layer[] layers;
 	
+	void drawMinimap(pair screenPos, float scale=1/8.0) // use implied viewport?
+		{
+		auto v = IMPLIED_VIEWPORT;
+		float cx = screenPos.x; // (dialog position on screen)
+		float cy = screenPos.y;
+		float offx = v.ox*scale; //offset into x/y
+		float offy = v.oy*scale;
+		float cw = v.w*scale;
+		float ch = v.h*scale;
+		import std.stdio;
+		writeln("OFFSETS ", v.ox, " ", v.oy);
+		writeln("OFFSETS ", offx, " ", offy);
+		// <- add drawing black transparent background?
+		al_draw_scaled_bitmap2(layers[1].data, cx, cy, scale, scale, 0);
+		al_draw_rectangle(
+			cx + offx, 
+			cy + offy, 
+			cx + offx + cw, 
+			cy + offy + ch, 
+			white, 1);
+		// draw a rectangle at this scale factor too.
+		}
+		
 	bool isValidMovement(pair pos)
 		{
 		import std.stdio : writeln;
@@ -173,10 +197,10 @@ class pixelMap : mapBase
 		
 		if(data.get(ipair(pos)) == 0) // kinda ugly
 			{
-			writeln("0");
+//			writeln("0");
 			return true;
 			}else{
-			writeln("1");
+	//		writeln("1");
 			return false;
 			}
 		}
@@ -218,8 +242,9 @@ class pixelMap : mapBase
 			foreground layers. Simple enough.
 	+/
 	
-	this(idimen size)
+	this(idimen _size)
 		{
+		size = _size;
 //		data = new byteMap(2048, 2048); 
 		data = new byteMap("./data/maps/map1layer1.png");
 /+		layers ~= layer("sky", idimen(2000, 2000), 1); 

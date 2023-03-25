@@ -255,6 +255,7 @@ class world_t
  	structure[] structures; // should all structures be owned by a planet? are there 'free floating' structures we'd have? an asteroid structure that's just a structure?
 	particle[] particles;
 	bullet[] bullets;
+	meteor[] meteors;
 
 	this()
 		{		
@@ -270,6 +271,14 @@ class world_t
 		
 		testGraph = new intrinsicGraph!float("Draw (ms)", g.stats.nsDraw, 100, 200, COLOR(1,0,0,1), 1_000_000);
 		testGraph2 = new intrinsicGraph!float("Logic (ms)", g.stats.msLogic, 100, 320, COLOR(1,0,0,1), 1_000_000);
+	
+		meteors ~= new meteor(pair(600,400)); //test 
+		
+		viewports[0] = new viewport(0, 0, 1366, 768, 0, 0);
+		assert(objects[0] !is null);
+		viewports[0].attach(&objects[0]);
+		setViewport2(viewports[0]);
+		
 	
 		stats.swLogic = StopWatch(AutoStart.no);
 		stats.swDraw = StopWatch(AutoStart.no);
@@ -329,6 +338,9 @@ class world_t
 		drawStat3(units		, stats.numberUnits);
 		drawStat3(objects	, stats.numberDudes);
 		drawStat3(structures, stats.numberStructures);		
+		drawStat3(meteors, stats.numberStructures);		
+
+		map.drawMinimap(pair(SCREEN_W-300,50));
 
 		testGraph.draw(v);
 		testGraph2.draw(v);
@@ -376,11 +388,13 @@ class world_t
 		tick(bullets);
 		tick(units);
 		tick(objects);
+		tick(meteors);
 			
 		prune(units);
 		prune(particles);
 		prune(bullets);
 		prune(objects);
+		prune(meteors);
 		
 		stats.swLogic.stop();
 		stats.msLogic = stats.swLogic.peek.total!"msecs";

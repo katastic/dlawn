@@ -727,7 +727,6 @@ void drawBitmap(bitmap *b, pair pos, uint flags=0)
 	al_draw_bitmap(b, pos.x, pos.y, flags);
 	}
 
-
 void drawTintedBitmap(bitmap *b, COLOR tint, pair pos, uint flags=0)
 	{
 	al_draw_tinted_bitmap(b, tint, pos.x, pos.y, flags);
