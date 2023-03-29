@@ -43,7 +43,7 @@ class bullet : baseObject
 		lifetime = _lifetime;
 		angle = _angle;
 		isAffectedByGravity = _isAffectedByGravity;
-		super(_x, _y, _vx, _vy, g.bullet_bmp);
+		super(pair(_x, _y), pair(_vx, _vy), g.bullet_bmp);
 		}
 	
 	void applyV(float applyAngle, float vel)

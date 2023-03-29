@@ -23,6 +23,7 @@ import planetsmod;
 import bulletsmod;
 import mapmod;
 import molto;
+import console;
 
 const int TILE_W = 1;
 const int TILE_H = 1;
@@ -226,7 +227,7 @@ void worldmaker(U...)(U u)
 import std.meta;
 alias listOfObjects = AliasSeq!(lawnMower, structure, unit);
 immutable auto listOfObjects2 = ["lawnMower", "structure", "unit"];
-
+/+
 void testWorldMaker()
 	{
 	static foreach(l; listOfObjects)
@@ -234,6 +235,7 @@ void testWorldMaker()
 		pragma(msg, l);
 		mixin(GenList!(l));
 		}
+
 /+
 	static foreach(l; listOfObjects2)
 		{
@@ -243,7 +245,10 @@ void testWorldMaker()
 +/
 //	worldmaker("lawnMower");
 	}
-	
++/	
+
+logger con;
+
 class world_t
 	{	
 	pixelMap map;
@@ -259,6 +264,7 @@ class world_t
 
 	this()
 		{		
+		con = new logger(); // WARN this should technically be initialized/owned outside world?
 //		units = new unit;
 		players ~= new player(); //CHICKEN OR EGG.
 		players[0].myTeam = 0; // teams[0];
@@ -266,6 +272,9 @@ class world_t
 		map = new pixelMap(idimen(2048, 2048));
 		
 		objects ~= new dude(pair(600, 400));
+
+		con.log("ello love 2302");
+
 		//objects ~= new lawnMower(pair(800, 400));
 		structures ~= new structure(700, 400, fountain_bmp);
 		
@@ -282,6 +291,8 @@ class world_t
 	
 		stats.swLogic = StopWatch(AutoStart.no);
 		stats.swDraw = StopWatch(AutoStart.no);
+		
+		stats.swGameStart = StopWatch(AutoStart.yes);
 		}
 
 	void draw(viewport v)
@@ -428,7 +439,12 @@ struct statValue
 	}
 
 struct statistics_t
-	{
+	{ 
+	// why not use an associated array? runtime add statistics and enumerate them?
+	// but how do we draw them before they "exist" in the stats dialog? One way,
+	// in the dialog, on read, we also go if(name is null)name = 0;
+	// but also note we have paired statistics of normal vs clipped variables.
+		
 	// per frame statistics
 	statValue numberUnits;
 	statValue numberParticles;
@@ -436,13 +452,18 @@ struct statistics_t
 	statValue numberBullets;
 	statValue numberDudes;
 	
-	ulong fps=0;
-	ulong frames_passed=0;
+	ulong numberLogEntries=0;
 	
+	ulong fps=0;
+	ulong framesPassed=0; // RESET every second. For FPS counter.
+	ulong totalFramesPassed=0;
+	StopWatch swGameStart;
 	StopWatch swLogic;
 	StopWatch swDraw;
+	StopWatch swLogging;
 	float msLogic;
 	float nsDraw;
+	float nsLogging; //needed?
 	
 	void reset()
 		{ // note we do NOT reset fps and frames_passed here as they are cumulative or handled elsewhere.

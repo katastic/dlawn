@@ -64,16 +64,15 @@ class viewport
 	void onTick()
 		{
 		import std.stdio;
-		writeln("asgdgsaddagagds");
 		if(attachedObject is null)isAttached = false;
 		if(isAttached)
 			{
 			dude* ao = attachedObject;
-			writeln(pair(ao.pos, w/2, h/2), " vs (", ox, ",", oy, ")");
+//			writeln(pair(ao.pos, w/2, h/2), " vs (", ox, ",", oy, ")");
 //			seekFormula(pair(x,y), attachedObject.pos, pair(0,0));
 			ox = (attachedObject.pos.x - w/2);
 			oy = (attachedObject.pos.y - h/2);
-			writeln("now (", ox, ",", oy, ")");
+//			writeln("now (", ox, ",", oy, ")");
 			if(isConfinedToMap)
 				{
 				clampLow(ox, 0);

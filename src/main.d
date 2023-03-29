@@ -491,8 +491,8 @@ void execute()
 			}						
 					if(event.timer.source == fps_timer) //ONCE per second
 						{
-						g.stats.fps = g.stats.frames_passed;
-						g.stats.frames_passed = 0;
+						g.stats.fps = g.stats.framesPassed;
+						g.stats.framesPassed = 0;
 						}
 					break;
 					}
@@ -502,7 +502,8 @@ void execute()
 
 		logic();
 		display.draw_frame();
-		g.stats.frames_passed++;
+		g.stats.framesPassed++;
+		g.stats.totalFramesPassed++;
 //		Fiber.yield();  // THIS SEGFAULTS. I don't think this does what I thought.
 //		pthread_yield(); //doesn't seem to change anything useful here. Are we already VSYNC limited to 60 FPS?
 		}

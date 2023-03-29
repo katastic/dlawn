@@ -12,6 +12,7 @@ import std.math;
 import std.string;
 import std.algorithm : remove;
 
+import console;
 import molto;
 import g;
 import helper;
@@ -117,7 +118,7 @@ class lawnMower : baseObject  // this should be a VEHICLE since its gonna have V
 		pos = position;
 		vel.x = 0;
   		vel.y = 0;
-		super(0, pos.x, pos.y, 0, tree_bmp);
+		super(pos, vel, tree_bmp);
 		}
 	override void actionUp()
 		{
@@ -193,16 +194,6 @@ class lawnMower : baseObject  // this should be a VEHICLE since its gonna have V
 		}
 	}
 
-class resource : baseObject
-	{
-	this(){super(0, 0, 0, 0, grass_bmp);}
-	}
-
-class fuel : baseObject
-	{
-	int amount=25;
-	this(){super(0, 0, 0, 0, grass_bmp);}
-	}
 
 // do PARTS wear out? Tires? Blades? So we need/want either money, or, item drops like new blades. 
 // or, we can do upgrades. Tire upgrade. Blade upgrade. Engine upgrade. etc
@@ -225,7 +216,7 @@ class item : baseObject
 	this(uint _team, float _x, float _y, float _vx, float _vy, ALLEGRO_BITMAP* b)
 		{	
 //		writeln("ITEM EXISTS BTW at ", x, " ", y);
-		super(_x, _y, _vx, _vy, b);
+		super(pair(_x, _y), pair(_vx, _vy), b);
 		}
 		
 	override bool draw(viewport v)
@@ -324,7 +315,7 @@ class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it
 	this(uint _teamIndex, float _x, float _y, float _vx, float _vy, ALLEGRO_BITMAP* b)
 		{
 		myTeamIndex = _teamIndex; 
-		super(_x, _y, _vx, _vy, b);
+		super(pair(_x, _y), pair(_vx, _vy), b);
 		}
 
 	override bool draw(viewport v)
@@ -398,7 +389,6 @@ class ship : unit
 	{
 	string name="";
 	bool isControlledByAI=false;
-	bool isDebugging=false;
 	bool isOwned=false;
 	player currentOwner;
 	bool isLanded=false; /// on planet
@@ -606,7 +596,7 @@ class fallingStyle : movementStyle
 
 	override void onTick()
 		{
-		writeln(*pos, " ", *vel);
+		//writeln(*pos, " ", *vel);
 		*pos += *vel;
 		}
 	} /+ a component cannot access owner class unless we pass it. This can be good thing but how do we then... do stuff? 
@@ -621,7 +611,7 @@ class meteor : baseObject
 	this(pair _pos)
 		{
 		vel = pair(-.25, .25);
-		super(_pos.x, _pos.y, 0, 0, g.large_asteroid_bmp);
+		super(_pos, pair(0, 0), g.large_asteroid_bmp);
 		moveStyle = new fallingStyle(pos, vel);
 		}
 	
@@ -638,12 +628,12 @@ class dude : baseObject
 	
 	this(pair _pos)
 		{			
-		super(_pos.x, _pos.y, 0, 0, g.dude_bmp);
+		super(pos, pair(0, 0), g.dude_bmp);
 		}
 
 	// originally a copy of structure.draw
 	override bool draw(viewport v)
-		{		
+		{
 		// we draw RELATIVE to planet.xy, so no using baseObject.draw
 		// TODO how do we rotate angle from center of planet properly? Or do we even need that?
 		float cx=pos.x + v.x - v.ox;
@@ -666,29 +656,39 @@ class dude : baseObject
 			vel.y = -5;
 			}
 		}
+		
+	override void actionDown(){}
 
 	override void actionLeft()
 		{
-		vel.x -= .10;
+		if(!isJumping)vel.x -= .20;
 		}
 
 	override void actionRight()
 		{
-		vel.x += .10;
+		if(!isJumping)vel.x += .20;
 		}
 	
 	override void onTick()
 		{
-		if(isJumping)vel.y += .1;
-		pos.y += vel.y;
+		import std.format;
+		isDebugging = true;
+		con.log("helsgalagsg");
+		con.log(this, format("%s", pos));
+		if(isJumping)vel.y += .1; // gravity
+//		pos.y += vel.y;
+//		writeln("TEST normal[", pos.x + vel.x,"] vs pair[", pair(pos,vel.x,vel.y),"]");
+		//writeln("onTick() pos:", pos, " vel:", vel);
 		if(g.world.map.isValidMovement(pair(pos, vel.x, vel.y)))
 			{
 			pos = pair(pos, vel.x, vel.y);
 			isJumping = true;
 			isGrounded = false;
 			}else{
-			pos = pair(pos, vel.x*.99, -1); //if we're stuck, move us up one out of the ground.
-			vel = 0;
+				// fixme fixme fixme
+			if(vel.y > 0)pos = pair(pos, vel.x, -1); //if we're stuck, move us up one out of the ground.
+			if(vel.y < 0)pos = pair(pos, vel.x,  1); //if we're stuck, move us up one out of the ground.
+			vel.y = 0;
 			isJumping = false;
 			isGrounded = true;
 			}
@@ -707,7 +707,7 @@ class structure : baseObject
 
 	this(float x, float y, ALLEGRO_BITMAP* b)
 		{
-		super(x, y, 0, 0,b);
+		super(pair(x, y), pair(0, 0), b);
 		writeln("we MADE a FAKKAN structure. @ ", x, " ", y);
 	// this CRASHES. I'm not sure why, players should exist by now but doesn't. Almost like it's not allocated yet.
 	//	assert(g.world.players[0] !is null);
@@ -726,6 +726,7 @@ class baseObject
 	{
 	ALLEGRO_BITMAP* bmp;
 	@disable this(); 
+	bool isDebugging=false; /// display messages for this guy in particular (this allows us to have dump code for say, onDraw, but only the specific ones we care about by marking them ingame).
 	bool isDead = false;	
 	pair pos; 	/// baseObjects are centered at X/Y (not top-left) so we can easily follow other baseObjects.
 	pair vel;
@@ -733,12 +734,10 @@ class baseObject
 	float w=0, h=0;   /// width, height 
 	float angle=0;	/// pointing angle 
 
-	this(float _x, float _y, float _vx, float _vy, ALLEGRO_BITMAP* _bmp)
+	this(pair _pos, pair _vel, ALLEGRO_BITMAP* _bmp)
 		{
-		pos.x = _x;
-		pos.y = _y;
-		vx = _vx;
-		vy = _vy;
+		pos = _pos;
+		vel = _vel;
 		bmp = _bmp;
 		}
 		

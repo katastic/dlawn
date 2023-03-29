@@ -10,6 +10,8 @@ import helper;
 import viewportsmod;
 import molto;
 
+import std.stdio;
+
 struct tileInstance
 	{
 	uint val;
@@ -166,6 +168,11 @@ class pixelMap : mapBase
 	byteMap data;
 	layer[] layers;
 	
+	
+	// with large or huge maps, we'll actually have to scroll the minimap itself
+	// also we're doing no object drawing. Could be as simple as a list traversal
+	// with colored circles. Not even sure if this feature is needed so for now
+	// it's just more of a debug tool.
 	void drawMinimap(pair screenPos, float scale=1/8.0) // use implied viewport?
 		{
 		auto v = IMPLIED_VIEWPORT;
@@ -175,9 +182,6 @@ class pixelMap : mapBase
 		float offy = v.oy*scale;
 		float cw = v.w*scale;
 		float ch = v.h*scale;
-		import std.stdio;
-		writeln("OFFSETS ", v.ox, " ", v.oy);
-		writeln("OFFSETS ", offx, " ", offy);
 		// <- add drawing black transparent background?
 		al_draw_scaled_bitmap2(layers[1].data, cx, cy, scale, scale, 0);
 		al_draw_rectangle(
@@ -195,7 +199,7 @@ class pixelMap : mapBase
 		if(pos.x < 0 || pos.y < 0)return false;
 		if(pos.x >= data.w || pos.y >= data.h)return false;
 		
-		if(data.get(ipair(pos)) == 0) // kinda ugly
+		if(data.get(ipair(pos)) == 0) // kinda ugly, but it is a clear "recast" to int if you know the api
 			{
 //			writeln("0");
 			return true;
