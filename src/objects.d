@@ -653,13 +653,21 @@ class meteor : baseObject
 	 Hilariously, I was working on testing component system DIRECTLY above this
 	 comment for Meteor and forgot/didn't notice it.
 +/	
-
+/+
+	addition note: Instead of giving a whole [this] object, we may want a more 
+	specific subset of data to interact with. But that will complicate the code
+	further so it's easiest just to "not be an idiot" and only touch stuff you
+	should.
++/
 class wall2dStyle  // how do we integrate any flags with object code?
 	{
 	dude myObject;
-	
+
 	// if we do an alias this=myObject can we get rid of the with() statements internally?
-	
+	alias myObject this;
+	//holy shit it works, however it may  may shred the EXTERNAL API
+	// since anyone accessing us can then... access themself... again...
+
 	// https://forum.dlang.org/thread/emixkjutxnnrplaziwkj@forum.dlang.org
 	// "classes are already ref so don't add a ref"
 	this(dude _myObject)//ref pair _pos, ref pair _vel)
@@ -670,16 +678,17 @@ class wall2dStyle  // how do we integrate any flags with object code?
 	void onTick()
 		{
 		with(myObject)
+		with(g.world.map) // isValidMovement
 			{
-			if(g.world.map.isValidMovement(pair(pos, 0, 1)))
+			if(isValidMovement(pair(pos, 0, 1))) // If clear below, apply gravity
 				{
 				isFalling = true;
-				vel.y += .1; //gravity
+				vel.y += .1; // Apply gravity
 				}else{
 				isFalling = false;
 				}
 
-			if(g.world.map.isValidMovement(pair(pos, vel.x, vel.y)))
+			if(isValidMovement(pair(pos, vel.x, vel.y))) // If we can move, move.
 				{
 				pos += vel;
 				isGrounded = false;
@@ -693,8 +702,8 @@ class wall2dStyle  // how do we integrate any flags with object code?
 
 	void actionUp(){}
 	void actionDown(){}
-	void actionLeft() {if(!myObject.isFalling)myObject.vel.x = -2;}
-	void actionRight(){if(!myObject.isFalling)myObject.vel.x = 2;}
+	void actionLeft() {with(myObject)if(!isFalling)vel.x = -2f;}
+	void actionRight(){with(myObject)if(!isFalling)vel.x = 2f;}
 	}
 
 class dude : baseObject
@@ -708,7 +717,14 @@ class dude : baseObject
 	this(pair _pos)
 		{			
 		moveStyle = new wall2dStyle(this);
-		super(pos, pair(0, 0), g.dude_bmp);
+		super(_pos, pair(0, 0), g.dude_bmp);
+		}
+
+	void spawnSmoke()
+		{
+		float cvx = cos(angle)*0;
+		float cvy = sin(angle)*0;
+		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100);
 		}
 
 	// originally a copy of structure.draw
@@ -720,33 +736,20 @@ class dude : baseObject
 		float cy=pos.y + v.y - v.oy;
 //		if(cx < 0 || cx > SCREEN_W || cy < 0 || cy > SCREEN_H)return false;
 
+		al_draw_filled_circle(cx, cy, 20, COLOR(0,1,0,.5));
 		al_draw_center_rotated_bitmap(bmp, cx, cy, 0, 0);
-//		if(isRunningForShip)
-			al_draw_filled_circle(cx, cy, 20, COLOR(0,1,0,.5));
-	//		else
-		//	al_draw_filled_circle(cx, cy, 20, COLOR(0,0,1,.5));
 		return true;
 		}
 	
-	override void actionUp(){moveStyle.actionUp();}
-/+		if(isJumping == false)
-			{
-			isJumping = true;
-			vel.y = -5;
-			}+/
-		
+	override void actionUp(){moveStyle.actionUp();}/+		if(isJumping == false){isJumping = true;vel.y = -5;}+/
 	override void actionDown(){moveStyle.actionDown();}
-
-	override void actionLeft(){moveStyle.actionLeft();}
-		//{if(!isJumping && isGrounded)vel.x = -1;}
-
-	override void actionRight(){moveStyle.actionRight();}
-		//{if(!isJumping && isGrounded)vel.x = 1;}
+	override void actionLeft(){moveStyle.actionLeft();} //{if(!isJumping && isGrounded)vel.x = -1;}
+	override void actionRight(){moveStyle.actionRight();} //{if(!isJumping && isGrounded)vel.x = 1;}
 	
 	override void onTick()
 		{
 		moveStyle.onTick();
-		
+		spawnSmoke();
 		/+
 		import std.format;
 		isDebugging = true;

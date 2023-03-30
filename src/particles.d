@@ -6,7 +6,7 @@ import allegro5.allegro_ttf;
 import allegro5.allegro_color;
 
 import g;
-import molto : BITMAP, w, h;
+import molto;
 import viewportsmod;
 import objects;
 import helper;
@@ -83,6 +83,11 @@ struct particle
 	
 	void onTick() // should we check for planets collision?
 		{
+		if(!g.world.map.isValidMovement(pair(x + vx, y + vy)))
+			{
+			vx=0;
+			vy=0;
+			}
 		lifetime--;
 		if(lifetime == 0)
 			{

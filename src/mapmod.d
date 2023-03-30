@@ -193,7 +193,7 @@ class pixelMap : mapBase
 		// draw a rectangle at this scale factor too.
 		}
 		
-	bool isValidMovement(pair pos)
+	bool isValidMovement(pair pos) /// Checks for both physical obstructions, as well as map boundaries
 		{
 		import std.stdio : writeln;
 		if(pos.x < 0 || pos.y < 0)return false;
@@ -256,7 +256,7 @@ class pixelMap : mapBase
 		layers ~= layer("tunnel", idimen(2000, 2000), 1);
 		layers ~= layer("foreground", idimen(2000, 2000), 1);
 +/
-		layers ~= layer("terrain", "./data/maps/map1layer0.png", 1);
+		layers ~= layer("terrain", "./data/maps/map1layer0.png", .9);
 		layers ~= layer("terrain", "./data/maps/map1layer1.png", 1);
 		layers ~= layer("terrain", "./data/maps/map1layer2.png", 2);
 		layers[2].alpha = .5;
