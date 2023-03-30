@@ -236,7 +236,7 @@ struct display_t
 
 //		unit u = g.world.units[0];
 //		drawText2(20, "obj[%.2f,%.2f][%.2f %.2f] %.2f deg", u.x, u.y, u.vx, u.vy, u.angle.radToDeg);
-		drawText2(20, "fps[%d] objrate[%d]", g.stats.fps, 
+		drawText2(20, "fps[%d] frame#[%d] objrate[%d]", g.stats.fps, g.stats.totalFramesPassed,	 
 					(g.stats.numberParticles.drawn +
 					g.stats.numberUnits.drawn + 
 					g.stats.numberBullets.drawn + 
@@ -276,12 +276,12 @@ struct display_t
 
 		with(g.stats)
 			{
-		drawText2(20, "percent: structs [%3.1f%%] particles [%3.1f%%] bullets [%3.1f%%] dudes [%3.1f%%] units [%3.1f%%]", 
-			ifNotZeroPercent2(numberStructures), 
-			ifNotZeroPercent2(numberParticles), 
-			ifNotZeroPercent2(numberBullets),
-			ifNotZeroPercent2(numberDudes),
-			ifNotZeroPercent2(numberUnits));
+			drawText2(20, "percent: structs [%3.1f%%] particles [%3.1f%%] bullets [%3.1f%%] dudes [%3.1f%%] units [%3.1f%%]", 
+				ifNotZeroPercent2(numberStructures), 
+				ifNotZeroPercent2(numberParticles), 
+				ifNotZeroPercent2(numberBullets),
+				ifNotZeroPercent2(numberDudes),
+				ifNotZeroPercent2(numberUnits));
 			}
 		
 		drawTargetDot(g.mouse_x, g.mouse_y);		// DRAW MOUSE PIXEL HELPER/FINDER

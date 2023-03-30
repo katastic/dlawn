@@ -107,8 +107,8 @@ class gun
 		{
 		with(myOwner) //CAREFUL not to shadow variables here!
 			{
-			float _vx = vx + cos(angle + uniform!"[]"(-spreadArc, spreadArc).degToRad)*speed;
-			float _vy = vy + sin(angle + uniform!"[]"(-spreadArc, spreadArc).degToRad)*speed;
+			float _vx = vel.x + cos(angle + uniform!"[]"(-spreadArc, spreadArc).degToRad)*speed;
+			float _vy = vel.y + sin(angle + uniform!"[]"(-spreadArc, spreadArc).degToRad)*speed;
 			g.world.bullets ~= new bullet(pos.x, pos.y, _vx, _vy, angle, bulletColor, 0, 100, isAffectedByGravity, myOwner, isDebugging);
 			}
 		}
@@ -117,8 +117,8 @@ class gun
 		{
 		with(myOwner) //CAREFUL not to shadow variables here!
 			{
-			float _vx = vx + cos(angle + uniform!"[]"(-spreadArc, spreadArc).degToRad)*speed;
-			float _vy = vy + sin(angle + uniform!"[]"(-spreadArc, spreadArc).degToRad)*speed;
+			float _vx = vel.x + cos(angle + uniform!"[]"(-spreadArc, spreadArc).degToRad)*speed;
+			float _vy = vel.y + sin(angle + uniform!"[]"(-spreadArc, spreadArc).degToRad)*speed;
 			g.world.bullets ~= new bullet(secondOwner.pos.x + pos.x, secondOwner.pos.y + pos.y, _vx, _vy, angle, bulletColor, 0, 100, isAffectedByGravity, myOwner, isDebugging);
 			}
 		}

@@ -233,10 +233,9 @@ class item : baseObject
 		{
 		if(!isInside)
 			{
-			pos.x += vx;
-			pos.y += vy;
-			vx *= .99; 
-			vy *= .99; 
+			pos += vel;
+			vel.x *= .99; 
+			vel.y *= .99; 
 			}
 		}
 	}
@@ -261,10 +260,10 @@ class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it
 	bool isPlayerControlled=false;
 	float weapon_damage = 5;
 
-	void applyV(float applyAngle, float vel)
+	void applyV(float applyAngle, float _vel)
 		{
-		vx += cos(applyAngle)*vel;
-		vy += sin(applyAngle)*vel;
+		vel.x += cos(applyAngle)*_vel;
+		vel.y += sin(applyAngle)*_vel;
 		}
 
 	override void onTick()
@@ -280,8 +279,7 @@ class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it
 				}
 			}
 +/
-		pos.x += vx;
-		pos.y += vy;
+		pos += vel;
 		}
 		
 	void onCollision(baseObject who)
@@ -323,8 +321,8 @@ class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it
 		super.draw(v);
 		
 		// Velocity Helper
-		float mag = distance(vx, vy)*10.0;
-		float angle2 = atan2(vy, vx);
+		float mag = distance(vel.x, vel.y)*10.0;
+		float angle2 = atan2(vel.y, vel.x);
 		drawAngleHelper(this, v, angle2, mag, COLOR(1,0,0,1)); 
 		
 //		drawAngleHelper(this, v, angle, 25, COLOR(0,1,0,1)); // my pointing direction
@@ -457,10 +455,11 @@ class ship : unit
 		
 	void crash()
 		{
-		pos.x += -vx; // NOTE we apply reverse full velocity once 
-		pos.y += -vy; // to 'undo' the last tick and unstick us, then set the new heading
-		vx *= -.80;
-		vy *= -.80;
+		pos += vel;
+		//pos.x += -vel.x; // NOTE we apply reverse full velocity once 
+		//pos.y += -vel.y; // to 'undo' the last tick and unstick us, then set the new heading
+		vel.x *= -.80;
+		vel.y *= -.80;
 		}
 		
 	bool checkUnitCollision(unit u)
@@ -544,15 +543,14 @@ class ship : unit
 		foreach(t; turrets)t.onTick();
 		if(isControlledByAI)runAI();
 			
-		pos.x += vx;
-		pos.y += vy;
+		pos += vel;
 		}
 
 	void spawnSmoke()
 		{
 		float cvx = cos(angle)*0;
 		float cvy = sin(angle)*0;
-		g.world.particles ~= particle(pos.x, pos.y, vx + cvx, vy + cvy, 0, 100, this);
+		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100, this);
 		}
 
 	override void actionUp()
@@ -621,13 +619,86 @@ class meteor : baseObject
 		}
 	}
 	
+/+
+	we could do a component system for this movement to make it more "engine acceptable"?
+		We could ALSO have sub-versions of these components [see variations in notes below]
+
+	In this case, we're doing a Wall2D (as opposed to topdown2D) pixel walker with 
+	specific jump velocity characteristics. 
+
+	- Fall if empty space below
+	- while(onGround) 
+		- Hold left, right to walk a [constant] direction 		(we can have acceleration too)
+		- if blocked pixels in that direction, stop.
+			- BUT if empty pixel ABOVE (-1 in Y direction), we simply move up a pixel to follow the terrain.
+
+		Jumping modes:
+			[fixed arc] Clonk. If on ground, we can launch at a fixed velocity [that we now HOLD regardless of user input].
+			[air control] Mario? etc. Has arc, but some air control. Also variable jump height. 
+
+	I'm having trouble enumerating it all into specifics. For example, we can have 
+		- constant acceleration vs linear acceleration
+		- various jumping algorithms
+		- various collision with objects/ground physics. [bouncing vs not, slowing down friction rate when you let go of controls]
+		
+	One thing we could do is attempt to model specific known things and analyze them:
+		- Mario
+		- Sonic
+		- Crappy DOS platformer games.
+		
+	If we can come up with either pixels, or some sort of nondimensional value
+	 based on pixels/screen_size to measure velocities across different systems 
+	 it might be easier to mathematically quantify them. 
+	 
+	 Hilariously, I was working on testing component system DIRECTLY above this
+	 comment for Meteor and forgot/didn't notice it.
++/	
+
+class wall2dStyle  // how do we integrate any flags with object code?
+	{
+	dude myObject;
+	
+	// if we do an alias this=myObject can we get rid of the with() statements internally?
+	
+	// https://forum.dlang.org/thread/emixkjutxnnrplaziwkj@forum.dlang.org
+	// "classes are already ref so don't add a ref"
+	this(dude _myObject)//ref pair _pos, ref pair _vel)
+		{
+		myObject = _myObject;
+		}
+
+	void onTick()
+		{
+		with(myObject)
+			{
+			if(g.world.map.isValidMovement(pair(pos, vel.x, vel.y)))
+				{
+				pos += vel;
+				}else{
+				isGrounded = true;
+				vel = 0;
+				pos.y--;
+				}
+			vel.y += .1; //gravity
+			}
+		}
+
+	void actionUp(){}
+	void actionDown(){}
+	void actionLeft() {myObject.vel.x = -.1;}
+	void actionRight(){myObject.vel.x = +.1;}
+	}
+
 class dude : baseObject
 	{
+	wall2dStyle moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
+	
 	bool isGrounded = false;
 	bool isJumping = false;
 	
 	this(pair _pos)
 		{			
+		moveStyle = new wall2dStyle(this);
 		super(pos, pair(0, 0), g.dude_bmp);
 		}
 
@@ -638,7 +709,7 @@ class dude : baseObject
 		// TODO how do we rotate angle from center of planet properly? Or do we even need that?
 		float cx=pos.x + v.x - v.ox;
 		float cy=pos.y + v.y - v.oy;
-		if(cx < 0 || cx > SCREEN_W || cy < 0 || cy > SCREEN_H)return false;
+//		if(cx < 0 || cx > SCREEN_W || cy < 0 || cy > SCREEN_H)return false;
 
 		al_draw_center_rotated_bitmap(bmp, cx, cy, 0, 0);
 //		if(isRunningForShip)
@@ -648,50 +719,56 @@ class dude : baseObject
 		return true;
 		}
 	
-	override void actionUp()
-		{
-		if(isJumping == false)
+	override void actionUp(){moveStyle.actionUp();}
+/+		if(isJumping == false)
 			{
 			isJumping = true;
 			vel.y = -5;
-			}
-		}
+			}+/
 		
-	override void actionDown(){}
+	override void actionDown(){moveStyle.actionDown();}
 
-	override void actionLeft()
-		{
-		if(!isJumping)vel.x -= .20;
-		}
+	override void actionLeft(){moveStyle.actionLeft();}
+		//{if(!isJumping && isGrounded)vel.x = -1;}
 
-	override void actionRight()
-		{
-		if(!isJumping)vel.x += .20;
-		}
+	override void actionRight(){moveStyle.actionRight();}
+		//{if(!isJumping && isGrounded)vel.x = 1;}
 	
 	override void onTick()
 		{
+		moveStyle.onTick();
+		
+		/+
 		import std.format;
 		isDebugging = true;
-		con.log("helsgalagsg");
-		con.log(this, format("%s", pos));
+		//writeln("onTick() pos:", pos, " vel:", vel);
 		if(isJumping)vel.y += .1; // gravity
 //		pos.y += vel.y;
 //		writeln("TEST normal[", pos.x + vel.x,"] vs pair[", pair(pos,vel.x,vel.y),"]");
-		//writeln("onTick() pos:", pos, " vel:", vel);
 		if(g.world.map.isValidMovement(pair(pos, vel.x, vel.y)))
 			{
+			con.log(this, format("onTick() IsValid pos=%s vel=%s", pos, vel));
+			
 			pos = pair(pos, vel.x, vel.y);
 			isJumping = true;
 			isGrounded = false;
 			}else{
-				// fixme fixme fixme
-			if(vel.y > 0)pos = pair(pos, vel.x, -1); //if we're stuck, move us up one out of the ground.
-			if(vel.y < 0)pos = pair(pos, vel.x,  1); //if we're stuck, move us up one out of the ground.
+			con.log(this, format("onTick() !IsValid pos=%s vel=%s", pos, vel));
+	
+			if(g.world.map.isValidMovement(pair(pos, 0, -1)))
+				{
+				pos.y -= 1;
+				vel.x *= .80;
+				}
+	
+			// fixme fixme fixme. detecting head bumps, etc. we should probably do the clonk style
+			// four vector point detectors to detect which direction we're hitting from
+			if		(vel.y > 0.1)pos = pair(pos, vel.x, -1); //if we're stuck, move us up one out of the ground.
+			else if	(vel.y < 0.1)pos = pair(pos, vel.x,  1); //if we're stuck, move us up one out of the ground.
 			vel.y = 0;
 			isJumping = false;
 			isGrounded = true;
-			}
+			}+/
 		}
 	}
 	
@@ -722,6 +799,8 @@ class structure : baseObject
 		}
 	}
 
+
+/// NO ACTIVE PHYSICS code, base object. 
 class baseObject
 	{
 	ALLEGRO_BITMAP* bmp;
@@ -730,7 +809,6 @@ class baseObject
 	bool isDead = false;	
 	pair pos; 	/// baseObjects are centered at X/Y (not top-left) so we can easily follow other baseObjects.
 	pair vel;
-	float vx=0, vy=0; /// Velocities.
 	float w=0, h=0;   /// width, height 
 	float angle=0;	/// pointing angle 
 

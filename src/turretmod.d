@@ -144,8 +144,8 @@ class turret : ship
 			}
 		 //grab target()
 		myGun.onTick();
-		vx = myOwner.vx; // note, these aren't "used" for our position, but are needed for spawning bullets
-		vy = myOwner.vy; // that add with our velocity.
+		vel = myOwner.vel; // note, these aren't "used" for our position, but are needed for spawning bullets
+		// that add with our velocity.
 		
 //		if(distance < TURRET_FIRE_DISTANCE)
 		myGun.actionFireRelative(myOwner);
