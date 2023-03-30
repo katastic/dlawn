@@ -671,28 +671,37 @@ class wall2dStyle  // how do we integrate any flags with object code?
 		{
 		with(myObject)
 			{
+			if(g.world.map.isValidMovement(pair(pos, 0, 1)))
+				{
+				isFalling = true;
+				vel.y += .1; //gravity
+				}else{
+				isFalling = false;
+				}
+
 			if(g.world.map.isValidMovement(pair(pos, vel.x, vel.y)))
 				{
 				pos += vel;
+				isGrounded = false;
 				}else{
 				isGrounded = true;
-				vel = 0;
+				vel.y = 0;
 				pos.y--;
 				}
-			vel.y += .1; //gravity
 			}
 		}
 
 	void actionUp(){}
 	void actionDown(){}
-	void actionLeft() {myObject.vel.x = -.1;}
-	void actionRight(){myObject.vel.x = +.1;}
+	void actionLeft() {if(!myObject.isFalling)myObject.vel.x = -2;}
+	void actionRight(){if(!myObject.isFalling)myObject.vel.x = 2;}
 	}
 
 class dude : baseObject
 	{
 	wall2dStyle moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
 	
+	bool isFalling = true;
 	bool isGrounded = false;
 	bool isJumping = false;
 	
