@@ -93,8 +93,6 @@ struct particle
 			{
 			isDead=true;
 			}else{
-				
-			
 			x += vx;
 			y += vy;
 			}

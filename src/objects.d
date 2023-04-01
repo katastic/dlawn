@@ -23,86 +23,8 @@ import planetsmod;
 import turretmod;
 import bulletsmod;
 
-enum STROKE{ two, four};
-enum FUEL { gas, diesel, electric, nuclear, coal, hydrogen}
-class engineT
-	{
-	float rpm = 0;
-	float rpmMax = 7000;
-	
-	float[4] gears = [1, 2, 3, 4]; /// forward gears
-	float reverseGear = 2;
-	int cylinders = 4;
-	STROKE stroke = STROKE.two;
-	FUEL fuel = FUEL.gas;
-	}
-
-// <-----------------------------------	
-// omfg, we could make it a Rogue/roguelite game. Randomized perk upgrades... for your fucking __lawn mower__.
-
-/+
-	- DIFFERENT LAWN MOWER TYPES / classes? 
-	- bumping into obsticles damages your vheicle
-  
-	perks: 
-	 - traditional ones like flat +10% buff to damage (to weeds), speed, health.
-	 - "fun" / creative ones, especially "specializing" ones that give you a larger boost, but also a caveat.
-		- "hot doggin'" (or whatever) 
-			+ "additional mowing efficiency 50%, but the engine takes damage any time it's idling [the mower is motionless"]
-		- "blind luck" ?
-			- On the downside, you're completely blind. [see 10 ft]. 
-			  On the brightside, there is no brightside, because you
-			  can't see light. On the up side, with your retinas singed, 
-			  you have replaced them with wanton abandon. You drive like you stole it. 50% mow speed." 
-		- "drive it like you stole it"
-			- "a police lawn mower chases you. You go faster, but if you get caught, it's game over." 
-	
-	DRINKS like Hammerwatch. you're getting DRUNK before mowing.
-	specific MUSIC could apply bonsues but may be annoying for players to hear.
-+/
-
-// in our case, every player will control only one lawn mower and nothing else?
-// or, he can control a dwarf/pedestration? If not, we can combine "player" class into the lawnmower class.
-
-// functional drive systems
-// 		front wheel drive, rear wheel drive, all wheel drive, tracked drive
-
-// functional steering systems
-//		front/rear steering. 4 wheel steering. zero turn drive.
-
-// ground types:
-//		grass, sand, mud, snow. shallow water. deep water. lava.
-//			^^^^^^^^^^THEN WHY ARE WE MOVING IT?
-//			unless we're moving "magic" trees or something that fight back.
-
-struct baseStats
-	{
-	int engine; //level
-	int transmission;
-	int tires;
-	int blade;
-	int steering;
-	}
-
 float STAT_ACCEL = .1;
 float STAT_ROTSPEED = degToRad(10);
-
-/+
-class lawnmower : unit // what other vehicles would there be? none?
-	{
-	this(){super(0, 0, 0, 0, 0, goblin_bmp);}
-	
-	override void onTick()
-		{
-//		g.world.map.attemptMow(ipair(x,y));  should we have ipair auto downconvert? BUT what about rounding decisions?
-		g.world.map.attemptMow(ipair(cast(int)x, cast(int)y));
-//		pos.x += vel.x;
-//		pos.y += vel.y;
-		x += vx;
-		y += vy;
-		}
-	}
-+/
 
 class lawnMower : baseObject  // this should be a VEHICLE since its gonna have VEHICLE physics.
 	{
@@ -240,16 +162,6 @@ class item : baseObject
 		}
 	}
 	
-class goblin : unit
-	{
-	this(){super(0, 0, 0, 0, 0, goblin_bmp);}
-	}
-	
-class dwarf : unit
-	{
-	this(){super(0, 0, 0, 0, 0, goblin_bmp);}
-	}
-
 class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it, make sure to override if you don't want those physics.
 	{
 	float maxHP=100.0; /// Maximum health points
@@ -268,17 +180,6 @@ class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it
 
 	override void onTick()
 		{
-/+		foreach(p; g.world.planets)
-			{
-			if(checkPlanetCollision(p))
-				{
-				x += -vx; // NOTE we apply reverse full velocity once 
-				y += -vy; // to 'undo' the last tick and unstick us, then set the new heading
-				vx *= -.80;
-				vy *= -.80;
-				}
-			}
-+/
 		pos += vel;
 		}
 		
@@ -349,40 +250,6 @@ class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it
 		}
 	}
 	
-class hardpoint : unit
-	{
-	ship owner;
-	
-	this(ship _owner)
-		{
-		hp = 50;
-		owner = _owner;
-		super(0, owner.pos.x, owner.pos.y, 0, 0, g.trailer_bmp);
-		}
-	
-	override bool draw(viewport v)
-		{
-		COLOR c = COLOR(1,1,1,hp/maxHP);
-		al_draw_tinted_rotated_bitmap(bmp, c,
-			bmp.w/2, bmp.h/2, 
-			owner.pos.x + v.x - v.ox + cos(angle + PI/2f)*10f, 
-			owner.pos.y + v.y - v.oy + sin(angle + PI/2f)*10f, angle, 0);
-		al_draw_tinted_rotated_bitmap(bmp, c,
-			bmp.w/2, bmp.h/2, 
-			owner.pos.x + v.x - v.ox + cos(angle + PI/2f)*-10f, 
-			owner.pos.y + v.y - v.oy + sin(angle + PI/2f)*-10f, angle, 0);
-		return true;
-		}
-		
-	override void onTick()
-		{
-		// need some vector rotations;
-		angle = owner.angle;
-		pos.x = owner.pos.x;
-		pos.y = owner.pos.y;
-		}
-	}
-
 class ship : unit
 	{
 	string name="";
@@ -585,32 +452,55 @@ class movementStyle
 	void onTick(){}
 	}
 	
-class fallingStyle : movementStyle
+class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 	{
-	this(ref pair _pos, ref pair _vel)
+	T myObject;
+	this(T d)
 		{
-		super(_pos, _vel);
+		myObject = d;
 		}
 
-	override void onTick()
+	void onTick()
 		{
-		//writeln(*pos, " ", *vel);
-		*pos += *vel;
+		with(myObject)
+			{
+			//writeln(*pos, " ", *vel);
+			pos += vel;
+//			writeln("Meteor: ", pos, " ", vel);
+
+			onCollision();
+			}
 		}
-	} /+ a component cannot access owner class unless we pass it. This can be good thing but how do we then... do stuff? 
-	it can only operate on its own variables unless we pass them.
-	
-	+/
+	}
 	
 class meteor : baseObject
 	{
-	movementStyle moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
+	fallingStyle!meteor moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
+
+	void spawnSmoke()
+		{
+		float cvx = cos(angle)*0;
+		float cvy = sin(angle)*0;
+		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100);
+		}
+
+	void onCollision()
+		{
+		if(!g.world.map.isValidMovement(pos)) 
+			{
+			spawnSmoke();
+			import std.random : uniform;
+			pos.x = uniform(0, g.world.map.data.w-20);
+			pos.y = 0;
+			vel.x = uniform(-3, 3);
+			}
+		}
 		
 	this(pair _pos)
 		{
-		vel = pair(-.25, .25);
-		super(_pos, pair(0, 0), g.large_asteroid_bmp);
-		moveStyle = new fallingStyle(pos, vel);
+		vel = pair(-3, 3);
+		super(_pos, vel, g.small_asteroid_bmp);
+		moveStyle = new fallingStyle!meteor(this);
 		}
 	
 	override void onTick()
@@ -695,15 +585,15 @@ class wall2dStyle  // how do we integrate any flags with object code?
 				}else{
 				isGrounded = true;
 				vel.y = 0;
-				pos.y--;
+				pos.y--; // warn: we shouldn't be moving us if we're touching the outside of the screen.
 				}
 			}
 		}
 
 	void actionUp(){}
 	void actionDown(){}
-	void actionLeft() {with(myObject)if(!isFalling)vel.x = -2f;}
-	void actionRight(){with(myObject)if(!isFalling)vel.x = 2f;}
+	void actionLeft() {with(myObject)if(!isFalling)vel.x = -4f;}
+	void actionRight(){with(myObject)if(!isFalling)vel.x = 4f;}
 	}
 
 class dude : baseObject

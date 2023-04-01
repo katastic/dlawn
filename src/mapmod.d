@@ -1,3 +1,26 @@
+/+
+	byteMap - we may want to add support to chunkify large map bitmaps into 
+	smaller power-of-2 chunk textures.
+
+
+	If we want to, we could [magnify] the pixel maps so instead of 1x1 pixels,
+	 each "pixel" is worth 2x2, 3x3, 4x4, ... etc like a tiled map with very 
+	 small tiles. This increases the effective size of a map, or, reduces
+	 the memory size for an certain size bitmap texture
+	 
+	 Currently it seems the decompression/asset loading itself is the slowest,
+	 not so much the RAM/VRAM usage. 4096x4096x4 (32-bit) = 67,108,864 = 64MiB
+	 each full-size layer.
+
+	Also, we want to support a "painted" layer at somepoint. Whatever Worms and 
+	Clonk did. We only store [TileType], not raw RGBA values, and then apply
+	a texture (either constantly with a shader, or on instantiation).
+	
+	painting pixels is just simplest to get up and running with a paint program.
+
+
+	don't forget scrolling layers (and repeating layers) for clouds/weather/etc
++/
 import allegro5.allegro;
 import allegro5.allegro_primitives;
 import allegro5.allegro_image;
@@ -173,7 +196,7 @@ class pixelMap : mapBase
 	// also we're doing no object drawing. Could be as simple as a list traversal
 	// with colored circles. Not even sure if this feature is needed so for now
 	// it's just more of a debug tool.
-	void drawMinimap(pair screenPos, float scale=1/8.0) // use implied viewport?
+	void drawMinimap(pair screenPos, float scale=1/16.0) // use implied viewport?
 		{
 		auto v = IMPLIED_VIEWPORT;
 		float cx = screenPos.x; // (dialog position on screen)
