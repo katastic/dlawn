@@ -206,6 +206,12 @@ class pixelMap : mapBase
 		float cw = v.w*scale;
 		float ch = v.h*scale;
 		// <- add drawing black transparent background?
+		al_draw_filled_rectangle(
+			cx, 
+			cy, 
+			cx + size.w*scale,
+			cy + size.h*scale,
+			color(.25,.25,.25,.50));
 		al_draw_scaled_bitmap2(layers[1].data, cx, cy, scale, scale, 0);
 		al_draw_rectangle(
 			cx + offx, 
