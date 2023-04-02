@@ -25,7 +25,6 @@ import molto;
 	//COLOR(w, w, w, 1);
 	//}
 
-
 // TODO: does this track viewport offset or not?!
 void drawAngleHelper(baseObject o, viewport v, float angle, float distance, ALLEGRO_COLOR color)
 	{
@@ -58,6 +57,8 @@ void testRad()
 		}
 	}
 	
+// Angle helper routines
+// ----------------------------------------------------------------------------
 T wrapRad(T)(T angle)
 	{
 	if(angle >= 0)

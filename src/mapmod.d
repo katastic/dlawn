@@ -2,7 +2,6 @@
 	byteMap - we may want to add support to chunkify large map bitmaps into 
 	smaller power-of-2 chunk textures.
 
-
 	If we want to, we could [magnify] the pixel maps so instead of 1x1 pixels,
 	 each "pixel" is worth 2x2, 3x3, 4x4, ... etc like a tiled map with very 
 	 small tiles. This increases the effective size of a map, or, reduces
@@ -17,7 +16,6 @@
 	a texture (either constantly with a shader, or on instantiation).
 	
 	painting pixels is just simplest to get up and running with a paint program.
-
 
 	don't forget scrolling layers (and repeating layers) for clouds/weather/etc
 +/
@@ -191,7 +189,7 @@ class pixelMap : mapBase
 	byteMap data;
 	layer[] layers;
 	
-	
+
 	// with large or huge maps, we'll actually have to scroll the minimap itself
 	// also we're doing no object drawing. Could be as simple as a list traversal
 	// with colored circles. Not even sure if this feature is needed so for now

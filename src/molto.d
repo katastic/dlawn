@@ -309,6 +309,7 @@ struct pair
 	// https://forum.dlang.org/post/dgawdxjtsffcqjskwwwx@forum.dlang.org
 	size_t toHash() const nothrow @safe 
 		{
+		assert(false, "VERIFY BEFORE USING");
 		return typeid(this).getHash(&this); 
 		// https://forum.dlang.org/post/iavcspvqttccocezmqeb@forum.dlang.org
 		} 
@@ -331,15 +332,16 @@ struct pair
 		static if(op == "+=")
 		{
 			pragma(msg, "+= THIS HASNT BEEN VERIFIED");
-			x += p.x;
-			y += p.y;
+			//x += p.x;
+			//y += p.y; // also can't we just do:
+			this = this + p; // VERIFIY
 			return this;
 		}else static if(op == "-=") 
 		{
-			
+			assert(false, "TODO");
 		}else static if(op == "+" || op == "-")
 		{
-			pragma(msg, op);
+//			pragma(msg, op);
 			mixin("x = x "~op~" p.x;");
 			mixin("y = y "~op~" p.y;");
 			return this;

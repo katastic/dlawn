@@ -225,8 +225,8 @@ void worldmaker(U...)(U u)
 	}
 	
 import std.meta;
-alias listOfObjects = AliasSeq!(lawnMower, structure, unit);
-immutable auto listOfObjects2 = ["lawnMower", "structure", "unit"];
+alias listOfObjects = AliasSeq!(structure, unit);
+immutable auto listOfObjects2 = ["structure", "unit"];
 /+
 void testWorldMaker()
 	{
@@ -282,7 +282,7 @@ class world_t
 		testGraph2 = new intrinsicGraph!float("Logic (ms)", g.stats.msLogic, 100, 320, COLOR(1,0,0,1), 1_000_000);
 		
 		import std.random : uniform;
-		for(int i =0; i< 100;i++)meteors ~= new meteor(pair(uniform(0,map.data.w),0)); //test 
+		for(int i =0; i< 100;i++)meteors ~= new meteor(pair(uniform(0,map.data.w-1),uniform(0,map.data.h-1))); //test 
 		
 		viewports[0] = new viewport(0, 0, 1366, 768, 0, 0);
 		assert(objects[0] !is null);

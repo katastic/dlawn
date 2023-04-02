@@ -22,103 +22,9 @@ import guns;
 import planetsmod;
 import turretmod;
 import bulletsmod;
-
+	
 float STAT_ACCEL = .1;
 float STAT_ROTSPEED = degToRad(10);
-
-class lawnMower : baseObject  // this should be a VEHICLE since its gonna have VEHICLE physics.
-	{
-	bool isMowing = true;
-	pair pos, vel;
-	float speed=0;
-	float wheelBase=30;
-	float facingAngle=0; 	// Car body facing angle.
-	float rearWheelAngle = 0, frontWheelAngle = 0;
-	
-	this(pair position)
-		{
-		pos = position;
-		vel.x = 0;
-  		vel.y = 0;
-		super(pos, vel, tree_bmp);
-		}
-	override void actionUp()
-		{
-		speed += STAT_ACCEL;
-		}
-	override void actionDown()
-		{
-		speed -= STAT_ACCEL;
-		}
-	override void actionLeft(){facingAngle = wrapRad(facingAngle - STAT_ROTSPEED);}
-	override void actionRight(){facingAngle = wrapRad(facingAngle + STAT_ROTSPEED);}
-
-	bool attemptMove(float relX, float relY)
-		{
-		pair possiblePos = pos;
-		possiblePos.x += relX;
-		possiblePos.y += relY;
-		if(g.world.map.isInsideMap(possiblePos))
-			{
-			if(g.world.map.isValidMovement(possiblePos))
-				{
-				pos = possiblePos;
-				return true;
-				}
-			}
-		return false;
-		}
-
-	pair rearWheelVec;
-	pair frontWheelVec;
-
-//http://engineeringdotnet.blogspot.com/2010/04/simple-2d-car-physics-in-games.html
-	void doPhysics()
-		{
-		float carSpeed = 1;
-		float steeringAngle = 5.degToRad;
-		
-		frontWheelVec = pair(	carSpeed * cos(facingAngle + steeringAngle) * wheelBase/2, 
-								carSpeed * sin(facingAngle + steeringAngle) * wheelBase/2);
-		rearWheelVec  = pair(	carSpeed * cos(facingAngle) * (-wheelBase/2), 
-								carSpeed * sin(facingAngle) * (-wheelBase/2));
-
-		pair averagePos; 
-		averagePos.x = (frontWheelVec.x + rearWheelVec.x) / 2;
-		averagePos.y = (frontWheelVec.y + rearWheelVec.y) / 2;
-		
-		import std.math : atan2;
-		facingAngle = atan2(frontWheelVec.y - rearWheelVec.y, frontWheelVec.x - rearWheelVec.x);
-
-		writeln(facingAngle);
-		attemptMove(averagePos.x, averagePos.y);
-//		attemptMove(speed*sin(facingAngle), -speed*cos(facingAngle));
-//		if(isMowing)g.world.map.attemptMow(ipair(cast(int)pos.x/TILE_W, cast(int)pos.y/TILE_H));
-		}
-
-	override void onTick()
-		{
-//		doPhysics();
-		attemptMove(speed*sin(facingAngle), -speed*cos(facingAngle));
-//		clampBoth(pos.x, 0, 10_000);
-//		clampBoth(pos.y, 0, 10_000);
-	//	g.world.map.attemptMow(ipair(cast(int)pos.x/TILE_W, cast(int)pos.y/TILE_H));
-		}
-		
-	override bool draw(viewport v)
-		{
-		// we're missing the IMPLICIT VIEWPORT code version!
-		// we really have to move this stuff to its own library file
-		// what about vpos?!?! gotta get access to dglad repo!!!!
-//		drawTargetDot();
-		al_draw_center_rotated_bitmap(bmp, pos.x - v.ox + v.x, pos.y + v.oy + v.y, facingAngle + degToRad(0), 0);
-		return true;
-		}
-	}
-
-
-// do PARTS wear out? Tires? Blades? So we need/want either money, or, item drops like new blades. 
-// or, we can do upgrades. Tire upgrade. Blade upgrade. Engine upgrade. etc
 
 /*
 	Teams
@@ -247,194 +153,6 @@ class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it
 	
 		draw_hp_bar(pos.x, pos.y - bmp.w/2, v, hp, 100);		
 		return true;
-		}
-	}
-	
-class ship : unit
-	{
-	string name="";
-	bool isControlledByAI=false;
-	bool isOwned=false;
-	player currentOwner;
-	bool isLanded=false; /// on planet
-	bool isDocked=false; /// attached to object
-	gun myGun;
-	turret[] turrets;
-	int numDudesInside; // NYI, we don't need (at least at this point) to keep actual unique dude classes inside. Just delete them and keep track of how many we had. (ala all level-1 blue pikmin are the same)
-	int numDudesInsideMax = 20;
-	
-	/// "constants" 
-	/// They are UPPER_CASE but they're not immutable so inherited classes can override them.
-	/// unless there's some other way to do that.
-	float MAX_LATCHING_SPEED = 3;
-	float MAX_SAFE_LANDING_ANGLE = 45;
-	float ROTATION_SPEED = 5;
-	uint  SHIELD_COOLDOWN = 60; /// frames till it can start recharging
-	float SHIELD_RECHARGE_RATE = 0.5; /// once recharging starts rate of fill
-	int   SHIELD_MAX = 100; /// total shield health
-	float SPEED = 0.1f;
-	
-//	int gunCooldown = 0;
-	float shieldHP = 0;
-	int shieldCooldown = 60;
-	//we could also have a shield break animation of the bubble popping
-		
-	bool requestBoarding(dude d)
-		{
-		// we send dude type just in case there's multiple classes or something.
-		if(numDudesInside < numDudesInsideMax)
-			{
-			numDudesInside++;
-			return true;
-			}else{
-			return false; // we full
-			}
-		}
-	
-	this(float _x, float _y, float _xv, float _yv)
-		{
-		myGun = new minigun(this);
-		super(1, _x, _y, _xv, _yv, ship_bmp);
-		}
-
-	override bool draw(viewport v)
-		{ //todo include bitmap width/height in this scenario (a helper function may already exist)
-		float cx = pos.x + v.x - v.ox;
-		float cy = pos.y + v.y - v.oy;
-		if(cx < 0 || cx > SCREEN_W || cy < 0 || cy > SCREEN_H)return false; //built-in clipping
-		//drawShield(pair(x, y), v, bmp.w, 5, COLOR(0,0,1,1), shieldHP/SHIELD_MAX);
-		super.draw(v);
-		
-		foreach(t; turrets){t.draw(v); g.stats.numberUnits.drawn++; }
-		
-		if(name != "")
-			{
-			if(numDudesInside == 0)
-				drawTextCenter(cx, cy - bmp.w, white, "%s", name);
-			else
-				drawTextCenter(cx, cy - bmp.w, white, "%s [+%d]", name, numDudesInside);
-					
-			// using bmp.w because it's larger in non-rotated sprites
-			}
-		
-		return true;
-		}
-		
-	void crash()
-		{
-		pos += vel;
-		//pos.x += -vel.x; // NOTE we apply reverse full velocity once 
-		//pos.y += -vel.y; // to 'undo' the last tick and unstick us, then set the new heading
-		vel.x *= -.80;
-		vel.y *= -.80;
-		}
-		
-	bool checkUnitCollision(unit u)
-		{
-//		writefln("[%f,%f] vs u.[%f,%f]", x, y, u.x, u.y);
-		if(pos.x - 10 < u.pos.x)
-		if(pos.x + 10 > u.pos.x)
-		if(pos.y - 10 < u.pos.y)
-		if(pos.y + 10 > u.pos.y)
-			{
-//		writeln("[bullet] Death by unit contact.");
-			return true;
-			}		
-		return false;
-		}
-		
-		
-	void doShield()
-		{
-		if(shieldCooldown > 0)
-			{
-			shieldCooldown--; 
-			return;
-			}else{
-			if(shieldHP < SHIELD_MAX)shieldHP += SHIELD_RECHARGE_RATE;
-			if(shieldHP > SHIELD_MAX)shieldHP = SHIELD_MAX;
-			}
-		}
-		
-	void runAI()
-		{
-		// Mode: attack
-		// we can add randomness (on spawn) to certain parameters to make it more 'human' / imperfect
-		// Overshooting (detect turn left, but then we keep turning left until we get a stop turning
-		// or turn right command, then we reduce the tickrate of the AI)
-		// - could implement some sort of PID controller
-		//		desired_pos(player)		-- set point (SP)
-		//		this:
-		//			current_pos			-- 
-		//			current_vel
-		//			current_angle
-		// 
-		// at the very least, a PID of "distance to target" plus our velocity equation
-		//	https://en.wikipedia.org/wiki/PID_controller
-		//
-		//	P proportional error vs desired
-		//	D derivative, for dampening overshoot
-		//  I integral (not needed?) for removing residuals
-		// 
-		// ALSO, ships currently have LINEAR velocity. Do we want SQUARED so they can't speed up as fast?
-		//	K.E. = 1/2mv^^2
-		/+
-			ALSO (not necessarily needed) but look up PID velocity and position control
-				because if we're taking an integral or derivative of position (or velocity)...
-				we're already using those terms and may plug them in. (del pos/time = velocity right?)
-			
-			we might use a more advanced version for getting AI ships to land on planets carefully (desired end velocity=0)
-		+/
-	
-		immutable float MAX_AI_SPEED = 2;		// jet till we hit max speed
-		immutable float BOOST_DISTANCE = 100; 	// jet until we close distance (what about manuevering for close combat vs closing the distance?)
-		immutable float ENGAGE_DISTANCE = 400;
-		immutable float SHOT_PERCENT = 25;		// 1/60th frame rate, 25% = ~15 shots / second max (not including cooldown) 
-		immutable float SHOT_ANGLE_RANGE = 30;  // NYI, don't shoot unless we're SOMEWHAT close to being able to hit (don't shoot backwards). Unless we want to look stupid sometimes. Add a percentage chance for that based on AI_STUPIDITY.
-		
-		unit target = g.world.units[0];
-		float a = angleTo(target, this);
-		// FIXME: WARNING. This will cap max speed... even if we're going max speed opposite direction!
-		if(distanceTo(target, this) > BOOST_DISTANCE /*&& distance(vx, vy) < MAX_AI_SPEED*/){actionUp();}
-		if(distanceTo(target, this) < ENGAGE_DISTANCE && percent(SHOT_PERCENT)){actionFire();}		
-		if(isLanded)actionUp();
-		if(angle > a)actionLeft();
-		if(angle < a)actionRight();
-		}
-
-	override void onTick()
-		{
-		/// Subunit logic
-		myGun.onTick();
-		doShield();
-		foreach(t; turrets)t.onTick();
-		if(isControlledByAI)runAI();
-			
-		pos += vel;
-		}
-
-	void spawnSmoke()
-		{
-		float cvx = cos(angle)*0;
-		float cvy = sin(angle)*0;
-		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100, this);
-		}
-
-	override void actionUp()
-		{		
-		}
-		
-	override void actionDown() 
-		{ 	
-		if(!isLanded)applyV(angle, -.1); 
-		}
-		
-	override void actionLeft() { if(!isLanded){angle -= degToRad(ROTATION_SPEED); angle = wrapRad(angle);}}
-	override void actionRight() { if(!isLanded){angle += degToRad(ROTATION_SPEED); angle = wrapRad(angle);}}
-
-	override void actionFire()
-		{
-		if(!isLanded)myGun.actionFire();
 		}
 	}
 		
@@ -596,6 +314,88 @@ class wall2dStyle  // how do we integrate any flags with object code?
 	void actionRight(){with(myObject)if(!isFalling)vel.x = 4f;}
 	}
 
+
+
+
+// method 1
+// ------------------------------------------------------------------------
+class _event
+	{
+	eventFSM owner;
+	this(eventFSM _owner)
+		{
+		owner = _owner;
+		}
+	void enter(){}
+	void trigger(){}
+	void exit(){}
+	}
+
+class _event_switchON : _event
+	{
+	this(eventFSM _owner)
+		{
+		super(_owner);
+		}
+	
+	override void enter(){}
+	override void trigger(){owner.lightBulbOn = true;}
+	override void exit(){}
+	}
+
+class _event_switchOFF : _event
+	{
+	this(eventFSM _owner)
+		{
+		super(_owner);
+		}
+	
+	override void enter(){}
+	override void trigger(){owner.lightBulbOn = false;}
+	override void exit(){}
+	}
+		
+// method 2
+// ------------------------------------------------------------------------
+void switchon(eventFSM owner) // okay but this needs internal logic or its always going to flip.
+	{ // and we've also got a problem, we don't have enter/exit conditions.
+	owner.dg = &switchoff;
+	owner.lightBulbOn = true;
+	}
+
+void switchoff(eventFSM owner) 
+	{
+	owner.lightBulbOn = true;
+	owner.dg = &switchon;
+	}
+	
+class eventFSM
+	{
+	_event ev;
+	void function(eventFSM) dg;
+	bool lightBulbOn=false;
+	
+	this()
+		{
+		auto switchON = new _event_switchON(this);
+		auto switchOFF = new _event_switchOFF(this);
+		dg = &switchon;
+		}
+	
+	void switchTo(_event _next)
+		{
+		ev.exit();
+		ev = _next;
+		ev.enter();
+		}
+		
+	void onTick()
+		{
+		ev.trigger();
+		dg(this);
+		}
+	}
+
 class dude : baseObject
 	{
 	wall2dStyle moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
@@ -701,7 +501,6 @@ class structure : baseObject
 		}
 	}
 
-
 /// NO ACTIVE PHYSICS code, base object. 
 class baseObject
 	{
@@ -746,3 +545,194 @@ class baseObject
 		// THOU. SHALT. NOT. PUT. PHYSICS. IN BASE. baseObject.
 		}
 	}	
+
+
+// old
+// -----------------------------------------------------------------------
+class ship : unit
+	{
+	string name="";
+	bool isControlledByAI=false;
+	bool isOwned=false;
+	player currentOwner;
+	bool isLanded=false; /// on planet
+	bool isDocked=false; /// attached to object
+	gun myGun;
+	turret[] turrets;
+	int numDudesInside; // NYI, we don't need (at least at this point) to keep actual unique dude classes inside. Just delete them and keep track of how many we had. (ala all level-1 blue pikmin are the same)
+	int numDudesInsideMax = 20;
+	
+	/// "constants" 
+	/// They are UPPER_CASE but they're not immutable so inherited classes can override them.
+	/// unless there's some other way to do that.
+	float MAX_LATCHING_SPEED = 3;
+	float MAX_SAFE_LANDING_ANGLE = 45;
+	float ROTATION_SPEED = 5;
+	uint  SHIELD_COOLDOWN = 60; /// frames till it can start recharging
+	float SHIELD_RECHARGE_RATE = 0.5; /// once recharging starts rate of fill
+	int   SHIELD_MAX = 100; /// total shield health
+	float SPEED = 0.1f;
+	
+//	int gunCooldown = 0;
+	float shieldHP = 0;
+	int shieldCooldown = 60;
+	//we could also have a shield break animation of the bubble popping
+		
+	bool requestBoarding(dude d)
+		{
+		// we send dude type just in case there's multiple classes or something.
+		if(numDudesInside < numDudesInsideMax)
+			{
+			numDudesInside++;
+			return true;
+			}else{
+			return false; // we full
+			}
+		}
+	
+	this(float _x, float _y, float _xv, float _yv)
+		{
+		myGun = new minigun(this);
+		super(1, _x, _y, _xv, _yv, ship_bmp);
+		}
+
+	override bool draw(viewport v)
+		{ //todo include bitmap width/height in this scenario (a helper function may already exist)
+		float cx = pos.x + v.x - v.ox;
+		float cy = pos.y + v.y - v.oy;
+		if(cx < 0 || cx > SCREEN_W || cy < 0 || cy > SCREEN_H)return false; //built-in clipping
+		//drawShield(pair(x, y), v, bmp.w, 5, COLOR(0,0,1,1), shieldHP/SHIELD_MAX);
+		super.draw(v);
+		
+		foreach(t; turrets){t.draw(v); g.stats.numberUnits.drawn++; }
+		
+		if(name != "")
+			{
+			if(numDudesInside == 0)
+				drawTextCenter(cx, cy - bmp.w, white, "%s", name);
+			else
+				drawTextCenter(cx, cy - bmp.w, white, "%s [+%d]", name, numDudesInside);
+					
+			// using bmp.w because it's larger in non-rotated sprites
+			}
+		
+		return true;
+		}
+		
+	void crash()
+		{
+		pos += vel;
+		//pos.x += -vel.x; // NOTE we apply reverse full velocity once 
+		//pos.y += -vel.y; // to 'undo' the last tick and unstick us, then set the new heading
+		vel.x *= -.80;
+		vel.y *= -.80;
+		}
+		
+	bool checkUnitCollision(unit u)
+		{
+//		writefln("[%f,%f] vs u.[%f,%f]", x, y, u.x, u.y);
+		if(pos.x - 10 < u.pos.x)
+		if(pos.x + 10 > u.pos.x)
+		if(pos.y - 10 < u.pos.y)
+		if(pos.y + 10 > u.pos.y)
+			{
+//		writeln("[bullet] Death by unit contact.");
+			return true;
+			}		
+		return false;
+		}
+		
+	void doShield()
+		{
+		if(shieldCooldown > 0)
+			{
+			shieldCooldown--; 
+			return;
+			}else{
+			if(shieldHP < SHIELD_MAX)shieldHP += SHIELD_RECHARGE_RATE;
+			if(shieldHP > SHIELD_MAX)shieldHP = SHIELD_MAX;
+			}
+		}
+		
+	void runAI()
+		{
+		// Mode: attack
+		// we can add randomness (on spawn) to certain parameters to make it more 'human' / imperfect
+		// Overshooting (detect turn left, but then we keep turning left until we get a stop turning
+		// or turn right command, then we reduce the tickrate of the AI)
+		// - could implement some sort of PID controller
+		//		desired_pos(player)		-- set point (SP)
+		//		this:
+		//			current_pos			-- 
+		//			current_vel
+		//			current_angle
+		// 
+		// at the very least, a PID of "distance to target" plus our velocity equation
+		//	https://en.wikipedia.org/wiki/PID_controller
+		//
+		//	P proportional error vs desired
+		//	D derivative, for dampening overshoot
+		//  I integral (not needed?) for removing residuals
+		// 
+		// ALSO, ships currently have LINEAR velocity. Do we want SQUARED so they can't speed up as fast?
+		//	K.E. = 1/2mv^^2
+		/+
+			ALSO (not necessarily needed) but look up PID velocity and position control
+				because if we're taking an integral or derivative of position (or velocity)...
+				we're already using those terms and may plug them in. (del pos/time = velocity right?)
+			
+			we might use a more advanced version for getting AI ships to land on planets carefully (desired end velocity=0)
+		+/
+	
+		immutable float MAX_AI_SPEED = 2;		// jet till we hit max speed
+		immutable float BOOST_DISTANCE = 100; 	// jet until we close distance (what about manuevering for close combat vs closing the distance?)
+		immutable float ENGAGE_DISTANCE = 400;
+		immutable float SHOT_PERCENT = 25;		// 1/60th frame rate, 25% = ~15 shots / second max (not including cooldown) 
+		immutable float SHOT_ANGLE_RANGE = 30;  // NYI, don't shoot unless we're SOMEWHAT close to being able to hit (don't shoot backwards). Unless we want to look stupid sometimes. Add a percentage chance for that based on AI_STUPIDITY.
+		
+		unit target = g.world.units[0];
+		float a = angleTo(target, this);
+		// FIXME: WARNING. This will cap max speed... even if we're going max speed opposite direction!
+		if(distanceTo(target, this) > BOOST_DISTANCE /*&& distance(vx, vy) < MAX_AI_SPEED*/){actionUp();}
+		if(distanceTo(target, this) < ENGAGE_DISTANCE && percent(SHOT_PERCENT)){actionFire();}		
+		if(isLanded)actionUp();
+		if(angle > a)actionLeft();
+		if(angle < a)actionRight();
+		}
+
+	override void onTick()
+		{
+		/// Subunit logic
+		myGun.onTick();
+		doShield();
+		foreach(t; turrets)t.onTick();
+		if(isControlledByAI)runAI();
+			
+		pos += vel;
+		}
+
+	void spawnSmoke()
+		{
+		float cvx = cos(angle)*0;
+		float cvy = sin(angle)*0;
+		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100, this);
+		}
+
+	override void actionUp()
+		{		
+		}
+		
+	override void actionDown() 
+		{ 	
+		if(!isLanded)applyV(angle, -.1); 
+		}
+		
+	override void actionLeft() { if(!isLanded){angle -= degToRad(ROTATION_SPEED); angle = wrapRad(angle);}}
+	override void actionRight() { if(!isLanded){angle += degToRad(ROTATION_SPEED); angle = wrapRad(angle);}}
+
+	override void actionFire()
+		{
+		if(!isLanded)myGun.actionFire();
+		}
+	}
+	

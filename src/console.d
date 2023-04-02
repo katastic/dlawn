@@ -235,7 +235,6 @@ void testLogger()
 
 	we could do capital XYZ but that's confusing too probably.
 
-
 	xyz		pixels
 	rst		relative pixels (width, height, for example)
 	ijk		array

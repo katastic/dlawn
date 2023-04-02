@@ -142,17 +142,16 @@ class bullet : baseObject
 		//	writeln("---FRAME---");
 			foreach(u; g.world.units) // NOTE: this is only scanning units not SUBARRAYS containing turrets
 				{
-
 				if(u != myOwner)
 					{
-					auto t = cast(attachedTurret)myOwner; //if we're from a turret, check against our turrets owner
+/+					auto t = cast(attachedTurret)myOwner; //if we're from a turret, check against our turrets owner
 					if(t !is null && u == t.myOwner)
 						{
 						writefln("1 collision with %s", u);
 //						writefln("[%s] found. I am a: [%s] owned by a [%s] -- TURRET", u, t, t.myOwner);
 						continue; //we cannot hit our own unit (a ship, or a turret), or, if our spawner is a turret, we cannot hit the turrets owner (a ship/freighter)
 						}
-						
+	+/					
 					if(checkUnitCollision(u))
 						{
 						writefln("3 collision with %s", u);
