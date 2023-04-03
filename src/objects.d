@@ -189,7 +189,7 @@ class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 			
 			foreach(o; g.world.objects)
 				{
-				if(IsInsideRadius(pos, o.pos, 10)){onObjectCollision(); break;}
+				if(IsInsideRadius(pos, o.pos, 20)){onObjectCollision(); break;}
 				}
 				
 			if(!g.world.map.isValidMovement(pos))onMapCollision();
@@ -208,27 +208,31 @@ class meteor : baseObject
 		float cvy = sin(angle)*0;
 		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100);
 		}
+		
+	void respawn()
+		{
+		import std.random : uniform;
+		pos.x = uniform(0, g.world.map.data.w-20);
+		pos.y = 0;
+		vel.x = uniform(-3, 3);
+		}
 
 	void onObjectCollision()
 		{
 			{
-			con.log("onObjectCollision at");
+//			isDead = true;
+			con.log("onObjectCollision at %s".format(pos));
 			spawnSmoke();
-			import std.random : uniform;
-			pos.x = uniform(0, g.world.map.data.w-20);
-			pos.y = 0;
-			vel.x = uniform(-3, 3);
+			respawn();
 			}
 		}
 
 	void onMapCollision()
 		{
 			{
+			//isDead = true;
 			spawnSmoke();
-			import std.random : uniform;
-			pos.x = uniform(0, g.world.map.data.w-20);
-			pos.y = 0;
-			vel.x = uniform(-3, 3);
+			respawn();
 			}
 		}
 		
@@ -306,6 +310,21 @@ class wall2dStyle  // how do we integrate any flags with object code?
 		with(myObject)
 		with(g.world.map) // isValidMovement
 			{
+			if(!isValidMovement(pair(pos, -1, 0))) // If blocked above
+				{
+				vel.x = 0;
+				}
+			if(!isValidMovement(pair(pos, 1, 0))) // If blocked above
+				{
+				vel.x = 0;
+				}
+
+			if(!isValidMovement(pair(pos, 0, -1))) // If blocked above
+				{
+				if(vel.y < 0)vel.y = 0;
+				pos.y++;
+				}
+
 			if(isValidMovement(pair(pos, 0, 1))) // If clear below, apply gravity
 				{
 				isFalling = true;
@@ -326,14 +345,11 @@ class wall2dStyle  // how do we integrate any flags with object code?
 			}
 		}
 
-	void actionUp(){}
-	void actionDown(){}
+	void actionUp(){with(myObject)if(!isFalling)vel.y = -3;}
+	void actionDown(){with(myObject)if(!isFalling)vel.x = -0;}
 	void actionLeft() {with(myObject)if(!isFalling)vel.x = -4f;}
 	void actionRight(){with(myObject)if(!isFalling)vel.x = 4f;}
 	}
-
-
-
 
 // method 1
 // ------------------------------------------------------------------------
