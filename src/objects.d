@@ -172,6 +172,7 @@ class movementStyle
 	
 class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 	{
+	bool isColliding=true; // does it collide with objects  NYI
 	T myObject;
 	this(T d)
 		{
@@ -185,8 +186,14 @@ class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 			//writeln(*pos, " ", *vel);
 			pos += vel;
 //			writeln("Meteor: ", pos, " ", vel);
+			
+			foreach(o; g.world.objects)
+				{
+				if(IsInsideRadius(pos, o.pos, 10)){onObjectCollision(); break;}
+				}
+				
+			if(!g.world.map.isValidMovement(pos))onMapCollision();
 
-			onCollision();
 			}
 		}
 	}
@@ -202,9 +209,20 @@ class meteor : baseObject
 		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100);
 		}
 
-	void onCollision()
+	void onObjectCollision()
 		{
-		if(!g.world.map.isValidMovement(pos)) 
+			{
+			con.log("onObjectCollision at");
+			spawnSmoke();
+			import std.random : uniform;
+			pos.x = uniform(0, g.world.map.data.w-20);
+			pos.y = 0;
+			vel.x = uniform(-3, 3);
+			}
+		}
+
+	void onMapCollision()
+		{
 			{
 			spawnSmoke();
 			import std.random : uniform;

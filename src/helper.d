@@ -166,6 +166,22 @@ bool isWideInsideScreen(float x, float y, ALLEGRO_BITMAP* b, viewport v)
 		{return true;} else{ return false;} //fixme
 	}
 
+bool IsInsideRadius(pair p, pair q, int radius) 
+	{
+	import std.math : sqrt;
+	
+	if(sqrt((q.x - p.x)^^2 + (q.y - p.y)^^2) < radius)
+		{
+		return true;
+		}else return false;
+		
+//	if(x >= -b.w/2 && x - b.w/2 < v.w && y - b.h/2 >= -b.w/2 && y < v.h)
+	//	{return true;} else{ return false;} //fixme
+	}
+
+
+
+
 /*
 //inline this? or template...
 void draw_target_dot(pair xy)

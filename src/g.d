@@ -278,7 +278,7 @@ class world_t
 		//objects ~= new lawnMower(pair(800, 400));
 		structures ~= new structure(700, 400, fountain_bmp);
 		
-		testGraph = new intrinsicGraph!float("Draw (ms)", g.stats.nsDraw, 100, 200, COLOR(1,0,0,1), 1_000_000);
+		testGraph  = new intrinsicGraph!float("Draw (ms) ", g.stats.nsDraw , 100, 200, COLOR(1,0,0,1), 1_000_000);
 		testGraph2 = new intrinsicGraph!float("Logic (ms)", g.stats.msLogic, 100, 320, COLOR(1,0,0,1), 1_000_000);
 		
 		import std.random : uniform;
@@ -288,8 +288,7 @@ class world_t
 		assert(objects[0] !is null);
 		viewports[0].attach(&objects[0]);
 		setViewport2(viewports[0]);
-		
-	
+
 		stats.swLogic = StopWatch(AutoStart.no);
 		stats.swDraw = StopWatch(AutoStart.no);
 		
@@ -369,33 +368,28 @@ class world_t
 		testGraph.onTick();
 		testGraph2.onTick();
 		
-//		ship p = cast(ship)units[1]; // player
-//		p.isPlayerControlled = true;
-		
 		viewports[0].onTick();
 		players[0].onTick();
-//		viewports[0].ox = p.x - viewports[0].w/2;
-	//	viewports[0].oy = p.y - viewports[0].h/2;
 		
 		timer++;
 		if(timer > 200)
 			{
 			}
-		if(key_w_down)viewports[0].oy += 2;
-		if(key_s_down)viewports[0].oy -= 2;
-		if(key_a_down)viewports[0].ox -= 2;
-		if(key_d_down)viewports[0].ox += 2;
 /+
 		if(key_space_down)players[0].currentShip.actionFire();
 		if(key_q_down)players[0].findNextShip();
 +/		
 		auto p = objects[0];
-		if(key_i_down)p.actionUp();
-		if(key_k_down)p.actionDown();
-		if(key_j_down)p.actionLeft();
-		if(key_l_down)p.actionRight();
-	//	if(key_m_down)p2.actionFire();
-
+		if(key_w_down)p.actionUp();
+		if(key_s_down)p.actionDown();
+		if(key_a_down)p.actionLeft();
+		if(key_d_down)p.actionRight();
+/+
+		if(key_i_down)viewports[0].oy += 2;
+		if(key_k_down)viewports[0].oy -= 2;
+		if(key_j_down)viewports[0].ox -= 2;
+		if(key_l_down)viewports[0].ox += 2;
++/
 		tick(particles);
 		tick(bullets);
 		tick(units);

@@ -46,9 +46,7 @@ import helper;
 import objects;
 import viewportsmod;
 import molto;
-static import g;
-import g : queue, al_display, fps_timer, screencap_timer, statValue;
-
+import g;
 display_t display;
 
 //=============================================================================
@@ -295,12 +293,18 @@ struct display_t
 			{
 			}
 */			
+		
 		al_draw_textf(
-			g.font1, 
+			font1, 
 			ALLEGRO_COLOR(0, 0, 0, 1), 
-			g.mouse_x, 
-			g.mouse_y - 30, 
-			ALLEGRO_ALIGN_CENTER, "mouse [%d, %d]", g.mouse_x, g.mouse_y);
+			mouse_x, 
+			mouse_y - 30, 
+			ALLEGRO_ALIGN_CENTER, "mouse [%d, %d][%.2f, %.2f]", 
+				mouse_x, 
+				mouse_y, 
+				mouse_x + viewports[0].ox, 
+				mouse_y + viewports[0].oy);
+		
 		}
 	}
 
