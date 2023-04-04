@@ -5,3 +5,5 @@ trace.log
 profilegc.log
 callgrind.out.*
 allegro.log
+game.log
+main.o
