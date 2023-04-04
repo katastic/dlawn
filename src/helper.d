@@ -179,9 +179,6 @@ bool IsInsideRadius(pair p, pair q, int radius)
 	//	{return true;} else{ return false;} //fixme
 	}
 
-
-
-
 /*
 //inline this? or template...
 void draw_target_dot(pair xy)

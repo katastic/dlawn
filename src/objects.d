@@ -26,20 +26,6 @@ import bulletsmod;
 float STAT_ACCEL = .1;
 float STAT_ROTSPEED = degToRad(10);
 
-// there may be an existing API for this
-bool isAlmost(float val, float equals, float fudge=.01)
-	{
-	if( val > equals - fudge &&
-		val < equals + fudge) return true; else return false;
-	}
-
-bool isZero(float val, float fudge=.01)
-	{
-	return isAlmost(val, 0, fudge);
-	}
-
-enum DIR { UP, DOWN, LEFT, RIGHT, UPLEFT, UPRIGHT, DOWNRIGHT, DOWNLEFT, NONE=0};
-
 /+
 	stuff
 	
@@ -234,7 +220,7 @@ class meteor : baseObject
 		float cvx = cos(angle)*0;
 		float cvy = sin(angle)*0;
 		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100);
-		}
+665		}
 		
 	void respawn()
 		{
@@ -396,14 +382,15 @@ class wall2dStyle  // how do we integrate any flags with object code?
 		}
 
 	void actionUp()
+		{
+		with(myObject)
+		if(!isFalling)
 			{
-			with(myObject)
-			if(!isFalling)
-				{
-				vel.y = -3;
-				if(facingRight)vel.x = 4f; else vel.x = -4f;
-				}
+			vel.y = -3;
+			if(facingRight)vel.x = 4f; else vel.x = -4f;
 			}
+		}
+			
 	void actionDown(){with(myObject)if(!isFalling)vel.x = -0;}
 	void actionLeft() {with(myObject)if(!isFalling)vel.x = -4f;}
 	void actionRight(){with(myObject)if(!isFalling)vel.x = 4f;}
@@ -676,7 +663,6 @@ class baseObject
 		// THOU. SHALT. NOT. PUT. PHYSICS. IN BASE. baseObject.
 		}
 	}	
-
 
 // old
 // -----------------------------------------------------------------------

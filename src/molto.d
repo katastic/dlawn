@@ -938,8 +938,7 @@ void al_draw_gouraud_bitmap_5pt(ALLEGRO_BITMAP* bmp, float x, float y, COLOR tl,
 
 	al_draw_prim(cast(void*)vtx, null, bmp, 0, vtx.length, ALLEGRO_PRIM_TYPE.ALLEGRO_PRIM_TRIANGLE_FAN);
 	}
-	
-	
+		
 /// al_draw_line_segment for pairs
 void al_draw_line_segment(pair[] pairs, COLOR color, float thickness)
 	{

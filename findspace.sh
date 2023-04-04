@@ -9,5 +9,5 @@ pcregrep -nM '\n\n\n' ./src/*.d
 echo
 echo "Searching for closing curley brackets with extra space after them"
 echo "--------------------------------------------------------------------------"
-pcregrep -nM '}\n\n.*}' ./src/*.d
+pcregrep -nM '}\s*\n\s*\n\s*\n' ./src/*.d
 echo

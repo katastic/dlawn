@@ -130,6 +130,20 @@ void loadResources()
 world_t world;
 viewport[2] viewports;
 
+// there may be an existing API for this
+bool isAlmost(float val, float equals, float fudge=.01)
+	{
+	if( val > equals - fudge &&
+		val < equals + fudge) return true; else return false;
+	}
+
+bool isZero(float val, float fudge=.01)
+	{
+	return isAlmost(val, 0, fudge);
+	}
+
+enum DIR { UP, DOWN, LEFT, RIGHT, UPLEFT, UPRIGHT, DOWNRIGHT, DOWNLEFT, NONE=0};
+
 /// Draw a shield! ring
 void drawShield(pair pos, viewport v, float radius, float thickness, COLOR c, float shieldCoefficent)
 	{

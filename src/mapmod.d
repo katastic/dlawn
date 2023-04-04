@@ -380,5 +380,4 @@ class mapBase
 		return true;
 		}
 	}
-	
-	
+
