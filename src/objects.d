@@ -26,6 +26,34 @@ import bulletsmod;
 float STAT_ACCEL = .1;
 float STAT_ROTSPEED = degToRad(10);
 
+// there may be an existing API for this
+bool isAlmost(float val, float equals, float fudge=.01)
+	{
+	if( val > equals - fudge &&
+		val < equals + fudge) return true; else return false;
+	}
+
+bool isZero(float val, float fudge=.01)
+	{
+	return isAlmost(val, 0, fudge);
+	}
+
+enum DIR { UP, DOWN, LEFT, RIGHT, UPLEFT, UPRIGHT, DOWNRIGHT, DOWNLEFT, NONE=0};
+
+/+
+	stuff
+	
+	- sun casts scorching rays
+	- water, rain, snow, ice
+	- trees that burn, boulders (harvest them?), grass (can we animate it?)
+	- land animals/monsters, flying birds. all kinds of animals that start exploding into gibs when the asteroids start hitting.
+	- undergruond monstters
+	
+	- does it start normalish and the armeggedon only starts after a few minutes?
+		[asteroid is coming to earth. first it starts with day tehn heavy monsoon, then fire and asteroids?]
+		
+	- do we support [ropes] somehow for going down, and add fall damage?
++/
 /*
 	Teams
 		0 - Neutral		(asteroids. unclaimed planets?)
@@ -192,8 +220,7 @@ class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 				if(IsInsideRadius(pos, o.pos, 20)){onObjectCollision(); break;}
 				}
 				
-			if(!g.world.map.isValidMovement(pos))onMapCollision();
-
+			if(!g.world.map.isValidMovement(pos))onMapCollision(DIR.DOWN);
 			}
 		}
 	}
@@ -227,7 +254,7 @@ class meteor : baseObject
 			}
 		}
 
-	void onMapCollision()
+	void onMapCollision(DIR hitDirection)
 		{
 			{
 			//isDead = true;
@@ -292,7 +319,8 @@ class meteor : baseObject
 class wall2dStyle  // how do we integrate any flags with object code?
 	{
 	dude myObject;
-
+	bool keepMoving=false;
+	
 	// if we do an alias this=myObject can we get rid of the with() statements internally?
 	alias myObject this;
 	//holy shit it works, however it may  may shred the EXTERNAL API
@@ -307,22 +335,26 @@ class wall2dStyle  // how do we integrate any flags with object code?
 
 	void onTick()
 		{
+		DIR isAnyCollision = DIR.NONE;
 		with(myObject)
 		with(g.world.map) // isValidMovement
 			{
 			if(!isValidMovement(pair(pos, -1, 0))) // If blocked above
 				{
 				vel.x = 0;
+				isAnyCollision = DIR.UP; // we might want to call "the right one" after we're completely done.
 				}
-			if(!isValidMovement(pair(pos, 1, 0))) // If blocked above
+			if(!isValidMovement(pair(pos, 1, 0))) // If blocked below
 				{
 				vel.x = 0;
+				isAnyCollision = DIR.DOWN;
 				}
 
 			if(!isValidMovement(pair(pos, 0, -1))) // If blocked above
 				{
 				if(vel.y < 0)vel.y = 0;
 				pos.y++;
+				isAnyCollision = DIR.UP;
 				}
 
 			if(isValidMovement(pair(pos, 0, 1))) // If clear below, apply gravity
@@ -331,6 +363,7 @@ class wall2dStyle  // how do we integrate any flags with object code?
 				vel.y += .1; // Apply gravity
 				}else{
 				isFalling = false;
+				isAnyCollision = DIR.DOWN;
 				}
 
 			if(isValidMovement(pair(pos, vel.x, vel.y))) // If we can move, move.
@@ -342,10 +375,35 @@ class wall2dStyle  // how do we integrate any flags with object code?
 				vel.y = 0;
 				pos.y--; // warn: we shouldn't be moving us if we're touching the outside of the screen.
 				}
+
+			if(!isValidMovement(pair(pos, vel.x, 0)))
+				{
+//				con.log("ahhhh");
+				if(vel.x < 0)isAnyCollision = DIR.LEFT;
+				if(vel.x > 0)isAnyCollision = DIR.RIGHT;
+				}
+			
+			if(isAnyCollision != DIR.NONE)
+				{
+				mapCollision(isAnyCollision);
+				}
+			}
+			
+		if(keepMoving)
+			{
+			if(facingRight)vel.x = 2f; else vel.x = -2f;
 			}
 		}
 
-	void actionUp(){with(myObject)if(!isFalling)vel.y = -3;}
+	void actionUp()
+			{
+			with(myObject)
+			if(!isFalling)
+				{
+				vel.y = -3;
+				if(facingRight)vel.x = 4f; else vel.x = -4f;
+				}
+			}
 	void actionDown(){with(myObject)if(!isFalling)vel.x = -0;}
 	void actionLeft() {with(myObject)if(!isFalling)vel.x = -4f;}
 	void actionRight(){with(myObject)if(!isFalling)vel.x = 4f;}
@@ -430,6 +488,35 @@ class eventFSM
 		}
 	}
 
+class cow : dude
+	{
+	this(pair _pos)
+		{
+		super(_pos);
+		bmp = bmp_cow;
+		facesVelocity = true;
+		vel.x = 2f;
+		moveStyle.keepMoving = true;
+		}
+		
+	override void mapCollision(DIR hitDirection)
+		{
+		if(hitDirection == DIR.LEFT)
+			{
+			con.log("AI switching right");
+			vel.x = 2f;
+			facingRight = true;
+			}
+
+		if(hitDirection == DIR.RIGHT)
+			{
+			con.log("AI switching left");
+			vel.x = -2f;
+			facingRight = false;
+			}
+		}
+	}
+
 class dude : baseObject
 	{
 	wall2dStyle moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
@@ -437,6 +524,8 @@ class dude : baseObject
 	bool isFalling = true;
 	bool isGrounded = false;
 	bool isJumping = false;
+	bool facingRight = false;
+	bool facesVelocity = false; /// do we automatically flip the bitmap to face the velocity direction?
 	
 	this(pair _pos)
 		{			
@@ -444,11 +533,8 @@ class dude : baseObject
 		super(_pos, pair(0, 0), g.dude_bmp);
 		}
 
-	void spawnSmoke()
+	void mapCollision(DIR hitDirection)
 		{
-		float cvx = cos(angle)*0;
-		float cvy = sin(angle)*0;
-		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100);
 		}
 
 	// originally a copy of structure.draw
@@ -461,19 +547,30 @@ class dude : baseObject
 //		if(cx < 0 || cx > SCREEN_W || cy < 0 || cy > SCREEN_H)return false;
 
 		al_draw_filled_circle(cx, cy, 20, COLOR(0,1,0,.5));
-		al_draw_center_rotated_bitmap(bmp, cx, cy, 0, 0);
+		al_draw_center_rotated_bitmap(bmp, cx, cy, 0, !facingRight);
 		return true;
 		}
 	
 	override void actionUp(){moveStyle.actionUp();}/+		if(isJumping == false){isJumping = true;vel.y = -5;}+/
 	override void actionDown(){moveStyle.actionDown();}
-	override void actionLeft(){moveStyle.actionLeft();} //{if(!isJumping && isGrounded)vel.x = -1;}
-	override void actionRight(){moveStyle.actionRight();} //{if(!isJumping && isGrounded)vel.x = 1;}
+	override void actionLeft(){moveStyle.actionLeft(); facingRight = false;} //{if(!isJumping && isGrounded)vel.x = -1;}
+	override void actionRight(){moveStyle.actionRight(); facingRight = true;} //{if(!isJumping && isGrounded)vel.x = 1;}
+	
+	void spawnSmoke(float offsetx, float offsety)
+		{
+		float cvx = cos(angle)*0;
+		float cvy = sin(angle)*0;
+		g.world.particles ~= particle(pos.x + offsetx, pos.y + offsety, vel.x + cvx, vel.y + cvy, 0, 100);
+		}
 	
 	override void onTick()
 		{
 		moveStyle.onTick();
-		spawnSmoke();
+		if(facesVelocity)
+			{
+			facingRight = (vel.x > 0) ? true : false;
+			}
+		if(isGrounded)spawnSmoke(0, bmp.w/4);
 		/+
 		import std.format;
 		isDebugging = true;

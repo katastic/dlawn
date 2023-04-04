@@ -76,6 +76,8 @@ BITMAP* carrot_bmp;
 BITMAP* potion_bmp;
 BITMAP* blood_bmp;
 
+BITMAP* bmp_cow; // switching order for easier IDE searching. todo convert others other.
+
 int SCREEN_W = 1360;
 int SCREEN_H = 700;
 
@@ -121,6 +123,8 @@ void loadResources()
 	tree_bmp  		= getBitmap("./data/tree.png");
 	blood_bmp  		= getBitmap("./data/blood.png");
 	reinforced_wall_bmp  	= getBitmap("./data/reinforced_wall.png");	
+
+	bmp_cow  	= getBitmap("./data/cow.png");	
 	}
 
 world_t world;
@@ -271,7 +275,10 @@ class world_t
 
 		map = new pixelMap(idimen(4096, 4096));
 		
-		objects ~= new dude(pair(600, 400));
+		objects ~= new dude(pair(750, 400));
+		objects ~= new cow(pair(900, 400));
+		objects ~= new cow(pair(1200, 400));
+		objects ~= new cow(pair(1400, 400));
 
 		con.log("ello love 2302");
 
