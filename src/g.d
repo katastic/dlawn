@@ -290,6 +290,7 @@ class world_t
 		map = new pixelMap(idimen(4096, 4096));
 		
 		objects ~= new dude(pair(750, 400));
+		objects[0].isDebugging = true;
 		objects ~= new cow(pair(900, 400));
 		objects ~= new cow(pair(1200, 400));
 		objects ~= new cow(pair(1400, 400));

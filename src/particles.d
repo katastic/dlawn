@@ -10,7 +10,6 @@ import molto;
 import viewportsmod;
 import objects;
 import helper;
-import planetsmod;
 
 import std.stdio;
 import std.math;
@@ -25,6 +24,7 @@ struct particle
 	int maxLifetime=0;
 	int rotation=0;
 	bool isDead=false;
+	bitmap* bmp;
 
 	//particle(x, y, vx, vy, 0, 5);
 	/// spawn smoke without additional unit u
@@ -39,8 +39,24 @@ struct particle
 		lifetime = _lifetime;
 		maxLifetime = _lifetime;
 		rotation = uniform!"[]"(0, 3);
+		bmp = g.smoke_bmp;
 		}
 	
+	this(float _x, float _y, float _vx, float _vy, int _type, int  _lifetime, bitmap* _bmp)
+		{
+		import std.math : cos, sin;
+		x = _x;
+		y = _y;
+		vx = _vx + uniform!"[]"(-.1, .1);
+		vy = _vy + uniform!"[]"(-.1, .1);
+		type = _type;
+		lifetime = _lifetime;
+		maxLifetime = _lifetime;
+		rotation = uniform!"[]"(0, 3);
+		bmp = _bmp;
+		}
+
+	// do we need this? why do we also specify _vx, and _vy then???
 	/// spawn smoke with acceleration from unit u
 	this(float _x, float _y, float _vx, float _vy, int _type, int  _lifetime, unit u)
 		{
@@ -81,7 +97,7 @@ struct particle
 		return false;
 		}
 	
-	void onTick() // should we check for planets collision?
+	void onTick() 
 		{
 		if(!g.world.map.isValidMovement(pair(x + vx, y + vy)))
 			{

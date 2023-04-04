@@ -515,7 +515,7 @@ void execute()
 
 void shutdown() 
 	{
-		
+	con.compress();
 	}
 	
 void runAllegroTest()

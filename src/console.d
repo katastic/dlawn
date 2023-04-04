@@ -6,6 +6,59 @@ import molto;
 import std.format;
 import std.stdio;
 import std.file;
+/+
+	support maximumLogLength.		[how do we implement rolling buffer then?]
+	or maximumFileSize
+			- easy case, just use a D array of lines [strings]
+			- should apply only to file output, right? That's meaningless for console output right?
+			
+	- support zipping the output. we could use TERMINAL commands instead of doing it ourselves!
+		- p7zip
+		
+		7zr a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on game.log.7z game.log 
+	
+	- support a virtual console that can be viewed/scrolling (and colored?) ingame.
+		- we could even detect POSIX ANSII color codes in the text stream, and make our own rich-text parser 
+		so you can still modify pygmentize/alternative highlighters, and use the same ones.
+
+
+
+	there are tons of text compression algorithms as well, but we don't need to go overboard. just a fun reference:
+	http://www.mattmahoney.net/dc/text.html
+		10.85% 
+	
+	http://compressionratings.com/sort.cgi?txt2.full+6ne_old hutter prize (linked from previous link)
+		18.9% wikipedia ratio
++/
+
+
+struct rect
+	{
+	float x,y,w,h; //alternative, a pair and dim, and/or write applicable conversion functions
+	// rect is WAY easier than a pair+dim or some tuple strangeness.
+	}
+
+class dialogConsole
+	{
+	rect dims;
+	size_t scrollIndex; // in pixels? in lines?
+	size_t bufferLength; // TODO: get this from log.
+	alias dims this;
+	logger log; /// reference to our current logger
+
+	float scrollBarWidth=30; // should this be its own dialog element?
+	// dialogScrollbar scrollbar;
+	uint columnsHeight=32; // how many vertical columns can we see 
+	
+	void actionScrollUp(){clampLow(--scrollIndex, 0); }
+	void actionScrollDown(){clampHigh(++scrollIndex, bufferLength); }
+	void actionScrollPageUp(){scrollIndex -= columnsHeight; clampLow(scrollIndex, 0); } // we can move less than a full page. like 2/3rd.
+	void actionScrollPageDown(){scrollIndex += columnsHeight; clampHigh(scrollIndex, bufferLength);}
+	
+	// do we need any other controls? left/right/action/etc
+	}
+
+
 /// DEBUGGER CHANNEL STUFF
 /// - Can any object send to a variety of "channels"?
 /// so we only get data from objects marked isDebugging=true,
@@ -114,6 +167,28 @@ interface prettyPrinter
 +/
 class logger
 	{
+	size_t maxFileSize=1;	
+	bool deleteLogAfterCompression=false;
+	
+	void compress()
+		{
+		// we could either dump to virtual memory, or,
+		import std.process : spawnProcess, spawnShell, wait;
+	
+		writeln("Compressing logfile");
+		string filename = "game.log";
+		auto pid = spawnShell(format(`7zr a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on %s %s`, filename~".7z", filename));
+		if (wait(pid) != 0)
+			writeln("Compilation failed.");
+
+		if(deleteLogAfterCompression)
+			{
+			auto pid2 = spawnShell(format(`rm %s`, filename));
+			if (wait(pid2) != 0)
+				writeln("Compilation failed.");
+			}
+		}
+		
 	// possible output format:
 	//  [0.0000000ms][frame#][category] - "Text"
 
@@ -139,7 +214,7 @@ class logger
 	string[] data;
 	string logFilePath;
 	File logFile;
-	import std.file;
+
 	this(){
 		printer = new pygmentize();
 		logFilePath = "game.log";
@@ -147,6 +222,7 @@ class logger
 		
 		currentFrameptr = &g.stats.totalFramesPassed;
 		}
+
 	~this()
 		{
 		logFile.close();

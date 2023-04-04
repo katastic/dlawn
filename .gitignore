@@ -6,4 +6,5 @@ profilegc.log
 callgrind.out.*
 allegro.log
 game.log
+game.log.7z
 main.o

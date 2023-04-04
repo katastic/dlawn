@@ -220,7 +220,7 @@ class meteor : baseObject
 		float cvx = cos(angle)*0;
 		float cvy = sin(angle)*0;
 		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100);
-665		}
+		}
 		
 	void respawn()
 		{
@@ -309,7 +309,7 @@ class wall2dStyle  // how do we integrate any flags with object code?
 	
 	// if we do an alias this=myObject can we get rid of the with() statements internally?
 	alias myObject this;
-	//holy shit it works, however it may  may shred the EXTERNAL API
+	//holy shit it works, however it may may shred the EXTERNAL API
 	// since anyone accessing us can then... access themself... again...
 
 	// https://forum.dlang.org/thread/emixkjutxnnrplaziwkj@forum.dlang.org
@@ -325,24 +325,45 @@ class wall2dStyle  // how do we integrate any flags with object code?
 		with(myObject)
 		with(g.world.map) // isValidMovement
 			{
-			if(!isValidMovement(pair(pos, -1, 0))) // If blocked above
+			// Horizontal tests
+			// --------------------------------------------------------------
+			if(!isValidMovement(pair(pos, -1, 0)))  //if we can't move left
 				{
-				vel.x = 0;
-				isAnyCollision = DIR.UP; // we might want to call "the right one" after we're completely done.
-				}
-			if(!isValidMovement(pair(pos, 1, 0))) // If blocked below
-				{
-				vel.x = 0;
-				isAnyCollision = DIR.DOWN;
+				con.log("1");
+				if(isValidMovement(pair(pos, -1, -1))) // what about if we move up one pixel?
+					{
+					con.log("2");
+//					pos.y--;  WHY does this make us freeze?!?!
+					}else{
+					con.log("3");
+					vel.x = 0;
+					isAnyCollision = DIR.LEFT; // we might want to call "the right one" after we're completely done.
+					}
 				}
 
+			if(!isValidMovement(pair(pos, 1, 0))) //if we can't move right
+				{
+				con.log("4");
+				if(isValidMovement(pair(pos, 1, -1))) // what about if we move up one pixel?
+					{
+					con.log("5");
+//					pos.y--;  WHY does this make us freeze?!?!
+					}else{
+					con.log("6");
+					vel.x = 0;
+					isAnyCollision = DIR.RIGHT; 
+					}
+				}
+
+			// other tests
+			// --------------------------------------------------------------
 			if(!isValidMovement(pair(pos, 0, -1))) // If blocked above
 				{
 				if(vel.y < 0)vel.y = 0;
 				pos.y++;
 				isAnyCollision = DIR.UP;
 				}
-
+	
 			if(isValidMovement(pair(pos, 0, 1))) // If clear below, apply gravity
 				{
 				isFalling = true;
@@ -379,6 +400,8 @@ class wall2dStyle  // how do we integrate any flags with object code?
 			{
 			if(facingRight)vel.x = 2f; else vel.x = -2f;
 			}
+		
+		isMoving = (!vel.x.isZero) ? true : false;
 		}
 
 	void actionUp()
@@ -394,85 +417,6 @@ class wall2dStyle  // how do we integrate any flags with object code?
 	void actionDown(){with(myObject)if(!isFalling)vel.x = -0;}
 	void actionLeft() {with(myObject)if(!isFalling)vel.x = -4f;}
 	void actionRight(){with(myObject)if(!isFalling)vel.x = 4f;}
-	}
-
-// method 1
-// ------------------------------------------------------------------------
-class _event
-	{
-	eventFSM owner;
-	this(eventFSM _owner)
-		{
-		owner = _owner;
-		}
-	void enter(){}
-	void trigger(){}
-	void exit(){}
-	}
-
-class _event_switchON : _event
-	{
-	this(eventFSM _owner)
-		{
-		super(_owner);
-		}
-	
-	override void enter(){}
-	override void trigger(){owner.lightBulbOn = true;}
-	override void exit(){}
-	}
-
-class _event_switchOFF : _event
-	{
-	this(eventFSM _owner)
-		{
-		super(_owner);
-		}
-	
-	override void enter(){}
-	override void trigger(){owner.lightBulbOn = false;}
-	override void exit(){}
-	}
-		
-// method 2
-// ------------------------------------------------------------------------
-void switchon(eventFSM owner) // okay but this needs internal logic or its always going to flip.
-	{ // and we've also got a problem, we don't have enter/exit conditions.
-	owner.dg = &switchoff;
-	owner.lightBulbOn = true;
-	}
-
-void switchoff(eventFSM owner) 
-	{
-	owner.lightBulbOn = true;
-	owner.dg = &switchon;
-	}
-	
-class eventFSM
-	{
-	_event ev;
-	void function(eventFSM) dg;
-	bool lightBulbOn=false;
-	
-	this()
-		{
-		auto switchON = new _event_switchON(this);
-		auto switchOFF = new _event_switchOFF(this);
-		dg = &switchon;
-		}
-	
-	void switchTo(_event _next)
-		{
-		ev.exit();
-		ev = _next;
-		ev.enter();
-		}
-		
-	void onTick()
-		{
-		ev.trigger();
-		dg(this);
-		}
 	}
 
 class cow : dude
@@ -508,6 +452,7 @@ class dude : baseObject
 	{
 	wall2dStyle moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
 	
+	bool isMoving = false;
 	bool isFalling = true;
 	bool isGrounded = false;
 	bool isJumping = false;
@@ -557,7 +502,7 @@ class dude : baseObject
 			{
 			facingRight = (vel.x > 0) ? true : false;
 			}
-		if(isGrounded)spawnSmoke(0, bmp.w/4);
+		if(isGrounded && isMoving)spawnSmoke(0, bmp.w/4);
 		/+
 		import std.format;
 		isDebugging = true;
@@ -853,3 +798,83 @@ class ship : unit
 		}
 	}
 	
+
+
+// method 1
+// ------------------------------------------------------------------------
+class _event
+	{
+	eventFSM owner;
+	this(eventFSM _owner)
+		{
+		owner = _owner;
+		}
+	void enter(){}
+	void trigger(){}
+	void exit(){}
+	}
+
+class _event_switchON : _event
+	{
+	this(eventFSM _owner)
+		{
+		super(_owner);
+		}
+	
+	override void enter(){}
+	override void trigger(){owner.lightBulbOn = true;}
+	override void exit(){}
+	}
+
+class _event_switchOFF : _event
+	{
+	this(eventFSM _owner)
+		{
+		super(_owner);
+		}
+	
+	override void enter(){}
+	override void trigger(){owner.lightBulbOn = false;}
+	override void exit(){}
+	}
+		
+// method 2
+// ------------------------------------------------------------------------
+void switchon(eventFSM owner) // okay but this needs internal logic or its always going to flip.
+	{ // and we've also got a problem, we don't have enter/exit conditions.
+	owner.dg = &switchoff;
+	owner.lightBulbOn = true;
+	}
+
+void switchoff(eventFSM owner) 
+	{
+	owner.lightBulbOn = true;
+	owner.dg = &switchon;
+	}
+	
+class eventFSM
+	{
+	_event ev;
+	void function(eventFSM) dg;
+	bool lightBulbOn=false;
+	
+	this()
+		{
+		auto switchON = new _event_switchON(this);
+		auto switchOFF = new _event_switchOFF(this);
+		dg = &switchon;
+		}
+	
+	void switchTo(_event _next)
+		{
+		ev.exit();
+		ev = _next;
+		ev.enter();
+		}
+		
+	void onTick()
+		{
+		ev.trigger();
+		dg(this);
+		}
+	}

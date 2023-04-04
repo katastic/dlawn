@@ -63,7 +63,7 @@ class viewport
 		
 	void onTick()
 		{
-		import std.stdio;
+//		import std.stdio : writeln;
 		if(attachedObject is null)isAttached = false;
 		if(isAttached)
 			{
