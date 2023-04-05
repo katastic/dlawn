@@ -77,6 +77,7 @@ BITMAP* potion_bmp;
 BITMAP* blood_bmp;
 
 BITMAP* bmp_cow; // switching order for easier IDE searching. todo convert others other.
+BITMAP* bmp_rain;
 
 int SCREEN_W = 1360;
 int SCREEN_H = 700;
@@ -125,6 +126,7 @@ void loadResources()
 	reinforced_wall_bmp  	= getBitmap("./data/reinforced_wall.png");	
 
 	bmp_cow  	= getBitmap("./data/cow.png");	
+	bmp_rain  	= getBitmap("./data/rain.png");	
 	}
 
 world_t world;
@@ -280,6 +282,8 @@ class world_t
 	bullet[] bullets;
 	meteor[] meteors;
 
+	rainWeatherHandler rain;
+
 	this()
 		{		
 		con = new logger(); // WARN this should technically be initialized/owned outside world?
@@ -412,6 +416,7 @@ class world_t
 		if(key_j_down)viewports[0].ox -= 2;
 		if(key_l_down)viewports[0].ox += 2;
 +/
+		rain.onTick();
 		tick(particles);
 		tick(bullets);
 		tick(units);

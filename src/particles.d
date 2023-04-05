@@ -10,10 +10,27 @@ import molto;
 import viewportsmod;
 import objects;
 import helper;
+import console;
 
 import std.stdio;
 import std.math;
 import std.random;
+
+struct rainWeatherHandler
+	{
+	void onTick()
+		{
+		for(int i = 0; i < 10; i++)
+			{
+			particle p = particle(uniform(0, 1366), 0, 1, 3, 0, 1000, bmp_rain);
+			p.doScaling = false;
+			p.doDieOnHit = true;
+			p.doTinting = false;
+			g.world.particles ~= p;
+//			con.log("etstessteste");
+			}
+		}
+	}
 
 struct particle
 	{
@@ -23,7 +40,10 @@ struct particle
 	int lifetime=0;
 	int maxLifetime=0;
 	int rotation=0;
+	bool doScaling=true;
+	bool doTinting=true;
 	bool isDead=false;
+	bool doDieOnHit=false;
 	bitmap* bmp;
 
 	//particle(x, y, vx, vy, 0, 5);
@@ -78,11 +98,13 @@ struct particle
 	bool draw(viewport v)
 		{
 		BITMAP *b = g.smoke_bmp;
-		ALLEGRO_COLOR c = ALLEGRO_COLOR(1,1,1,cast(float)lifetime/cast(float)maxLifetime);
+		ALLEGRO_COLOR c = color(1,1,1,1);
+		if(doTinting)c = color(1,1,1,cast(float)lifetime/cast(float)maxLifetime);
 		float cx = x + v.x - v.ox;
 		float cy = y + v.y - v.oy;
 		float scaleX = (cast(float)lifetime/cast(float)maxLifetime) * b.w;
 		float scaleY = (cast(float)lifetime/cast(float)maxLifetime) * b.h;
+		if(!doScaling){scaleX = 1; scaleY = 1;}
 
 		if(cx > 0 && cx < SCREEN_W && cy > 0 && cy < SCREEN_H)
 			{
@@ -103,6 +125,7 @@ struct particle
 			{
 			vx=0;
 			vy=0;
+			if(doDieOnHit)isDead=true;
 			}
 		lifetime--;
 		if(lifetime == 0)

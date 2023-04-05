@@ -189,7 +189,6 @@ class pixelMap : mapBase
 	byteMap data;
 	layer[] layers;
 	
-
 	// with large or huge maps, we'll actually have to scroll the minimap itself
 	// also we're doing no object drawing. Could be as simple as a list traversal
 	// with colored circles. Not even sure if this feature is needed so for now
@@ -225,7 +224,12 @@ class pixelMap : mapBase
 		import std.stdio : writeln;
 		if(pos.x < 0 || pos.y < 0)return false;
 		if(pos.x >= data.w || pos.y >= data.h)return false;
-		
+
+		// holy shit this is slow
+	//	color c = al_get_pixel(layers[1].data, cast(int)pos.x, cast(int)pos.y);
+//		if(c.g == 0)
+	
+// if we're using ARRAY DATA:	
 		if(data.get(ipair(pos)) == 0) // kinda ugly, but it is a clear "recast" to int if you know the api
 			{
 //			writeln("0");

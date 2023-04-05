@@ -377,13 +377,15 @@ class wall2dStyle  // how do we integrate any flags with object code?
 				{
 				pos += vel;
 				isGrounded = false;
-				}else{
+				}else{ // if we cannot move at all
 				isGrounded = true;
 				vel.y = 0;
-				pos.y--; // warn: we shouldn't be moving us if we're touching the outside of the screen.
+				// this is where we should check to see if we can move up a pixel. not just blindly move up though.
+				if( vel.x < 0 && isValidMovement(pair(pos, -1, -1)) || 
+					vel.x > 0 && isValidMovement(pair(pos, -1,  1)))pos.y--; 
 				}
 
-			if(!isValidMovement(pair(pos, vel.x, 0)))
+			if(!isValidMovement(pair(pos, vel.x, 0))) /// If we can move horizontally, update facing direction
 				{
 //				con.log("ahhhh");
 				if(vel.x < 0)isAnyCollision = DIR.LEFT;
@@ -434,14 +436,14 @@ class cow : dude
 		{
 		if(hitDirection == DIR.LEFT)
 			{
-			con.log("AI switching right");
+//			con.log("AI switching right");
 			vel.x = 2f;
 			facingRight = true;
 			}
 
 		if(hitDirection == DIR.RIGHT)
 			{
-			con.log("AI switching left");
+//			con.log("AI switching left");
 			vel.x = -2f;
 			facingRight = false;
 			}

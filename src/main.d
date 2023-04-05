@@ -416,8 +416,21 @@ void execute()
 					isKeySet(ALLEGRO_KEY_L, g.key_l_down);
 					isKeySet(ALLEGRO_KEY_Q, g.key_q_down);
 					
-					if(g.key_q_down)handleMouseAt(g.mouse_x, g.mouse_y, g.viewports[0]);
+					if(g.key_q_down)//handleMouseAt(g.mouse_x, g.mouse_y, g.viewports[0]);
+						{
+						viewport v = viewports[0];
+						bitmap* bmp = g.world.map.layers[1].data;
 
+						al_set_target_bitmap(bmp);
+//						al_draw_filled_circle(mouse_x + v.x - v.ox, mouse_y + v.y - v.oy, 50, color(0,0,0,1));
+//						writeln(g.world.objects[0].pos, " ", v.x, " ", v.y, " ", v.ox, " ", v.oy);
+						al_draw_filled_circle(
+							g.world.objects[0].pos.x, 
+							g.world.objects[0].pos.y, 
+							50, color(1,0,0,1));
+						al_reset_target();
+
+						}
 					break;
 					}
 					
@@ -466,6 +479,14 @@ void execute()
 					
 					if(event.mouse.button == 1)
 						{
+						viewport v = viewports[0];
+						bitmap* bmp = g.world.map.layers[1].data;
+						//al_lock_bitmap(bmp, al_get_bitmap_format(bmp), ALLEGRO_LOCK_READONLY);
+						al_set_target_bitmap(bmp);
+//						al_draw_filled_circle(mouse_x + v.x - v.ox, mouse_y + v.y - v.oy, 50, color(0,0,0,1));
+						al_draw_filled_circle(g.world.objects[1].pos.x + v.x - v.ox, g.world.objects[1].pos.y + v.y - v.oy, 50, color(0,0,0,1));
+						al_reset_target();
+						//al_unlock_bitmap(bmp);
 						}
 					if(event.mouse.button == 2)
 						{
