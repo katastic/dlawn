@@ -327,29 +327,29 @@ class wall2dStyle  // how do we integrate any flags with object code?
 			{
 			// Horizontal tests
 			// --------------------------------------------------------------
-			if(!isValidMovement(pair(pos, -1, 0)))  //if we can't move left
+			if(vel.x < 0 && !isValidMovement(pair(pos, -1, 0)))  //if we can't move left
 				{
-				con.log("1");
+				if(isDebugging)con.log("1");
 				if(isValidMovement(pair(pos, -1, -1))) // what about if we move up one pixel?
 					{
-					con.log("2");
+					if(isDebugging)con.log("2");
 //					pos.y--;  WHY does this make us freeze?!?!
 					}else{
-					con.log("3");
+					if(isDebugging)con.log("3");
 					vel.x = 0;
 					isAnyCollision = DIR.LEFT; // we might want to call "the right one" after we're completely done.
 					}
 				}
 
-			if(!isValidMovement(pair(pos, 1, 0))) //if we can't move right
+			if(vel.x > 0 && !isValidMovement(pair(pos, 1, 0))) //if we can't move right
 				{
-				con.log("4");
+				if(isDebugging)con.log("4");
 				if(isValidMovement(pair(pos, 1, -1))) // what about if we move up one pixel?
 					{
-					con.log("5");
+					if(isDebugging)con.log("5");
 //					pos.y--;  WHY does this make us freeze?!?!
 					}else{
-					con.log("6");
+					if(isDebugging)con.log("6");
 					vel.x = 0;
 					isAnyCollision = DIR.RIGHT; 
 					}
@@ -415,7 +415,7 @@ class wall2dStyle  // how do we integrate any flags with object code?
 		}
 			
 	void actionDown(){with(myObject)if(!isFalling)vel.x = -0;}
-	void actionLeft() {with(myObject)if(!isFalling)vel.x = -4f;}
+	void actionLeft(){with(myObject)if(!isFalling)vel.x = -4f;}
 	void actionRight(){with(myObject)if(!isFalling)vel.x = 4f;}
 	}
 

@@ -435,7 +435,6 @@ bool isAny2(T, U...)(U u)
 		if(is(typeof(element) : ALLEGRO_BITMAP *))return true;
 		}
 	return false;
-
 	}
 	
 // whats an enum template here?
@@ -692,36 +691,13 @@ void drawText2(A...)(float x, string formatStr, A a)
 	al_draw_text(g.font1, ALLEGRO_COLOR(0, 0, 0, 1), x, textHelper(), ALLEGRO_ALIGN_LEFT, format(formatStr, a).toStringz); 
 	}	
 
-/// Font Height = Ascent + Descent
-int h(const ALLEGRO_FONT *f)
-	{
-	return al_get_font_line_height(f);
-	}
+/// Helper functions using universal function call syntax.
+int h(const ALLEGRO_FONT *f) => al_get_font_line_height(f); /// Font Height = Ascent + Descent
+int a(const ALLEGRO_FONT *f) => al_get_font_ascent(f); /// Font Ascent
+int d(const ALLEGRO_FONT *f) => al_get_font_descent(f); /// Font Descent
 
-/// Font Ascent
-int a(const ALLEGRO_FONT *f)
-	{
-	return al_get_font_ascent(f);
-	}
-
-/// Font Descent
-int d(const ALLEGRO_FONT *f)
-	{
-	return al_get_font_descent(f);
-	}
-
-//helper functions using universal function call syntax.
-/// Return BITMAP width
-int w(ALLEGRO_BITMAP *b)
-	{
-	return al_get_bitmap_width(b);
-	}
-	
-/// Return BITMAP height
-int h(ALLEGRO_BITMAP *b)
-	{
-	return al_get_bitmap_height(b);
-	}
+int w(ALLEGRO_BITMAP *b) => al_get_bitmap_width(b);/// Return BITMAP width
+int h(ALLEGRO_BITMAP *b) => al_get_bitmap_height(b);/// Return BITMAP height
 	
 //2023
 void drawBitmap(bitmap *b, pair pos, uint flags=0)

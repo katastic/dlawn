@@ -1,5 +1,5 @@
 #!/bin/sh
-dmd -debug -gs -g -ofmain `ls ./src/*.d` -L-L./lib/ 
+dmd -debug -gs -g -ofmain `ls ./src/*.d` -L-L./lib/ -preview=shortenedMethods
 
 # we didn't need $@ https://stackoverflow.com/questions/3898665/what-is-in-bash
 #-vgc 
