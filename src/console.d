@@ -32,12 +32,6 @@ import std.file;
 +/
 
 
-struct rect
-	{
-	float x,y,w,h; //alternative, a pair and dim, and/or write applicable conversion functions
-	// rect is WAY easier than a pair+dim or some tuple strangeness.
-	}
-
 class dialogConsole
 	{
 	rect dims;

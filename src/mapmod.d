@@ -142,6 +142,47 @@ class byteMap
 	{
 	uint w=0, h=0;
 	ubyte[] data;
+
+	void draw(viewport v)
+		{
+		auto screen = al_get_backbuffer(al_display);
+		al_lock_bitmap(screen, ALLEGRO_PIXEL_FORMAT.ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+		for(int j = 0; j < h; j++)
+		for(int i = 0; i < w; i++)
+			{
+			color c;
+			if(get(i,j) == 0)c = black;
+			else c = white;
+			al_draw_pixel(i, j, c);
+			}
+		al_unlock_bitmap(screen);
+		}
+
+	void drawRectangle(irect r, ubyte val)
+		{
+		with(r)
+			{
+			assert(x >= 0);
+			assert(y >= 0);
+			assert(x < this.w);
+			assert(y < this.h);
+			for(int j = y; j < y + h; j++)
+			for(int i = x; i < x + w; i++)
+				{
+				set(ipair(i,j), val);
+				}
+			}
+		}
+		
+	void drawCircle(ipair pos, int r, ubyte val)
+		{
+		import std.math : sqrt;
+		for(float i = -r; i < r; i++)
+		for(float j = -r; j < r; j++)
+			{
+			if(sqrt(i^^2 + j^^2) < r)set(cast(uint)(pos.i + i), cast(uint)(pos.j + j), val);
+			}
+		}
 	
 	this(string path) /// load From Bitmap
 		{
@@ -303,6 +344,7 @@ class pixelMap : mapBase
 			{
 			l.onDraw(v);
 			}
+		data.draw(v);
 		// drawing a shit ton of pixels will be slow in OpenGL/D3D.
 		// But we can dump them to a bitmap, and then draw to those bitmaps 
 		// only on updates.

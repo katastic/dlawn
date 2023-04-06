@@ -168,6 +168,17 @@ alias KEY_RIGHT = ALLEGRO_KEY_RIGHT;
 	because they're only used in obvious cases, in obvious relationships, and its hardcoded.
 +/
 
+struct irect
+	{
+	int x,y,w,h; //shouldn't x,y be i,j??
+	}
+
+struct rect
+	{
+	float x,y,w,h; //alternative, a pair and dim, and/or write applicable conversion functions
+	// rect is WAY easier than a pair+dim or some tuple strangeness.
+	} // ALSO, what if we want x1,y1, x2,y2 instead of x,y,w,h? pair?
+
 void testipair()
 	{
 	import std.math.rounding : floor, ceil;
