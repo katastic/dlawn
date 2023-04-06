@@ -5,6 +5,10 @@
 	maybe. But easiest would be a explicit method for ipair to take a pair (or vice versa) and do a conversion. The biggest
 	thing we're doing is simply dividing both components by the TILE_W and TILE_H.
 
+
+ - all that freaking work setting up DUB and it's slightly _slower_ than a simple bash script.
+ - rdmd might be faster? DUB might be faster once the project gets larger?
+
 [molto notes]
 ==========================================================================================================================
 

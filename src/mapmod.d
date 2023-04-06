@@ -376,6 +376,7 @@ class pixelMap : mapBase
 /// Tile map
 class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if there was a separate definition? like tileType vs tileInstance?
 	{
+	float w=256, h=256;
 	uint[256][256] data;
 	
 	this()
@@ -422,6 +423,29 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 	void onTick()
 		{
 		}
+	
+	bool isValidMovement(pair pos) /// Checks for both physical obstructions, as well as map boundaries
+		{
+		import std.stdio : writeln;
+		if(pos.x < 0 || pos.y < 0)return false;
+		if(pos.x >= w || pos.y >= h)return false;
+
+		// holy shit this is slow
+	//	color c = al_get_pixel(layers[1].data, cast(int)pos.x, cast(int)pos.y);
+//		if(c.g == 0)
+	
+// if we're using ARRAY DATA:	
+		auto p = ipair(pos);
+		with(p)
+		if(data[i][j] == 0) // kinda ugly, but it is a clear "recast" to int if you know the api
+			{
+//			writeln("0");
+			return true;
+			}else{
+	//		writeln("1");
+			return false;
+			}
+		}
 	}
 
 class mapBase
@@ -430,6 +454,8 @@ class mapBase
 
 	void load(){}
 	void save(){}
+	
+	bool isValidMovement(pair pos) = 0;
 
 	bool isInsideMap(pair pos) //external so others can use it.
 		{

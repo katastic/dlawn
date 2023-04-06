@@ -1,0 +1,23 @@
+{
+	"authors": [
+		"katastic"
+	],
+	"copyright": "Copyright © 2023, katastic.   holy fucking shit i hate dub.   see https://forum.dlang.org/post/sjcdqvnlcsihttbmwppe@forum.dlang.org",
+	"description": "A minimal D application.",
+	"license": "proprietary",
+	"name": "dlawn",
+  "importPaths": ["./lib/"],
+  "lflags": ["-L./lib/"],
+  "libs": [
+	"dallegro5dmd",
+    "allegro",
+    "allegro_acodec",
+    "allegro_audio",
+    "allegro_font",
+    "allegro_ttf",
+    "allegro_image",
+    "allegro_color",
+    "allegro_primitives"
+  ], 
+  "buildRequirements":["allowWarnings"],
+}

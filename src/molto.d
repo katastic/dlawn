@@ -707,12 +707,12 @@ void drawText2(A...)(float x, string formatStr, A a)
 	}	
 
 /// Helper functions using universal function call syntax.
-int h(const ALLEGRO_FONT *f) => al_get_font_line_height(f); /// Font Height = Ascent + Descent
-int a(const ALLEGRO_FONT *f) => al_get_font_ascent(f); /// Font Ascent
-int d(const ALLEGRO_FONT *f) => al_get_font_descent(f); /// Font Descent
+int h(const ALLEGRO_FONT* f) => al_get_font_line_height(f); /// Font Height = Ascent + Descent
+int a(const ALLEGRO_FONT* f) => al_get_font_ascent(f); /// Font Ascent
+int d(const ALLEGRO_FONT* f) => al_get_font_descent(f); /// Font Descent
 
-int w(ALLEGRO_BITMAP *b) => al_get_bitmap_width(b);/// Return BITMAP width
-int h(ALLEGRO_BITMAP *b) => al_get_bitmap_height(b);/// Return BITMAP height
+int w(ALLEGRO_BITMAP* b) => al_get_bitmap_width(b);/// Return BITMAP width
+int h(ALLEGRO_BITMAP* b) => al_get_bitmap_height(b);/// Return BITMAP height
 	
 //2023
 void drawBitmap(bitmap *b, pair pos, uint flags=0)

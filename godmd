@@ -1,5 +1,7 @@
 #!/bin/sh
-dmd -debug -gs -g -ofmain `ls ./src/*.d` -L-L./lib/ -preview=shortenedMethods
+dmd -debug -gs -g -ofmain `ls ./src/*.d` -L-L./lib/ 
+
+# -preview=shortenedMethods  should be automatically on by newer versions as of early 2023
 
 # we didn't need $@ https://stackoverflow.com/questions/3898665/what-is-in-bash
 #-vgc 

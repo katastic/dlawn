@@ -19,12 +19,21 @@ import helper;
 import viewportsmod;
 import particles;
 import guns;
-import planetsmod;
 import turretmod;
 import bulletsmod;
-	
+
+// we should organize this at some point. game mechanic constants.
+float STAT_WALK_SPEED = 1245;
+float STAT_RUN_SPEED  = 1245;
+float STAT_JUMP_VEL = 123;
+float STAT_GRAVITY_ACCEL = 235;
 float STAT_ACCEL = .1;
 float STAT_ROTSPEED = degToRad(10);
+
+float stat_meteor_fallspeed =12241;
+float stat_meteor_explosion_diameter = 234;
+float stat_meteor_damage = 23;
+// also combined meteors
 
 /+
 	stuff
@@ -141,30 +150,6 @@ class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it
 		{
 		super.draw(v);
 		
-		// Velocity Helper
-		float mag = distance(vel.x, vel.y)*10.0;
-		float angle2 = atan2(vel.y, vel.x);
-		drawAngleHelper(this, v, angle2, mag, COLOR(1,0,0,1)); 
-		
-//		drawAngleHelper(this, v, angle, 25, COLOR(0,1,0,1)); // my pointing direction
-
-		// Planet Helper(s)
-		if(isPlayerControlled) 
-			{
-			pair p1 = pair(pos.x + v.x - v.ox - bmp.w, pos.y + v.y - v.oy - bmp.h);
-			pair p2 = pair(pos.x + v.x - v.ox + bmp.w, pos.y + v.y - v.oy + bmp.h);
-			drawSplitRectangle(p1, p2, 20, 1, white);
-
-			// draw angle text
-			al_draw_text(g.font1, white, 
-				pos.x + v.x - v.ox + bmp.w + 30, 
-				pos.y + v.y - v.oy - bmp.w, 0, format("%3.2f", radToDeg(angle)).toStringz); 
-			}
-		
-		// Point to other player (could for nearby enemy units) once seen (but not before)
-		//float angle3 = angleTo(g.world.units[0], this);
-		//drawAngleHelper(this, v, angle3, 25, COLOR(1,1,0,1)); 
-	
 		draw_hp_bar(pos.x, pos.y - bmp.w/2, v, hp, 100);		
 		return true;
 		}
@@ -206,7 +191,7 @@ class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 				if(IsInsideRadius(pos, o.pos, 20)){onObjectCollision(); break;}
 				}
 				
-			if(!g.world.map.isValidMovement(pos))onMapCollision(DIR.DOWN);
+			if(!g.world.map2.isValidMovement(pos))onMapCollision(DIR.DOWN);
 			}
 		}
 	}
@@ -323,7 +308,7 @@ class wall2dStyle  // how do we integrate any flags with object code?
 		{
 		DIR isAnyCollision = DIR.NONE;
 		with(myObject)
-		with(g.world.map) // isValidMovement
+		with(g.world.map2) // isValidMovement
 			{
 			// Horizontal tests
 			// --------------------------------------------------------------

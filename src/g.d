@@ -19,7 +19,6 @@ import objects;
 import viewportsmod;
 import graph;
 import particles;
-import planetsmod;
 import bulletsmod;
 import mapmod;
 import molto;
