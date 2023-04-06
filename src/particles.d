@@ -20,7 +20,7 @@ struct rainWeatherHandler
 	{
 	void onTick()
 		{
-		for(int i = 0; i < 10; i++)
+		for(int i = 0; i < 1; i++)
 			{
 			particle p = particle(uniform(0, 1366), 0, 1, 3, 0, 1000, bmp_rain);
 			p.doScaling = false;

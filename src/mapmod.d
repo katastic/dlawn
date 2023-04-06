@@ -1,4 +1,14 @@
 /+
+	clonk is pixels.
+	terreria is 16x16 tiles
+	starbound is 8x8	(really?)
+	cortex command is pixels?
+	
+	look at this game, Celeste, tile size: This could still easily be playable:
+		8x8 pixels (ingame rendering is 320x180)
+		https://images.squarespace-cdn.com/content/v1/608316e08c3eff323f18d9e6/1620424975009-M6W8HZC3B7FT447WBJQA/celeste_forsaken_city_grid.PNG
++/
+/+
 	byteMap - we may want to add support to chunkify large map bitmaps into 
 	smaller power-of-2 chunk textures.
 
@@ -147,8 +157,12 @@ class byteMap
 		{
 		auto screen = al_get_backbuffer(al_display);
 		al_lock_bitmap(screen, ALLEGRO_PIXEL_FORMAT.ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
-		for(int j = 0; j < h; j++)
-		for(int i = 0; i < w; i++)
+//		for(int j = cast(int)v.oy; j < SCREEN_H + cast(int)v.oy; j++)
+//		for(int i = cast(int)v.ox; i < SCREEN_W + cast(int)v.ox; i++)
+		int vox = cast(int)v.ox;
+		int voy = cast(int)v.oy;
+		for(int j = voy; j < voy + 200; j++)
+		for(int i = vox; i < vox + 200; i++)
 			{
 			color c;
 			if(get(i,j) == 0)c = black;
@@ -344,7 +358,7 @@ class pixelMap : mapBase
 			{
 			l.onDraw(v);
 			}
-		data.draw(v);
+		//data.draw(v);
 		// drawing a shit ton of pixels will be slow in OpenGL/D3D.
 		// But we can dump them to a bitmap, and then draw to those bitmaps 
 		// only on updates.
@@ -377,11 +391,9 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 				}
 		}
 			
-	bool attemptMow(ipair pos)
+	bool set(ipair pos, ubyte val)
 		{
-	//	import std.stdio;
-//		writeln(pos);
-		data[pos.i][pos.j] = 0;
+		data[pos.i][pos.j] = val;
 		return false;
 		}
 	

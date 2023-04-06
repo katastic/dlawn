@@ -1,3 +1,10 @@
+[todo]
+==========================================================================================================================
+ - I removed the implicit TILE_W conversions on pair -> ipair. They broke pixel map collisions when we added a TILE_W != 1 
+	and ipairs can be used for more things than just tile locations. If you want a tpair, or, an ipair!tile (user defined attribute)
+	maybe. But easiest would be a explicit method for ipair to take a pair (or vice versa) and do a conversion. The biggest
+	thing we're doing is simply dividing both components by the TILE_W and TILE_H.
+
 [molto notes]
 ==========================================================================================================================
 

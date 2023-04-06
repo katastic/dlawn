@@ -234,12 +234,12 @@ struct display_t
 
 //		unit u = g.world.units[0];
 //		drawText2(20, "obj[%.2f,%.2f][%.2f %.2f] %.2f deg", u.x, u.y, u.vx, u.vy, u.angle.radToDeg);
-		drawText2(20, "fps[%d] frame#[%d] objrate[%d]", g.stats.fps, g.stats.totalFramesPassed,	 
+		drawText2(20, "fps[%d] frame#[%d] objrate[%d] -- Obj1[%.2f,%.2f]", g.stats.fps, g.stats.totalFramesPassed,	 
 					(g.stats.numberParticles.drawn +
 					g.stats.numberUnits.drawn + 
 					g.stats.numberBullets.drawn + 
 					g.stats.numberDudes.drawn +  
-					g.stats.numberStructures.drawn) * g.stats.fps ); 
+					g.stats.numberStructures.drawn) * g.stats.fps, g.world.objects[0].pos.x, g.world.objects[0].pos.y ); 
 		
 //		drawText2(20, "money [%d] deaths [%d]", g.world.players[0].myTeamIndex.money, g.world.players[0].deaths);
 		drawText2(20, "drawn  : structs [%d] particles [%d] bullets [%d] dudes [%d] units [%d]", 

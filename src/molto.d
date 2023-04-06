@@ -251,10 +251,12 @@ struct ipair
 		if(p.x >= 0)x = floor(p.x);
 		if(p.y >= 0)y = floor(p.y);
 
-		this = ipair(cast(int)(x/cast(float)TILE_W), cast(int)(y/cast(float)TILE_H));
+		this = ipair(cast(int)(x), cast(int)(y));
+//		this = ipair(cast(int)(x/cast(float)TILE_W), cast(int)(y/cast(float)TILE_H));
 //		writeln("going to ", this);
 		}
 
+/// FIXME: OOOH, I do NOT LIKE THIS. ipair -> pair conversion including TILE SIZE. What if we're using ipair for a RECTANGLE or something???
 	this(pair p, float xOffset, float yOffset) /// take a pair, and apply scalar offsets to both
 		{
 //		alias v=IMPLIED_VIEWPORT; // wait this isn't used???
@@ -265,7 +267,9 @@ struct ipair
 		if(p.x + xOffset >= 0)x = floor(p.x + xOffset);
 		if(p.y + yOffset >= 0)y = floor(p.y + yOffset);
 
-		this = ipair(cast(int)(x/cast(float)TILE_W), cast(int)(y/cast(float)TILE_H));
+		this = ipair(cast(int)(x), cast(int)(y));
+
+//		this = ipair(cast(int)(x/cast(float)TILE_W), cast(int)(y/cast(float)TILE_H));
 //		writeln("  going to ", this);
 		}
 
