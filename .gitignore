@@ -7,4 +7,5 @@ callgrind.out.*
 allegro.log
 game.log
 game.log.7z
+game.log.pyg
 main.o
