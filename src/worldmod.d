@@ -39,7 +39,7 @@ class world_t
 	bullet[] bullets;
 	meteor[] meteors;
 
-	rainWeatherHandler rain;
+//	rainWeatherHandler rain;
 
 	this()
 		{		
@@ -175,7 +175,7 @@ class world_t
 		if(key_j_down)viewports[0].ox -= 2;
 		if(key_l_down)viewports[0].ox += 2;
 +/
-		//rain.onTick();
+		// rain.onTick();
 		tick(particles);
 		tick(bullets);
 		tick(units);
