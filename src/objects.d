@@ -207,7 +207,7 @@ class meteor : baseObject
 		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100);
 		}
 		
-	void respawn()
+	final void respawn()
 		{
 		import std.random : uniform;
 		pos.x = uniform(0, g.world.map.data.w-20);

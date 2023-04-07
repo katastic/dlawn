@@ -232,8 +232,8 @@ class byteMap
 	ubyte get(ipair pos     ){return data[pos.i + pos.j*w];}
 	ubyte get(uint i, uint j){return data[i + j*w];}
 		
-	void set(ipair pos     , ubyte val){data[pos.i + pos.j*w] = val;}
-	void set(uint i, uint j, ubyte val){data[i + j*w] = val;}
+	final void set(ipair pos     , ubyte val){data[pos.i + pos.j*w] = val;}
+	final void set(uint i, uint j, ubyte val){data[i + j*w] = val;}
 	}
 
 class pixelMap : mapBase
@@ -278,7 +278,7 @@ class pixelMap : mapBase
 		{
 		import std.stdio : writeln;
 		if(pos.x < 0 || pos.y < 0)return false;
-		if(pos.x >= data.w || pos.y >= data.h)return false;
+		if(pos.x >= size.h || pos.y >= size.h)return false;
 
 		// holy shit this is slow
 	//	color c = al_get_pixel(layers[1].data, cast(int)pos.x, cast(int)pos.y);
@@ -427,8 +427,9 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 	bool isValidMovement(pair pos) /// Checks for both physical obstructions, as well as map boundaries
 		{
 		import std.stdio : writeln;
+//		writeln(pos);
 		if(pos.x < 0 || pos.y < 0)return false;
-		if(pos.x >= w || pos.y >= h)return false;
+		if(pos.x/TILE_W >= w || pos.y/TILE_W >= h)return false;
 
 		// holy shit this is slow
 	//	color c = al_get_pixel(layers[1].data, cast(int)pos.x, cast(int)pos.y);
@@ -437,7 +438,7 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 // if we're using ARRAY DATA:	
 		auto p = ipair(pos);
 		with(p)
-		if(data[i][j] == 0) // kinda ugly, but it is a clear "recast" to int if you know the api
+		if(data[i/TILE_W][j/TILE_W] == 0) // kinda ugly, but it is a clear "recast" to int if you know the api
 			{
 //			writeln("0");
 			return true;

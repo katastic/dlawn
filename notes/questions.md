@@ -9,6 +9,16 @@
  - all that freaking work setting up DUB and it's slightly _slower_ than a simple bash script.
  - rdmd might be faster? DUB might be faster once the project gets larger?
 
+	--> rename and add:
+		- actionUp/down could be on onActionUp
+		- need to add RELEASE methods so we can do "hold button to keep moving" level trigger style instead of clonk style 
+		edge trigger style.
+
+	- we could add a category system to graph statistics so that you just say you want to time a section and it auto adds. 
+	associated array? That way we could make it easier to time random things like "loading map" "processing byte array" etc
+	we don't have to have them attached to a GUI graph. Instead we could just have the graph attachable to any timed event stats.
+
+
 [molto notes]
 ==========================================================================================================================
 
