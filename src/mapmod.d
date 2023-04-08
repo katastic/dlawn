@@ -389,6 +389,7 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 				data[i][j] = 0;
 				z++;
 				if(z>15){z=0; data[i][j] = 1; }
+				if(j > 16) data[i][j] = 1;
 				}
 		}
 			
@@ -401,10 +402,10 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 	void onDraw(viewport v)
 		{
 		float x = 0, y = 0;
-		int iMin = capLow (cast(int)v.ox/TILE_W + 1, 0);
-		int jMin = capLow (cast(int)v.oy/TILE_W + 1, 0);		
-		int iMax = capHigh(SCREEN_W/TILE_W + cast(int)v.ox/TILE_W - 1, MAP_W-1);
-		int jMax = capHigh(SCREEN_H/TILE_W + cast(int)v.oy/TILE_W - 1, MAP_H-1);
+		int iMin = capLow (cast(int)v.ox/TILE_W, 0);
+		int jMin = capLow (cast(int)v.oy/TILE_W, 0);		
+		int iMax = capHigh(SCREEN_W/TILE_W + cast(int)v.ox/TILE_W, MAP_W-1);
+		int jMax = capHigh(SCREEN_H/TILE_W + cast(int)v.oy/TILE_W, MAP_H-1);
 		
 		for(int i = iMin; i < iMax; i++)
 			for(int j = jMin; j < jMax; j++)
@@ -413,9 +414,9 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 				y = j*TILE_W;
 				auto val = data[i][j];
 				if(val == 0)
-					drawBitmap(grass_bmp, pair(x-v.ox, y-v.oy), 0);
+					drawBitmap(bmp_grass, pair(x-v.ox, y-v.oy), 0);
 				else
-					drawBitmap(stone_bmp, pair(x-v.ox, y-v.oy), 0);
+					drawBitmap(bmp_sand, pair(x-v.ox, y-v.oy), 0);
 				stats.numberStructures.drawn++; //todo rename
 				}
 		}

@@ -210,6 +210,15 @@ class meteor : baseObject
 		float cvy = sin(angle)*0;
 		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100);
 		}
+
+	void spawnExplosion()
+		{
+		float cvx = cos(angle)*0;
+		float cvy = sin(angle)*0;
+		auto p = particle(pos.x, pos.y, 0, 0, 0, 100, bmp_explosion);
+//		p.isGrowing = true;
+		g.world.particles ~= p;
+		}
 		
 	final void respawn()
 		{
@@ -231,8 +240,18 @@ class meteor : baseObject
 	void onMapCollision(DIR hitDirection)
 		{
 			{
+				{
+				ipair p;
+				p.i = cast(int)pos.x/TILE_W;
+				p.j = cast(int)pos.y/TILE_W;
+				with(p)
+				if(i > 0 && i < 256)
+					if(j > 0 && j < 256)
+						g.world.map2.data[p.i][p.j] = 0;
+				spawnExplosion();
+	//			spawnSmoke();
+				}
 			//isDead = true;
-			spawnSmoke();
 			respawn();
 			}
 		}
@@ -471,7 +490,7 @@ class dude : baseObject
 		al_draw_filled_circle(cx, cy, 20, COLOR(0,1,0,.5));
 		al_draw_center_rotated_bitmap(bmp, cx, cy, 0, !facingRight);
 		
-		drawText(cx, cy - bmp.w, white, "%.1f", hp);
+		drawTextCenter(cx, cy - bmp.w, white, "%.1f", hp);
 		
 		return true;
 		}

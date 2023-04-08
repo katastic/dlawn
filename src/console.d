@@ -290,7 +290,7 @@ void testLogger()
 	writeln("start------------------");
 	log3 = new logger;
 		
-	baseObject u = new baseObject(pair(1, 2), pair(3, 4), g.grass_bmp);
+	baseObject u = new baseObject(pair(1, 2), pair(3, 4), g.bmp_grass);
 	u.isDebugging = true;
 	log3.logB(u, "guy died [%d]", 23);
 //	log3.log(u, "word(12, 15.0f)");

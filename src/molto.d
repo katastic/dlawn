@@ -506,8 +506,8 @@ center centered;
 
 void test()
 	{
-//	draw(grass_bmp);
-	draw(grass_bmp, pair(320, 320), center(true));
+//	draw(bmp_grass);
+	draw(bmp_grass, pair(320, 320), center(true));
 	}
 
 // later:

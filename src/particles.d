@@ -60,6 +60,7 @@ struct particle
 		maxLifetime = _lifetime;
 		rotation = uniform!"[]"(0, 3);
 		bmp = g.smoke_bmp;
+		assert(bmp !is null);
 		}
 	
 	this(float _x, float _y, float _vx, float _vy, int _type, int  _lifetime, bitmap* _bmp)
@@ -74,6 +75,7 @@ struct particle
 		maxLifetime = _lifetime;
 		rotation = uniform!"[]"(0, 3);
 		bmp = _bmp;
+		assert(bmp !is null);
 		}
 
 	// do we need this? why do we also specify _vx, and _vy then???
@@ -93,11 +95,14 @@ struct particle
 		lifetime = _lifetime;
 		maxLifetime = _lifetime;
 		rotation = uniform!"[]"(0, 3);
+		bmp = smoke_bmp;
+		assert(bmp !is null);
 		}
 		
 	bool draw(viewport v)
 		{
-		BITMAP *b = g.smoke_bmp;
+		assert(bmp !is null);
+		BITMAP *b = bmp;
 		ALLEGRO_COLOR c = color(1,1,1,1);
 		if(doTinting)c = color(1,1,1,cast(float)lifetime/cast(float)maxLifetime);
 		float cx = x + v.x - v.ox;

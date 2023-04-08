@@ -65,7 +65,7 @@ BITMAP* boss_bmp;
 BITMAP* fountain_bmp;
 BITMAP* tree_bmp;
 BITMAP* wall_bmp;
-BITMAP* grass_bmp;
+BITMAP* bmp_grass;
 BITMAP* lava_bmp;
 BITMAP* water_bmp;
 BITMAP* wood_bmp;
@@ -78,6 +78,8 @@ BITMAP* blood_bmp;
 
 BITMAP* bmp_cow; // switching order for easier IDE searching. todo convert others other.
 BITMAP* bmp_rain;
+BITMAP* bmp_explosion;
+BITMAP* bmp_sand;
 
 int SCREEN_W = 1360;
 int SCREEN_H = 700;
@@ -115,7 +117,7 @@ void loadResources()
 	boss_bmp 	 	= getBitmap("./data/boss.png");
 
 	wall_bmp  		= getBitmap("./data/wall.png");
-	grass_bmp  		= getBitmap("./data/grass.png");
+	bmp_grass  		= getBitmap("./data/grass.png");
 	lava_bmp  		= getBitmap("./data/lava.png");
 	water_bmp  		= getBitmap("./data/water.png");
 	fountain_bmp  	= getBitmap("./data/fountain.png");
@@ -127,6 +129,8 @@ void loadResources()
 
 	bmp_cow  	= getBitmap("./data/cow.png");	
 	bmp_rain  	= getBitmap("./data/rain.png");	
+	bmp_explosion  	= getBitmap("./data/explosion.png");	
+	bmp_sand  	= getBitmap("./data/wall2.png");	
 	}
 
 world_t world;
