@@ -1,0 +1,2 @@
+echo "cleaning up extra misc files."
+rm -f game.log game.log.7z game.log.pyg profilegc.log trace.log trace.def main.o allegro.log allegro.log.pyg

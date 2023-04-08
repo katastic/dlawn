@@ -188,7 +188,11 @@ class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 			
 			foreach(o; g.world.objects)
 				{
-				if(IsInsideRadius(pos, o.pos, 20)){onObjectCollision(); break;}
+				if(IsInsideRadius(pos, o.pos, 20))
+					{
+					onObjectCollision(o);
+					break;
+					}
 				}
 				
 			if(!g.world.map2.isValidMovement(pos))onMapCollision(DIR.DOWN);
@@ -215,14 +219,13 @@ class meteor : baseObject
 		vel.x = uniform(-3, 3);
 		}
 
-	void onObjectCollision()
+	void onObjectCollision(baseObject by)
 		{
-			{
-//			isDead = true;
-			con.log("onObjectCollision at %s".format(pos));
-			spawnSmoke();
-			respawn();
-			}
+//		isDead = true;
+		con.log("onObjectCollision at %s".format(pos));
+		spawnSmoke();
+		respawn();
+		by.onHit(this, 1);
 		}
 
 	void onMapCollision(DIR hitDirection)
@@ -467,6 +470,9 @@ class dude : baseObject
 
 		al_draw_filled_circle(cx, cy, 20, COLOR(0,1,0,.5));
 		al_draw_center_rotated_bitmap(bmp, cx, cy, 0, !facingRight);
+		
+		drawText(cx, cy - bmp.w, white, "%.1f", hp);
+		
 		return true;
 		}
 	
@@ -562,6 +568,12 @@ class baseObject
 	pair vel;
 	float w=0, h=0;   /// width, height 
 	float angle=0;	/// pointing angle 
+	float hp=100;
+
+	void onHit(baseObject by, int damage)
+		{
+		hp -= damage;
+		}
 
 	this(pair _pos, pair _vel, ALLEGRO_BITMAP* _bmp)
 		{

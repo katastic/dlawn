@@ -18,6 +18,14 @@
 	associated array? That way we could make it easier to time random things like "loading map" "processing byte array" etc
 	we don't have to have them attached to a GUI graph. Instead we could just have the graph attachable to any timed event stats.
 
+[gameplay/mechanics]
+==========================================================================================================================
+	- force player to go outside for extra reasons? resources? go from point-a to b? Forcing them to go uotside to endure
+	meteor showers. That, or simply have the shower keep collapsing inward. But the solution there would simply be "Stay 
+	ahead of the meteor swarm so you never get hit" which isn't as fun as actively avoiding meteors.
+	
+	- ropes + fall damage?
+
 
 [molto notes]
 ==========================================================================================================================
