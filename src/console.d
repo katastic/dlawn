@@ -21,8 +21,6 @@ import std.file;
 		- we could even detect POSIX ANSII color codes in the text stream, and make our own rich-text parser 
 		so you can still modify pygmentize/alternative highlighters, and use the same ones.
 
-
-
 	there are tons of text compression algorithms as well, but we don't need to go overboard. just a fun reference:
 	http://www.mattmahoney.net/dc/text.html
 		10.85% 
@@ -30,7 +28,6 @@ import std.file;
 	http://compressionratings.com/sort.cgi?txt2.full+6ne_old hutter prize (linked from previous link)
 		18.9% wikipedia ratio
 +/
-
 
 class dialogConsole
 	{
@@ -51,7 +48,6 @@ class dialogConsole
 	
 	// do we need any other controls? left/right/action/etc
 	}
-
 
 /// DEBUGGER CHANNEL STUFF
 /// - Can any object send to a variety of "channels"?
