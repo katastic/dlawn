@@ -80,6 +80,7 @@ BITMAP* bmp_cow; // switching order for easier IDE searching. todo convert other
 BITMAP* bmp_rain;
 BITMAP* bmp_explosion;
 BITMAP* bmp_sand;
+BITMAP* bmp_asteroid;
 
 int SCREEN_W = 1360;
 int SCREEN_H = 700;
@@ -131,6 +132,7 @@ void loadResources()
 	bmp_rain  	= getBitmap("./data/rain.png");	
 	bmp_explosion  	= getBitmap("./data/explosion.png");	
 	bmp_sand  	= getBitmap("./data/wall2.png");	
+	bmp_asteroid  	= getBitmap("./data/asteroid2.png");	
 	}
 
 world_t world;

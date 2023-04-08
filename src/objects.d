@@ -259,7 +259,7 @@ class meteor : baseObject
 	this(pair _pos)
 		{
 		vel = pair(-3, 3);
-		super(_pos, vel, g.small_asteroid_bmp);
+		super(_pos, vel, g.bmp_asteroid);
 		moveStyle = new fallingStyle!meteor(this);
 		}
 	
