@@ -418,14 +418,16 @@ void execute()
 					
 					if(g.key_q_down)//handleMouseAt(g.mouse_x, g.mouse_y, g.viewports[0]);
 						{
+						writeln("q is down");
 						viewport v = viewports[0];
 	//					bitmap* bmp = g.world.map.layers[1].data;
 						auto p = g.world.objects[0].pos;
 						int w = 20;
 						int h = 20;
 	//					g.world.map.data.drawRectangle(irect(cast(int)p.x - w/2, cast(int)p.y - h/2,w,h), 0);
-						g.world.map.data.drawCircle(ipair(p), 40, 0);
-/*
+						g.world.map2.drawCircle(ipair(p), 5, 0);
+						g.key_q_down = false;
+/*						
 						al_set_target_bitmap(bmp);
 //						al_draw_filled_circle(mouse_x + v.x - v.ox, mouse_y + v.y - v.oy, 50, color(0,0,0,1));
 //						writeln(g.world.objects[0].pos, " ", v.x, " ", v.y, " ", v.ox, " ", v.oy);

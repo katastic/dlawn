@@ -378,6 +378,38 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 	{
 	float w=256, h=256;
 	uint[256][256] data;
+		
+	void drawRectangle(irect r, ubyte val)
+		{
+		with(r)
+			{
+			assert(x >= 0);
+			assert(y >= 0);
+			assert(x < this.w);
+			assert(y < this.h);
+			for(int j = y; j < y + h; j++)
+			for(int i = x; i < x + w; i++)
+				{
+				data[i][j] = val;
+				}
+			}
+		}
+		
+	void drawCircle(ipair pos, int r, ubyte val)
+		{
+		import std.math : sqrt;
+		for(int i = -r; i < r; i++)
+		for(int j = -r; j < r; j++)
+			{
+			if(sqrt(cast(float)i^^2 + cast(float)j^^2) < r)
+				{
+				int ci = cast(uint)pos.i/TILE_W + i;
+				int cj = cast(uint)pos.j/TILE_W + j;
+				data[ci][cj] = val; //set(cast(uint)(pos.i + i), cast(uint)(pos.j + j), val);
+				writeln(ci, " ", cj);
+				}
+			}
+		}
 	
 	this()
 		{
