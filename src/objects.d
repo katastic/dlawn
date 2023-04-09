@@ -331,18 +331,17 @@ class wall2dStyle  // how do we integrate any flags with object code?
 		DIR isAnyCollision = DIR.NONE;
 		with(myObject)
 		with(g.world.map2) // isValidMovement
-			{
+			{		
 			// Horizontal tests
 			// --------------------------------------------------------------
 			if(vel.x < 0 && !isValidMovement(pair(pos, -1, 0)))  //if we can't move left
 				{
-				if(isDebugging)con.log("1");
 				if(isValidMovement(pair(pos, -1, -1))) // what about if we move up one pixel?
 					{
-					if(isDebugging)con.log("2");
+					if(isDebugging)debugString ~= "1 ";
 //					pos.y--;  WHY does this make us freeze?!?!
 					}else{
-					if(isDebugging)con.log("3");
+					if(isDebugging)debugString ~= "2 ";
 					vel.x = 0;
 					isAnyCollision = DIR.LEFT; // we might want to call "the right one" after we're completely done.
 					}
@@ -350,13 +349,12 @@ class wall2dStyle  // how do we integrate any flags with object code?
 
 			if(vel.x > 0 && !isValidMovement(pair(pos, 1, 0))) //if we can't move right
 				{
-				if(isDebugging)con.log("4");
 				if(isValidMovement(pair(pos, 1, -1))) // what about if we move up one pixel?
 					{
-					if(isDebugging)con.log("5");
+					if(isDebugging)debugString ~= "3 ";
 //					pos.y--;  WHY does this make us freeze?!?!
 					}else{
-					if(isDebugging)con.log("6");
+					if(isDebugging)debugString ~= "4 ";
 					vel.x = 0;
 					isAnyCollision = DIR.RIGHT; 
 					}
@@ -490,15 +488,19 @@ class dude : baseObject
 		al_draw_filled_circle(cx, cy, 20, COLOR(0,1,0,.5));
 		al_draw_center_rotated_bitmap(bmp, cx, cy, 0, !facingRight);
 		
-		drawTextCenter(cx, cy - bmp.w, white, "%.1f", hp);
+		debugString ~= format("%.1f ", hp);
 		
+		if(debugString != "")
+			drawTextCenter(cx, cy - bmp.w, white, debugString);
+		
+		debugString = ""; // reset at end
 		return true;
 		}
 	
-	override void actionUp(){moveStyle.actionUp();}/+		if(isJumping == false){isJumping = true;vel.y = -5;}+/
+	override void actionUp(){moveStyle.actionUp();}
 	override void actionDown(){moveStyle.actionDown();}
-	override void actionLeft(){moveStyle.actionLeft(); facingRight = false;} //{if(!isJumping && isGrounded)vel.x = -1;}
-	override void actionRight(){moveStyle.actionRight(); facingRight = true;} //{if(!isJumping && isGrounded)vel.x = 1;}
+	override void actionLeft(){moveStyle.actionLeft(); facingRight = false;}
+	override void actionRight(){moveStyle.actionRight(); facingRight = true;}
 	
 	void spawnSmoke(float offsetx, float offsety)
 		{
@@ -515,37 +517,6 @@ class dude : baseObject
 			facingRight = (vel.x > 0) ? true : false;
 			}
 		if(isGrounded && isMoving)spawnSmoke(0, bmp.w/4);
-		/+
-		import std.format;
-		isDebugging = true;
-		//writeln("onTick() pos:", pos, " vel:", vel);
-		if(isJumping)vel.y += .1; // gravity
-//		pos.y += vel.y;
-//		writeln("TEST normal[", pos.x + vel.x,"] vs pair[", pair(pos,vel.x,vel.y),"]");
-		if(g.world.map.isValidMovement(pair(pos, vel.x, vel.y)))
-			{
-			con.log(this, format("onTick() IsValid pos=%s vel=%s", pos, vel));
-			
-			pos = pair(pos, vel.x, vel.y);
-			isJumping = true;
-			isGrounded = false;
-			}else{
-			con.log(this, format("onTick() !IsValid pos=%s vel=%s", pos, vel));
-	
-			if(g.world.map.isValidMovement(pair(pos, 0, -1)))
-				{
-				pos.y -= 1;
-				vel.x *= .80;
-				}
-	
-			// fixme fixme fixme. detecting head bumps, etc. we should probably do the clonk style
-			// four vector point detectors to detect which direction we're hitting from
-			if		(vel.y > 0.1)pos = pair(pos, vel.x, -1); //if we're stuck, move us up one out of the ground.
-			else if	(vel.y < 0.1)pos = pair(pos, vel.x,  1); //if we're stuck, move us up one out of the ground.
-			vel.y = 0;
-			isJumping = false;
-			isGrounded = true;
-			}+/
 		}
 	}
 	
@@ -588,6 +559,7 @@ class baseObject
 	float w=0, h=0;   /// width, height 
 	float angle=0;	/// pointing angle 
 	float hp=100;
+	string debugString="";
 
 	void onHit(baseObject by, int damage)
 		{
