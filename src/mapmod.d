@@ -379,7 +379,7 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 	float w=256, h=256;
 	uint[256][256] data;
 		
-	void drawRectangle(irect r, ubyte val)
+	void drawRectangle(rect r, ubyte val)
 		{
 		with(r)
 			{
@@ -387,15 +387,15 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 			assert(y >= 0);
 			assert(x < this.w);
 			assert(y < this.h);
-			for(int j = y; j < y + h; j++)
-			for(int i = x; i < x + w; i++)
+			for(float j = y; j < y + h; j++)
+			for(float i = x; i < x + w; i++)
 				{
-				data[i][j] = val;
+				data[cast(int)i/TILE_W][cast(int)j/TILE_W] = val;
 				}
 			}
 		}
 		
-	void drawCircle(ipair pos, int r, ubyte val)
+	void drawCircle(pair pos, int r, ubyte val)
 		{
 		import std.math : sqrt;
 		for(int i = -r; i < r; i++)
@@ -403,10 +403,10 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 			{
 			if(sqrt(cast(float)i^^2 + cast(float)j^^2) < r)
 				{
-				int ci = cast(uint)pos.i/TILE_W + i;
-				int cj = cast(uint)pos.j/TILE_W + j;
+				int ci = cast(uint)pos.x/TILE_W + i;
+				int cj = cast(uint)pos.y/TILE_W + j;
 				data[ci][cj] = val; //set(cast(uint)(pos.i + i), cast(uint)(pos.j + j), val);
-				writeln(ci, " ", cj);
+//				writeln(ci, " ", cj);
 				}
 			}
 		}

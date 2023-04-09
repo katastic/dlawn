@@ -425,7 +425,7 @@ void execute()
 						int w = 20;
 						int h = 20;
 	//					g.world.map.data.drawRectangle(irect(cast(int)p.x - w/2, cast(int)p.y - h/2,w,h), 0);
-						g.world.map2.drawCircle(ipair(p), 5, 0);
+						g.world.map2.drawCircle(p, 5, 0);
 						g.key_q_down = false;
 /*						
 						al_set_target_bitmap(bmp);
