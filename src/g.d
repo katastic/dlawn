@@ -88,9 +88,110 @@ int SCREEN_H = 700;
 intrinsicGraph!float testGraph;
 intrinsicGraph!float testGraph2;
 
-void loadResources()	
+/// Bitmap handler
+///=============================================================================
+/+
+
+	- do we want to merge/support bitmap atlas handler functionality? 
+	- how do we want to handle multiple frame animations?
++/
+class bitmapHandler 
 	{
+	// ADD list of bools for each to track whether they were ever used for trimming unused assets
+	bitmap*[string] bmps;
+	alias bmps this;
+	
+	// we could support a load function that uses structs/tuples of name, paths
+	
+	void loadJSON(string jsonpath="./data/manifest.json")
+		{
+		import std.json;
+		import std.file : readText;
+		string s = readText(jsonpath);
+		JSONValue js = parseJSON(s);
+		foreach(i, j; js["files"].array)
+			{
+			writeln(i, " ", j, " ", j.type, " ", j[0], " ", j[1]);
+			string name = j[0].str; 
+			string path = j[1].str;
+			writefln("[%s]", name);
+			writefln("[%s]", path);
+			load(name, path);
+			}
+		}
+	
+	void load(string name, string path) /// assert/exception guarded bitmap load
+		{
+		assert((name in bmps) is null, "Overwriting existing bitmap detected!");
+		bmps[name] = getBitmap(path);
+		}
+		
+	void loadAA(immutable string[string] aa) /// associated array bulk load
+		{
+		// Do we want immutable? Can we still send a non-immutable to an immutable function? We just want to verify WE won't modify it.
+		foreach(t; aa.byKeyValue)
+			{
+			string name = t.key;
+			string path = t.value;
+			load(name, path);
+			}		
+		}
+		
+	void loadTuple(T)(T[] tp) /// NOT TESTED. needed?
+		{
+		foreach(t; tp)
+			{
+			string name = t[0];
+			string path = t[1];
+			load(name, path);
+			}
+		}
+		
+	void list() /// List all active bitmaps
+		{
+		import std.array : byPair;
+		foreach(b; bmps.byPair)writeln(b); //key and pair struct
+		}
+
+	void remove(string name)
+		{
+		al_destroy_bitmap(bmps[name]); 
+		bmps.remove(name);
+		}
+	}
+
+bitmapHandler bh;
+
+// 'immutable' 
+//  error associative arrays must be initialized at runtime: https://dlang.org/spec/hash-map.html#runtime_initialization
+// https://dlang.org/spec/hash-map.html#runtime_initialization
+/+immutable string[string] bhc;
+
+shared static this() // we're setting (setting up) an IMMUTABLE string which is so confusing conceptually
+	{
+	// wait, doesn't this also blow away any possibility of COMPILE-TIME type-safe lookup here???
+	// I mean, I guess it's not the end of the world, any BITMAP INVOCATION is going to be WAY EXPENSIVE to draw
+	// than a single hash lookup, right? But at this point, why don't we just scrap this and move to RUN-TIME PARSING
+	// a JSON object.
+	
+	bhc = [ 
+		  "cow": "./data/cow.png",
+		  "rain": "./data/rain.png",
+		  "explosion": "./data/explosion.png",
+		  "sand": "./data/wall2.png",
+		  "asteroid": "./data/asteroid2.png"
+		];
+	}
++/
+void loadResources()
+	{
+	bh = new bitmapHandler();
+	bh.loadJSON();
 	font1 = getFont("./data/DejaVuSans.ttf", 18);
+
+	dude_bmp	  			= getBitmap("./data/dude.png");
+	smoke_bmp  				= getBitmap("./data/smoke.png");
+	fountain_bmp  			= getBitmap("./data/fountain.png");
 
 	bullet_bmp  			= getBitmap("./data/bullet.png");
 	ship_bmp			  	= getBitmap("./data/ship.png");
@@ -98,10 +199,8 @@ void loadResources()
 	small_asteroid_bmp  	= getBitmap("./data/small_asteroid.png");
 	medium_asteroid_bmp  	= getBitmap("./data/medium_asteroid.png");
 	large_asteroid_bmp  	= getBitmap("./data/large_asteroid.png");
-	smoke_bmp  				= getBitmap("./data/smoke.png");
 	space_bmp  				= getBitmap("./data/seamless_space.png");
 	bullet_bmp  			= getBitmap("./data/bullet.png");
-	dude_bmp	  			= getBitmap("./data/dude.png");
 	trailer_bmp	  			= getBitmap("./data/trailer.png");
 	turret_bmp	  			= getBitmap("./data/turret.png");
 	turret_base_bmp			= getBitmap("./data/turret_base.png");
@@ -113,26 +212,25 @@ void loadResources()
 	chest_bmp  			= getBitmap("./data/chest.png");
 	chest_open_bmp  	= getBitmap("./data/chest_open.png");
 
-	dwarf_bmp  		= getBitmap("./data/dwarf.png");
 	goblin_bmp  	= getBitmap("./data/goblin.png");
+	dwarf_bmp  		= getBitmap("./data/dwarf.png");
 	boss_bmp 	 	= getBitmap("./data/boss.png");
 
 	wall_bmp  		= getBitmap("./data/wall.png");
 	bmp_grass  		= getBitmap("./data/grass.png");
 	lava_bmp  		= getBitmap("./data/lava.png");
 	water_bmp  		= getBitmap("./data/water.png");
-	fountain_bmp  	= getBitmap("./data/fountain.png");
 	wood_bmp  		= getBitmap("./data/wood.png");
 	stone_bmp  		= getBitmap("./data/brick.png");
 	tree_bmp  		= getBitmap("./data/tree.png");
 	blood_bmp  		= getBitmap("./data/blood.png");
-	reinforced_wall_bmp  	= getBitmap("./data/reinforced_wall.png");	
+	reinforced_wall_bmp = getBitmap("./data/reinforced_wall.png");	
 
-	bmp_cow  	= getBitmap("./data/cow.png");	
-	bmp_rain  	= getBitmap("./data/rain.png");	
+	bmp_cow  		= getBitmap("./data/cow.png");	
+	bmp_rain  		= getBitmap("./data/rain.png");	
 	bmp_explosion  	= getBitmap("./data/explosion.png");	
-	bmp_sand  	= getBitmap("./data/wall2.png");	
-	bmp_asteroid  	= getBitmap("./data/asteroid2.png");	
+	bmp_sand  		= getBitmap("./data/wall2.png");	
+	bmp_asteroid  	= getBitmap("./data/asteroid2.png");
 	}
 
 world_t world;
@@ -304,9 +402,9 @@ struct statistics_t
 	StopWatch swLogic;
 	StopWatch swDraw;
 	StopWatch swLogging;
-	float msLogic;
-	float nsDraw;
-	float nsLogging; //needed?
+	float msLogic=0;
+	float nsDraw=0;
+	float nsLogging=0; //needed?
 	
 	void reset()
 		{ // note we do NOT reset fps and frames_passed here as they are cumulative or handled elsewhere.

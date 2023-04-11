@@ -405,7 +405,7 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 				{
 				int ci = cast(uint)pos.x/TILE_W + i;
 				int cj = cast(uint)pos.y/TILE_W + j;
-				data[ci][cj] = val; //set(cast(uint)(pos.i + i), cast(uint)(pos.j + j), val);
+				data[ci][cj] = val; 
 //				writeln(ci, " ", cj);
 				}
 			}

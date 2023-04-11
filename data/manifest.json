@@ -1,0 +1,9 @@
+{ "files":
+		[
+			["goblin","./data/goblin.png"],
+			["rain","./data/rain.png"],
+			["cow","./data/cow.png"],
+			["explosion","./data/explosion.png"],
+			["sand","./data/wall2.png"],
+			["asteroid","./data/asteroid2.png"]
+			] }

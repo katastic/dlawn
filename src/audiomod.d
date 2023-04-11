@@ -69,7 +69,6 @@ class audioSystem
 	void loadResources()
 		{
 		samples["hit"] = loadSample("./data/extra/snd/pixabay/karate-chop-6357.mp3");
-		
 		songs["intro"] = loadSample("./data/extra/snd/pixabay/male-screams-1-6080.mp3");
 		}
 	

@@ -136,7 +136,7 @@ class world_t
 		drawStat3(structures, stats.numberStructures);		
 		drawStat3(meteors, stats.numberStructures);		
 
-		map.drawMinimap(pair(SCREEN_W-300,50));
+//		map.drawMinimap(pair(SCREEN_W-300,50));
 
 		testGraph.draw(v);
 		testGraph2.draw(v);

@@ -41,6 +41,7 @@ import allegro5.allegro_color;
 import allegro5.allegro_audio;
 import allegro5.allegro_acodec;
 
+import testsmod;
 import audiomod;
 import helper;
 import objects;
@@ -48,7 +49,6 @@ import viewportsmod;
 import molto;
 import g;
 display_t display;
-
 //=============================================================================
 
 //https://www.allegro.cc/manual/5/keyboard.html
@@ -543,16 +543,9 @@ void execute()
 
 void shutdown() 
 	{
-	con.compress();
+//	con.compress();
 	}
 	
-void runAllegroTest()
-	{
-//	unit[] units;
-//	units ~= new ship(0, 0, 1, 1);
-//	ship s0 = cast(ship)units[0];
-	}
-
 void setupFloatingPoint()
 	{
 /+ WARN FIXME not compiling with recent install of dmd  kat2023  
@@ -570,6 +563,8 @@ void setupFloatingPoint()
 //=============================================================================
 int main(string [] args)
 	{
+	bool modeRunAllegroTests=false;
+	bool modeRunConsoleTests=false;
 	setupFloatingPoint();	
 	writeln("args length = ", args.length);
 	foreach(size_t i, string arg; args)
@@ -577,21 +572,41 @@ int main(string [] args)
 		writeln("[",i, "] ", arg);
 		}
 		
-	if(args.length > 2)
+	if(args.length >= 2)
 		{
-		g.SCREEN_W = to!int(args[1]);
-		g.SCREEN_H = to!int(args[2]);
-		writeln("New resolution is ", g.SCREEN_W, "x", g.SCREEN_H);
+		import std.string : isNumeric;
+		if(args[1].isNumeric)
+			{
+			g.SCREEN_W = to!int(args[1]);
+			g.SCREEN_H = to!int(args[2]);
+			writeln("New resolution is ", g.SCREEN_W, "x", g.SCREEN_H);
+			}else{
+			if(args[1].toLower == "test")
+				{
+				modeRunConsoleTests=true;
+				}
+			if(args[1].toLower == "allegrotest")
+				{
+				modeRunAllegroTests=true;
+				}
+			}
 		}
 
-	return al_run_allegro(
+	if(modeRunConsoleTests)
 		{
-		initialize();
-		execute();
-		runAllegroTest();
-		shutdown();
-		return 0;
-		});
-
+		runConsoleTests();
+		}else{
+	
+		return al_run_allegro(
+			{
+			initialize();
+			if(modeRunAllegroTests)
+				runAllegroTests();
+			else 
+				execute();
+			shutdown();
+			return 0;
+			});
+		}
 	return 0;
 	}

@@ -90,6 +90,7 @@ class pygmentize// : prettyPrinter
 
 		stats.swLogging.stop();
 		stats.nsLogging = stats.swLogic.peek.total!"nsecs"; // NOTE only need to update this when we actually access it in the stats class
+		g.stats.numberLogEntries++;
 	
 		return input;
 		}
@@ -108,6 +109,7 @@ class pygmentize// : prettyPrinter
 			
 		stats.swLogging.stop();
 		stats.nsLogging = stats.swLogic.peek.total!"nsecs"; // NOTE only need to update this when we actually access it in the stats class
+		g.stats.numberLogEntries++;
 	
 		return input;
 		}
@@ -143,8 +145,8 @@ class pygmentize// : prettyPrinter
 		
 	~this()
 		{
-		writefln("total stats.nsLogging time", stats.nsLogging);
-		writefln("total log entries", stats.numberLogEntries);
+		writeln("total stats.nsLogging time ", stats.nsLogging/1000/1000, "s");
+		writeln("total log entries ", stats.numberLogEntries);
 		if(hasStreamStarted)pipes.stdin.close();
 		}
 	}
