@@ -44,45 +44,6 @@ ALLEGRO_TIMER* 			screencap_timer;
 
 FONT* 	font1;
 
-//BITMAP* freighter_bmp;
-//BITMAP* small_asteroid_bmp;
-//BITMAP* medium_asteroid_bmp;
-//BITMAP* large_asteroid_bmp;
-//BITMAP* space_bmp;
-/+BITMAP* trailer_bmp;
-BITMAP* turret_bmp;
-BITMAP* turret_base_bmp;
-BITMAP* satellite_bmp;
-
-BITMAP* chest_bmp;
-BITMAP* chest_open_bmp;
-BITMAP* dwarf_bmp;
-BITMAP* goblin_bmp;
-BITMAP* boss_bmp;
-BITMAP* tree_bmp;
-BITMAP* wall_bmp;
-BITMAP* lava_bmp;
-BITMAP* water_bmp;
-BITMAP* wood_bmp;
-BITMAP* stone_bmp;
-BITMAP* reinforced_wall_bmp;
-BITMAP* sword_bmp;
-BITMAP* carrot_bmp;
-BITMAP* potion_bmp;
-BITMAP* blood_bmp;
-+/
-/+BITMAP* ship_bmp;
-BITMAP* smoke_bmp;
-BITMAP* bullet_bmp;
-BITMAP* dude_bmp;
-BITMAP* fountain_bmp;
-BITMAP* bmp_grass;
-BITMAP* bmp_cow; // switching order for easier IDE searching. todo convert others other.
-BITMAP* bmp_rain;
-BITMAP* bmp_explosion;
-BITMAP* bmp_sand;
-BITMAP* bmp_asteroid;
-+/
 int SCREEN_W = 1360;
 int SCREEN_H = 700;
 
@@ -141,7 +102,7 @@ class bitmapHandler
 	
 	void loadJSON(string jsonpath="./data/manifest.json")
 		{
-		import std.json;
+		import std.json : JSONValue, parseJSON;
 		import std.file : readText;
 		string s = readText(jsonpath);
 		JSONValue js = parseJSON(s);
@@ -224,49 +185,6 @@ void loadResources()
 	bh = new bitmapHandler();
 	bh.loadJSON();
 	font1 = getFont("./data/DejaVuSans.ttf", 18);
-/+	ship_bmp			  	= getBitmap("./data/ship.png");
-	bullet_bmp  			= getBitmap("./data/bullet.png");
-
-	freighter_bmp		  	= getBitmap("./data/freighter.png");
-	small_asteroid_bmp  	= getBitmap("./data/small_asteroid.png");
-	medium_asteroid_bmp  	= getBitmap("./data/medium_asteroid.png");
-	large_asteroid_bmp  	= getBitmap("./data/large_asteroid.png");
-	space_bmp  				= getBitmap("./data/seamless_space.png");
-	trailer_bmp	  			= getBitmap("./data/trailer.png");
-	turret_bmp	  			= getBitmap("./data/turret.png");
-	turret_base_bmp			= getBitmap("./data/turret_base.png");
-	satellite_bmp			= getBitmap("./data/satellite.png");
-	
-	sword_bmp  			= getBitmap("./data/sword.png");
-	carrot_bmp  		= getBitmap("./data/carrot.png");
-	potion_bmp  		= getBitmap("./data/potion.png");
-	chest_bmp  			= getBitmap("./data/chest.png");
-	chest_open_bmp  	= getBitmap("./data/chest_open.png");
-
-	goblin_bmp  	= getBitmap("./data/goblin.png");
-	dwarf_bmp  		= getBitmap("./data/dwarf.png");
-	boss_bmp 	 	= getBitmap("./data/boss.png");
-
-	wall_bmp  		= getBitmap("./data/wall.png");
-	bmp_grass  		= getBitmap("./data/grass.png");
-	lava_bmp  		= getBitmap("./data/lava.png");
-	water_bmp  		= getBitmap("./data/water.png");
-	wood_bmp  		= getBitmap("./data/wood.png");
-	stone_bmp  		= getBitmap("./data/brick.png");
-	tree_bmp  		= getBitmap("./data/tree.png");
-	blood_bmp  		= getBitmap("./data/blood.png");
-	reinforced_wall_bmp = getBitmap("./data/reinforced_wall.png");	
-
-	dude_bmp	  			= getBitmap("./data/dude.png");
-	smoke_bmp  				= getBitmap("./data/smoke.png");
-	fountain_bmp  			= getBitmap("./data/fountain.png");
-
-	bmp_cow  		= getBitmap("./data/cow.png");	
-	bmp_rain  		= getBitmap("./data/rain.png");	
-	bmp_explosion  	= getBitmap("./data/explosion.png");	
-	bmp_sand  		= getBitmap("./data/wall2.png");	
-	bmp_asteroid  	= getBitmap("./data/asteroid2.png");
-+/
 	}
 
 world_t world;

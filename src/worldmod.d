@@ -44,7 +44,6 @@ class world_t
 	this()
 		{		
 		con = new logger(); // WARN this should technically be initialized/owned outside world?
-//		units = new unit;
 		players ~= new player(); //CHICKEN OR EGG.
 		players[0].myTeam = 0; // teams[0];
 
@@ -59,7 +58,6 @@ class world_t
 
 		con.log("ello love 2302");
 
-		//objects ~= new lawnMower(pair(800, 400));
 		structures ~= new structure(700, 400, bh["fountain"]);
 		
 		testGraph  = new intrinsicGraph!float("Draw (ms) ", g.stats.nsDraw , 100, 200, COLOR(1,0,0,1), 1_000_000);
@@ -160,10 +158,7 @@ class world_t
 		if(timer > 200)
 			{
 			}
-/+
-		if(key_space_down)players[0].currentShip.actionFire();
-		if(key_q_down)players[0].findNextShip();
-+/		
+
 		auto p = objects[0];
 		if(key_w_down)p.actionUp();
 		if(key_s_down)p.actionDown();

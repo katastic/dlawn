@@ -30,7 +30,7 @@ float STAT_GRAVITY_ACCEL = 235;
 float STAT_ACCEL = .1;
 float STAT_ROTSPEED = degToRad(10);
 
-float stat_meteor_fallspeed =12241;
+float stat_meteor_fallspeed = 12_241;
 float stat_meteor_explosion_diameter = 234;
 float stat_meteor_damage = 23;
 // also combined meteors
@@ -386,8 +386,8 @@ class wall2dStyle  // how do we integrate any flags with object code?
 				isGrounded = true;
 				vel.y = 0;
 				// this is where we should check to see if we can move up a pixel. not just blindly move up though.
-				if( vel.x < 0 && isValidMovement(pair(pos, -1, -1)) || 
-					vel.x > 0 && isValidMovement(pair(pos, -1,  1)))pos.y--; 
+				if( (vel.x < 0 && isValidMovement(pair(pos, -1, -1))) || 
+					(vel.x > 0 && isValidMovement(pair(pos, -1,  1))))pos.y--; 
 				}
 
 			if(!isValidMovement(pair(pos, vel.x, 0))) /// If we can move horizontally, update facing direction

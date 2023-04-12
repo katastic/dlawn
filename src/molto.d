@@ -676,6 +676,38 @@ if (anySatisfy!(isa!pos, A))
     }
 }
 
+/// This function corrects a bug/error/oversight in al_save_bitmap that dumps ALPHA channel from the screen into the picture
+///
+void al_save_screen(string path)
+	{
+	import std.datetime.stopwatch : benchmark, StopWatch, AutoStart;
+	auto sw = StopWatch(AutoStart.yes);
+	auto disp = al_get_backbuffer(al_display);
+	auto w = disp.w;
+	auto h = disp.h;
+	ALLEGRO_BITMAP* temp = al_create_bitmap(w, h);
+	al_lock_bitmap(temp, al_get_bitmap_format(temp), ALLEGRO_LOCK_WRITEONLY);
+	al_lock_bitmap(disp, al_get_bitmap_format(temp), ALLEGRO_LOCK_READONLY); // makes HUGE difference (6.4 seconds vs 270 milliseconds)
+	al_set_target_bitmap(temp);
+	for(int j = 0; j < h; j++)
+		for(int i = 0; i < w; i++)
+			{
+			auto pixel = al_get_pixel(disp, i, j);
+			pixel.a = 1.0; // remove alpha
+			al_put_pixel(i, j, pixel);
+			}
+	al_unlock_bitmap(disp);
+	al_unlock_bitmap(temp);
+	al_save_bitmap(path.toStringz, temp);
+	al_reset_target();
+	al_destroy_bitmap(temp);
+	
+	sw.stop();
+	int secs, msecs;
+	sw.peek.split!("seconds", "msecs")(secs, msecs);
+	writefln("Saving screenshot took %d.%ds", secs, msecs);
+	}
+
 /// Draws a rectangle but it's missing the inside of lines. Currently just top left and bottom right corners.
 void drawSplitRectangle(pair ul, pair lr, float legSize, float thickness, COLOR c)
 	{
