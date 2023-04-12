@@ -351,11 +351,11 @@ void handleMouseAt(int x, int y, viewport v)
 	float cx = x + v.x - v.ox;
 	float cy = y + v.y + v.oy;
 	
-	if(g.world.map.isInsideMap(pair(cx,cy)))
+	if(g.world.map2.isInsideMap(pair(cx,cy)))
 		{
-		g.world.map.data.set(ipair(pair(cx, cy)), 0);
-		al_set_target_bitmap(g.world.map.layers[1].data);
-		al_draw_pixel(cx, cy, color(1,0,0,1));
+//		g.world.map.data.set(ipair(pair(cx, cy)), 0);
+//		al_set_target_bitmap(g.world.map.layers[1].data);
+//		al_draw_pixel(cx, cy, color(1,0,0,1));
 		}
 	
 	}
@@ -486,14 +486,6 @@ void execute()
 					
 					if(event.mouse.button == 1)
 						{
-						viewport v = viewports[0];
-						bitmap* bmp = g.world.map.layers[1].data;
-						//al_lock_bitmap(bmp, al_get_bitmap_format(bmp), ALLEGRO_LOCK_READONLY);
-						al_set_target_bitmap(bmp);
-//						al_draw_filled_circle(mouse_x + v.x - v.ox, mouse_y + v.y - v.oy, 50, color(0,0,0,1));
-						al_draw_filled_circle(g.world.objects[1].pos.x + v.x - v.ox, g.world.objects[1].pos.y + v.y - v.oy, 50, color(0,0,0,1));
-						al_reset_target();
-						//al_unlock_bitmap(bmp);
 						}
 					if(event.mouse.button == 2)
 						{

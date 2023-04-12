@@ -15,7 +15,7 @@ import bulletsmod;
 import std.stdio;
 import std.math;
 import std.random;
-
+/+
 class laser : gun
 	{
 	this(ship newOwner)
@@ -152,4 +152,4 @@ fireProjectile();}
 			cooldown = gunCooldownTime;
 			}
 		}
-	}
+	}+/

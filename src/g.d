@@ -13,6 +13,7 @@ import std.random;
 import std.algorithm : remove;
 import std.datetime;
 import std.datetime.stopwatch : benchmark, StopWatch, AutoStart;
+import std.exception;
 
 import helper;
 import objects;
@@ -26,7 +27,7 @@ import console;
 import worldmod;
 
 const int TILE_W = 32;
-const int TILE_H = 32;
+//const int TILE_H = 32;
 const int MAP_W = 256;
 const int MAP_H = 256;
 
@@ -43,16 +44,12 @@ ALLEGRO_TIMER* 			screencap_timer;
 
 FONT* 	font1;
 
-BITMAP* ship_bmp;
-BITMAP* freighter_bmp;
-BITMAP* smoke_bmp;
-BITMAP* small_asteroid_bmp;
-BITMAP* medium_asteroid_bmp;
-BITMAP* large_asteroid_bmp;
-BITMAP* space_bmp;
-BITMAP* bullet_bmp;
-BITMAP* dude_bmp;
-BITMAP* trailer_bmp;
+//BITMAP* freighter_bmp;
+//BITMAP* small_asteroid_bmp;
+//BITMAP* medium_asteroid_bmp;
+//BITMAP* large_asteroid_bmp;
+//BITMAP* space_bmp;
+/+BITMAP* trailer_bmp;
 BITMAP* turret_bmp;
 BITMAP* turret_base_bmp;
 BITMAP* satellite_bmp;
@@ -62,10 +59,8 @@ BITMAP* chest_open_bmp;
 BITMAP* dwarf_bmp;
 BITMAP* goblin_bmp;
 BITMAP* boss_bmp;
-BITMAP* fountain_bmp;
 BITMAP* tree_bmp;
 BITMAP* wall_bmp;
-BITMAP* bmp_grass;
 BITMAP* lava_bmp;
 BITMAP* water_bmp;
 BITMAP* wood_bmp;
@@ -75,13 +70,19 @@ BITMAP* sword_bmp;
 BITMAP* carrot_bmp;
 BITMAP* potion_bmp;
 BITMAP* blood_bmp;
-
++/
+/+BITMAP* ship_bmp;
+BITMAP* smoke_bmp;
+BITMAP* bullet_bmp;
+BITMAP* dude_bmp;
+BITMAP* fountain_bmp;
+BITMAP* bmp_grass;
 BITMAP* bmp_cow; // switching order for easier IDE searching. todo convert others other.
 BITMAP* bmp_rain;
 BITMAP* bmp_explosion;
 BITMAP* bmp_sand;
 BITMAP* bmp_asteroid;
-
++/
 int SCREEN_W = 1360;
 int SCREEN_H = 700;
 
@@ -97,11 +98,46 @@ intrinsicGraph!float testGraph2;
 +/
 class bitmapHandler 
 	{
-	// ADD list of bools for each to track whether they were ever used for trimming unused assets
-	bitmap*[string] bmps;
-	alias bmps this;
+	bool usePrettyConsole=false; // We lose stdout/stderr ordering when we pipe to pretty printer. Not terrible, but different.
 	
+	// - ADD list of bools for each to track whether they were ever used for trimming unused assets
+	// - we can also keep track of number of requests for a bitmap. Not sure of how that's useful information?
+	// - 
+	bitmap*[string] data;
+//	alias data this;
+
+	bitmap* opIndex(string key)
+		{
+		return *(key in data);
+		}
+
+// see? https://dlang.org/spec/operatoroverloading.html
+// opequal tohash for associated arrays?
+	/+
+	override size_t toHash() { return a + b; }
+
+    override bool opEquals(Object o)
+    {
+        Foo foo = cast(Foo) o;
+        return foo && a == foo.a && b == foo.b;
+    }
+    https://dlang.org/spec/hash-map.html
+    +/
+    
 	// we could support a load function that uses structs/tuples of name, paths
+	
+	bitmap* get(string name)
+		{
+		bitmap** b;
+		b = name in data;
+		if(b is null)
+			{
+			if(usePrettyConsole)con.log(format("Attempting to get a bitmap [%s] that wasn't loaded!", name));
+			else writefln("Attempting to get a bitmap [%s] that wasn't loaded!", name);
+			assert(false);
+			}
+		return *b;
+		}
 	
 	void loadJSON(string jsonpath="./data/manifest.json")
 		{
@@ -111,19 +147,19 @@ class bitmapHandler
 		JSONValue js = parseJSON(s);
 		foreach(i, j; js["files"].array)
 			{
-			writeln(i, " ", j, " ", j.type, " ", j[0], " ", j[1]);
+//			writeln(i, " ", j, " ", j.type, " ", j[0], " ", j[1]);
 			string name = j[0].str; 
 			string path = j[1].str;
-			writefln("[%s]", name);
-			writefln("[%s]", path);
+//			writefln("[%s]", name);
+//			writefln("[%s]", path);
 			load(name, path);
 			}
 		}
 	
 	void load(string name, string path) /// assert/exception guarded bitmap load
 		{
-		assert((name in bmps) is null, "Overwriting existing bitmap detected!");
-		bmps[name] = getBitmap(path);
+		assert((name in data) is null, "Overwriting existing bitmap detected!");
+		data[name] = getBitmap(path);
 		}
 		
 	void loadAA(immutable string[string] aa) /// associated array bulk load
@@ -150,13 +186,13 @@ class bitmapHandler
 	void list() /// List all active bitmaps
 		{
 		import std.array : byPair;
-		foreach(b; bmps.byPair)writeln(b); //key and pair struct
+		foreach(b; data.byPair)writeln(b); //key and pair struct
 		}
 
 	void remove(string name)
 		{
-		al_destroy_bitmap(bmps[name]); 
-		bmps.remove(name);
+		al_destroy_bitmap(data[name]); 
+		data.remove(name);
 		}
 	}
 
@@ -188,19 +224,14 @@ void loadResources()
 	bh = new bitmapHandler();
 	bh.loadJSON();
 	font1 = getFont("./data/DejaVuSans.ttf", 18);
-
-	dude_bmp	  			= getBitmap("./data/dude.png");
-	smoke_bmp  				= getBitmap("./data/smoke.png");
-	fountain_bmp  			= getBitmap("./data/fountain.png");
-
+/+	ship_bmp			  	= getBitmap("./data/ship.png");
 	bullet_bmp  			= getBitmap("./data/bullet.png");
-	ship_bmp			  	= getBitmap("./data/ship.png");
+
 	freighter_bmp		  	= getBitmap("./data/freighter.png");
 	small_asteroid_bmp  	= getBitmap("./data/small_asteroid.png");
 	medium_asteroid_bmp  	= getBitmap("./data/medium_asteroid.png");
 	large_asteroid_bmp  	= getBitmap("./data/large_asteroid.png");
 	space_bmp  				= getBitmap("./data/seamless_space.png");
-	bullet_bmp  			= getBitmap("./data/bullet.png");
 	trailer_bmp	  			= getBitmap("./data/trailer.png");
 	turret_bmp	  			= getBitmap("./data/turret.png");
 	turret_base_bmp			= getBitmap("./data/turret_base.png");
@@ -226,11 +257,16 @@ void loadResources()
 	blood_bmp  		= getBitmap("./data/blood.png");
 	reinforced_wall_bmp = getBitmap("./data/reinforced_wall.png");	
 
+	dude_bmp	  			= getBitmap("./data/dude.png");
+	smoke_bmp  				= getBitmap("./data/smoke.png");
+	fountain_bmp  			= getBitmap("./data/fountain.png");
+
 	bmp_cow  		= getBitmap("./data/cow.png");	
 	bmp_rain  		= getBitmap("./data/rain.png");	
 	bmp_explosion  	= getBitmap("./data/explosion.png");	
 	bmp_sand  		= getBitmap("./data/wall2.png");	
 	bmp_asteroid  	= getBitmap("./data/asteroid2.png");
++/
 	}
 
 world_t world;

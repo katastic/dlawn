@@ -247,7 +247,7 @@ struct ipair
 		float x, y;
 //		writeln("going from ", p);
 		if(p.x < 0 )x = ceil(p.x) - (TILE_W-1);// FIXME. TODO. THIS WORKS But do we UNDERSTAND IT ENOUGH?
-		if(p.y < 0 )y = ceil(p.y) - (TILE_H-1);
+		if(p.y < 0 )y = ceil(p.y) - (TILE_W-1);
 		if(p.x >= 0)x = floor(p.x);
 		if(p.y >= 0)y = floor(p.y);
 
@@ -263,7 +263,7 @@ struct ipair
 //		writeln("  going from ", p, " ", xOffset, " ", yOffset);
 		float x, y;
 		if(p.x + xOffset < 0 )x = ceil(p.x + xOffset) - (TILE_W-1); // FIXME. TODO. THIS WORKS But do we UNDERSTAND IT ENOUGH?
-		if(p.y + yOffset < 0 )y = ceil(p.y + yOffset) - (TILE_H-1);
+		if(p.y + yOffset < 0 )y = ceil(p.y + yOffset) - (TILE_W-1);
 		if(p.x + xOffset >= 0)x = floor(p.x + xOffset);
 		if(p.y + yOffset >= 0)y = floor(p.y + yOffset);
 
@@ -504,11 +504,11 @@ void draw(T...)(T t)
 struct center{bool yes;}
 center centered;
 
-void test()
-	{
+//void test()
+//	{
 //	draw(bmp_grass);
-	draw(bmp_grass, pair(320, 320), center(true));
-	}
+//	draw(bmp_grass, pair(320, 320), center(true));
+//	}
 
 // later:
 // pairs

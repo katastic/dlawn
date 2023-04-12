@@ -22,7 +22,7 @@ struct rainWeatherHandler
 		{
 		for(int i = 0; i < 1; i++)
 			{
-			particle p = particle(uniform(0, 1366), 0, 1, 3, 0, 1000, bmp_rain);
+			particle p = particle(uniform(0, 1366), 0, 1, 3, 0, 1000, bh["rain"]);
 			p.doScaling = false;
 			p.doDieOnHit = true;
 			p.doTinting = false;
@@ -59,7 +59,7 @@ struct particle
 		lifetime = _lifetime;
 		maxLifetime = _lifetime;
 		rotation = uniform!"[]"(0, 3);
-		bmp = g.smoke_bmp;
+		bmp = g.bh["smoke"];
 		assert(bmp !is null);
 		}
 	
@@ -95,7 +95,7 @@ struct particle
 		lifetime = _lifetime;
 		maxLifetime = _lifetime;
 		rotation = uniform!"[]"(0, 3);
-		bmp = smoke_bmp;
+		bmp = bh["smoke"];
 		assert(bmp !is null);
 		}
 		
@@ -126,7 +126,7 @@ struct particle
 	
 	void onTick() 
 		{
-		if(!g.world.map.isValidMovement(pair(x + vx, y + vy)))
+		if(!g.world.map2.isValidMovement(pair(x + vx, y + vy)))
 			{
 			vx=0;
 			vy=0;

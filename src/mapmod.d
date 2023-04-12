@@ -377,6 +377,7 @@ class pixelMap : mapBase
 class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if there was a separate definition? like tileType vs tileInstance?
 	{
 	float w=256, h=256;
+	idimen size=idimen(256,256);
 	uint[256][256] data;
 		
 	void drawRectangle(rect r, ubyte val)
@@ -413,10 +414,9 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 	
 	this()
 		{
-		dim = idimen(256,256);
 		int z = 0;
-		for(int i = 0; i < dim.w; i++)
-			for(int j = 0; j < dim.h; j++)
+		for(int i = 0; i < size.w; i++)
+			for(int j = 0; j < size.h; j++)
 				{
 				data[i][j] = 0;
 				z++;
@@ -436,8 +436,8 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 		float x = 0, y = 0;
 		int iMin = capLow (cast(int)v.ox/TILE_W, 0);
 		int jMin = capLow (cast(int)v.oy/TILE_W, 0);		
-		int iMax = capHigh(SCREEN_W/TILE_W + cast(int)v.ox/TILE_W, MAP_W-1);
-		int jMax = capHigh(SCREEN_H/TILE_W + cast(int)v.oy/TILE_W, MAP_H-1);
+		int iMax = capHigh(SCREEN_W/TILE_W + cast(int)v.ox/TILE_W, MAP_W);
+		int jMax = capHigh(SCREEN_H/TILE_W + cast(int)v.oy/TILE_W, MAP_H);
 		
 		for(int i = iMin; i < iMax; i++)
 			for(int j = jMin; j < jMax; j++)
@@ -446,9 +446,9 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 				y = j*TILE_W;
 				auto val = data[i][j];
 				if(val == 0)
-					drawBitmap(bmp_grass, pair(x-v.ox, y-v.oy), 0);
+					drawBitmap(bh["grass"], pair(x-v.ox, y-v.oy), 0);
 				else
-					drawBitmap(bmp_sand, pair(x-v.ox, y-v.oy), 0);
+					drawBitmap(bh["sand"], pair(x-v.ox, y-v.oy), 0);
 				stats.numberStructures.drawn++; //todo rename
 				}
 		}

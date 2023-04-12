@@ -27,7 +27,7 @@ import g;
 
 class world_t
 	{	
-	pixelMap map;
+//	pixelMap map;
 	tileMap map2;
 	player[] players;
 	team[] teams;
@@ -48,7 +48,7 @@ class world_t
 		players ~= new player(); //CHICKEN OR EGG.
 		players[0].myTeam = 0; // teams[0];
 
-		map = new pixelMap(idimen(4096, 4096));
+//		map = new pixelMap(idimen(4096, 4096));
 		map2 = new tileMap();
 		
 		objects ~= new dude(pair(750, 400));
@@ -60,13 +60,13 @@ class world_t
 		con.log("ello love 2302");
 
 		//objects ~= new lawnMower(pair(800, 400));
-		structures ~= new structure(700, 400, fountain_bmp);
+		structures ~= new structure(700, 400, bh["fountain"]);
 		
 		testGraph  = new intrinsicGraph!float("Draw (ms) ", g.stats.nsDraw , 100, 200, COLOR(1,0,0,1), 1_000_000);
 		testGraph2 = new intrinsicGraph!float("Logic (ms)", g.stats.msLogic, 100, 320, COLOR(1,0,0,1), 1_000_000);
 		
 		import std.random : uniform;
-		for(int i =0; i< 300;i++)meteors ~= new meteor(pair(uniform(0,map.data.w-1),uniform(0,map.data.h-1))); //test 
+		for(int i =0; i< 300;i++)meteors ~= new meteor(pair(uniform(0,map2.w*TILE_W-1),uniform(0,map2.h*TILE_W-1))); //test 
 		
 		viewports[0] = new viewport(0, 0, 1366, 768, 0, 0);
 		assert(objects[0] !is null);

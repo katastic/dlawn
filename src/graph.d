@@ -5,6 +5,11 @@ import allegro5.allegro_font;
 import allegro5.allegro_ttf;
 import allegro5.allegro_color;
 
+// todo:
+// - annotated peak detection
+// - support negative data properly
+// - 
+
 import molto;
 
 import g;

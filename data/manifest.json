@@ -1,6 +1,9 @@
 { "files":
 		[
-			["goblin","./data/goblin.png"],
+			["dude","./data/dude.png"],
+			["smoke","./data/smoke.png"],
+			["grass","./data/grass.png"],
+			["fountain","./data/fountain.png"],
 			["rain","./data/rain.png"],
 			["cow","./data/cow.png"],
 			["explosion","./data/explosion.png"],

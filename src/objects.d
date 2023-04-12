@@ -215,7 +215,7 @@ class meteor : baseObject
 		{
 		float cvx = cos(angle)*0;
 		float cvy = sin(angle)*0;
-		auto p = particle(pos.x, pos.y, 0, 0, 0, 100, bmp_explosion);
+		auto p = particle(pos.x, pos.y, 0, 0, 0, 100, bh["explosion"]);
 //		p.isGrowing = true;
 		g.world.particles ~= p;
 		}
@@ -223,7 +223,7 @@ class meteor : baseObject
 	final void respawn()
 		{
 		import std.random : uniform;
-		pos.x = uniform(0, g.world.map.data.w-20);
+		pos.x = uniform(0, g.world.map2.w*TILE_W-20);
 		pos.y = 0;
 		vel.x = uniform(-3, 3);
 		}
@@ -259,7 +259,7 @@ class meteor : baseObject
 	this(pair _pos)
 		{
 		vel = pair(-3, 3);
-		super(_pos, vel, g.bmp_asteroid);
+		super(_pos, vel, bh["asteroid"]);
 		moveStyle = new fallingStyle!meteor(this);
 		}
 	
@@ -431,7 +431,7 @@ class cow : dude
 	this(pair _pos)
 		{
 		super(_pos);
-		bmp = bmp_cow;
+		bmp = bh["cow"];
 		facesVelocity = true;
 		vel.x = 2f;
 		moveStyle.keepMoving = true;
@@ -469,7 +469,7 @@ class dude : baseObject
 	this(pair _pos)
 		{			
 		moveStyle = new wall2dStyle(this);
-		super(_pos, pair(0, 0), g.dude_bmp);
+		super(_pos, pair(0, 0), bh["dude"]);
 		}
 
 	void mapCollision(DIR hitDirection)
@@ -601,7 +601,7 @@ class baseObject
 
 // old
 // -----------------------------------------------------------------------
-class ship : unit
+/+class ship : unit
 	{
 	string name="";
 	bool isControlledByAI=false;
@@ -610,7 +610,6 @@ class ship : unit
 	bool isLanded=false; /// on planet
 	bool isDocked=false; /// attached to object
 	gun myGun;
-	turret[] turrets;
 	int numDudesInside; // NYI, we don't need (at least at this point) to keep actual unique dude classes inside. Just delete them and keep track of how many we had. (ala all level-1 blue pikmin are the same)
 	int numDudesInsideMax = 20;
 	
@@ -656,7 +655,6 @@ class ship : unit
 		//drawShield(pair(x, y), v, bmp.w, 5, COLOR(0,0,1,1), shieldHP/SHIELD_MAX);
 		super.draw(v);
 		
-		foreach(t; turrets){t.draw(v); g.stats.numberUnits.drawn++; }
 		
 		if(name != "")
 			{
@@ -757,7 +755,6 @@ class ship : unit
 		/// Subunit logic
 		myGun.onTick();
 		doShield();
-		foreach(t; turrets)t.onTick();
 		if(isControlledByAI)runAI();
 			
 		pos += vel;
@@ -787,6 +784,7 @@ class ship : unit
 		if(!isLanded)myGun.actionFire();
 		}
 	}
++/
 
 // method 1
 // ------------------------------------------------------------------------

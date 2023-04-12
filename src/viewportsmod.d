@@ -77,8 +77,8 @@ class viewport
 				{
 				clampLow(ox, 0);
 				clampLow(oy, 0);
-				if(ox + w > g.world.map.size.w)clampHigh(ox, g.world.map.size.w - w); // fixme?
-				if(oy + h > g.world.map.size.h)clampHigh(oy, g.world.map.size.h - h);
+				if(ox + w > g.world.map2.size.w*TILE_W)clampHigh(ox, g.world.map2.size.w*TILE_W - w); // fixme?
+				if(oy + h > g.world.map2.size.h*TILE_W)clampHigh(oy, g.world.map2.size.h*TILE_W - h);
 				}
 /+ fixme
 			if(ox < ao.pos.x - w/2)ox-=((ao.pos.x - w/2) - ox)/2;
