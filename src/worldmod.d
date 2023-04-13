@@ -43,7 +43,6 @@ class world_t
 
 	this()
 		{		
-		con = new logger(); // WARN this should technically be initialized/owned outside world?
 		players ~= new player(); //CHICKEN OR EGG.
 		players[0].myTeam = 0; // teams[0];
 
@@ -123,16 +122,29 @@ class world_t
 					}
 				}
 			}
+
+		void drawStat4(T)(ref T obj, string name)
+			{
+			foreach(ref o; obj)
+				{
+				if(o.draw(v))
+					{
+					stats[name].drawn++;
+					}else{
+					stats[name].clipped++;
+					}
+				}
+			}
 			
 //		map.onDraw(viewports[0]);
 		map2.onDraw(viewports[0]);
 		
-		drawStat3(bullets	, stats.numberBullets);
-		drawStat3(particles	, stats.numberParticles);
-		drawStat3(units		, stats.numberUnits);
-		drawStat3(objects	, stats.numberDudes);
-		drawStat3(structures, stats.numberStructures);		
-		drawStat3(meteors, stats.numberStructures);		
+		drawStat4(bullets	, "bullets");
+		drawStat4(particles	, "particles");
+		drawStat4(units		, "units");
+		drawStat4(objects	, "dudes");
+		drawStat4(structures, "structures");		
+		drawStat4(meteors, "meteors");		
 
 //		map.drawMinimap(pair(SCREEN_W-300,50));
 

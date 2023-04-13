@@ -1,5 +1,5 @@
 #!/bin/sh
-dmd -debug -gs -g -ofmain `ls ./src/*.d` -L-L./lib/ 
+dmd -debug -gs -gf -gdwarf=5 -g -ofmain `ls ./src/*.d` -L-L./lib/ 
 
 # -preview=shortenedMethods  should be automatically on by newer versions as of early 2023
 

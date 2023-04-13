@@ -319,7 +319,43 @@ struct statValue
 	}
 
 struct statistics_t
-	{ 
+	{
+	statValue[string] data;
+
+	statValue* opIndex(string key)
+		{
+//		writeln("opIndex(string key)");
+//		writeln("  ", key);
+		auto p = (key in data);
+//		writeln("  P:", p);
+		if(p is null)data[key] = statValue(0,0);
+		auto p2 = (key in data);
+//		writeln("  P:", *p2);
+//		writeln("  data[key]: ", data[key]);
+		return p2;
+		}
+		
+	void inc(string key) /// increment
+		{
+//		writeln("test1 - inc(string key)");
+		statValue* p = opIndex(key);
+//		writeln("test2");
+		(*p).drawn += 1;
+//		writeln("test3");
+//		writeln(key, " is now: ", (*p).drawn);
+		}
+		
+	void incClipped(string key) /// increment
+		{
+		statValue* p = opIndex(key);
+		(*p).clipped += 1;
+		}
+		
+	void list() /// list all keys
+		{
+		assert(false, "NYI");
+		}
+
 	// why not use an associated array? runtime add statistics and enumerate them?
 	// but how do we draw them before they "exist" in the stats dialog? One way,
 	// in the dialog, on read, we also go if(name is null)name = 0;
@@ -345,13 +381,18 @@ struct statistics_t
 	float nsDraw=0;
 	float nsLogging=0; //needed?
 	
-	void reset()
+	void reset() // reset counters
 		{ // note we do NOT reset fps and frames_passed here as they are cumulative or handled elsewhere.
 		numberUnits = statValue.init;
 		numberParticles = statValue.init;
 		numberStructures = statValue.init;
 		numberBullets = statValue.init;
 		numberDudes = statValue.init;
+
+		foreach(key, val; data) //TEST foreach isn't supposed to modify collections?
+			{
+			data[key] = statValue(0,0);
+			}
 		}
 	}
 

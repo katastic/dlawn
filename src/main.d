@@ -128,7 +128,10 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 		{
 		al_set_blender(ALLEGRO_BLEND_OPERATIONS.ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 		}
-				
+
+	import console : logger;
+	con = new logger(); // WARN this should technically be initialized/owned outside world?
+			
 	// load animations/etc
 	// --------------------------------------------------------
 	g.loadResources();
@@ -240,21 +243,26 @@ struct display_t
 					g.stats.numberBullets.drawn + 
 					g.stats.numberDudes.drawn +  
 					g.stats.numberStructures.drawn) * g.stats.fps, g.world.objects[0].pos.x, g.world.objects[0].pos.y ); 
-		
-//		drawText2(20, "money [%d] deaths [%d]", g.world.players[0].myTeamIndex.money, g.world.players[0].deaths);
-		drawText2(20, "drawn  : structs [%d] particles [%d] bullets [%d] dudes [%d] units [%d]", 
-			g.stats.numberStructures.drawn, 
-			g.stats.numberParticles.drawn,
-			g.stats.numberBullets.drawn,
-			g.stats.numberDudes.drawn,
-			g.stats.numberUnits.drawn);
 
-		drawText2(20, "clipped: structs [%d] particles [%d] bullets [%d] dudes [%d] units [%d]", 
-			g.stats.numberStructures.clipped, 
-			g.stats.numberParticles.clipped,
-			g.stats.numberBullets.clipped,
-			g.stats.numberDudes.clipped,
-			g.stats.numberUnits.clipped);
+		string makeString(string name)
+			{
+			string str = name ~ " " ~ format("%d", (*stats[name]).drawn);
+			return str;
+			}
+
+		drawText2(20, "drawn  : structs [%d] particles [%d] bullets [%d] dudes [%d] units [%d]", 
+			(*stats["meteors"]).drawn, 
+			(*stats["particles"]).drawn,
+			(*stats["bullets"]).drawn,
+			(*stats["dudes"]).drawn,
+			(*stats["units"]).drawn);
+
+		drawText2(20, "clipped  : structs [%d] particles [%d] bullets [%d] dudes [%d] units [%d]", 
+			(*stats["meteors"]).clipped, 
+			(*stats["particles"]).clipped,
+			(*stats["bullets"]).clipped,
+			(*stats["dudes"]).clipped,
+			(*stats["units"]).clipped);
 
 		float ifNotZeroPercent(T)(T drawn, T clipped)
 			{
@@ -272,15 +280,12 @@ struct display_t
 				return cast(float)v.clipped / (cast(float)v.drawn + cast(float)v.clipped) * 100.0;
 			}
 
-		with(g.stats)
-			{
-			drawText2(20, "percent: structs [%3.1f%%] particles [%3.1f%%] bullets [%3.1f%%] dudes [%3.1f%%] units [%3.1f%%]", 
-				ifNotZeroPercent2(numberStructures), 
-				ifNotZeroPercent2(numberParticles), 
-				ifNotZeroPercent2(numberBullets),
-				ifNotZeroPercent2(numberDudes),
-				ifNotZeroPercent2(numberUnits));
-			}
+		drawText2(20, "percent: structs [%3.1f%%] particles [%3.1f%%] bullets [%3.1f%%] dudes [%3.1f%%] units [%3.1f%%]", 
+			ifNotZeroPercent2(*stats["structures"]), 
+			ifNotZeroPercent2(*stats["particles"]), 
+			ifNotZeroPercent2(*stats["bullets"]),
+			ifNotZeroPercent2(*stats["dudes"]),
+			ifNotZeroPercent2(*stats["units"]));
 		
 		drawTargetDot(g.mouse_x, g.mouse_y);		// DRAW MOUSE PIXEL HELPER/FINDER
 
