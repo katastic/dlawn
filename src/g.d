@@ -53,7 +53,6 @@ intrinsicGraph!float testGraph2;
 /// Bitmap handler
 ///=============================================================================
 /+
-
 	- do we want to merge/support bitmap atlas handler functionality? 
 	- how do we want to handle multiple frame animations?
 +/
@@ -71,21 +70,6 @@ class bitmapHandler
 		{
 		return *(key in data);
 		}
-
-// see? https://dlang.org/spec/operatoroverloading.html
-// opequal tohash for associated arrays?
-	/+
-	override size_t toHash() { return a + b; }
-
-    override bool opEquals(Object o)
-    {
-        Foo foo = cast(Foo) o;
-        return foo && a == foo.a && b == foo.b;
-    }
-    https://dlang.org/spec/hash-map.html
-    +/
-    
-	// we could support a load function that uses structs/tuples of name, paths
 	
 	bitmap* get(string name)
 		{
@@ -93,6 +77,7 @@ class bitmapHandler
 		b = name in data;
 		if(b is null)
 			{
+			// shouldn't we just dump to con.log and have the con.settings set it to STDOUT?
 			if(usePrettyConsole)con.log(format("Attempting to get a bitmap [%s] that wasn't loaded!", name));
 			else writefln("Attempting to get a bitmap [%s] that wasn't loaded!", name);
 			assert(false);
@@ -211,7 +196,7 @@ void drawShield(pair pos, viewport v, float radius, float thickness, COLOR c, fl
 	al_draw_circle(pos.x + v.x - v.ox, pos.y + v.y - v.oy, radius, COLOR(0,0,1,1), thickness*shieldCoefficent*.50);	
 	}
 
-void draw_hp_bar(float x, float y, viewport v, float hp, float max)
+void drawHealthBar(float x, float y, viewport v, float hp, float max)
 	{
 	float _x = x;
 	float _y = y - 10;

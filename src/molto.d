@@ -608,7 +608,7 @@ struct rpair // relative pair. not sure best way to implement automatic conversi
 	{
 	float rx; //'rx' to not conflict with x/y duct typing.
 	float ry;
-	}
+	} // <-------- not used
 
 /+
     enum position = staticIndexOf!(pos, A);

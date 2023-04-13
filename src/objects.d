@@ -150,7 +150,7 @@ class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it
 		{
 		super.draw(v);
 		
-		draw_hp_bar(pos.x, pos.y - bmp.w/2, v, hp, 100);		
+		drawHealthBar(pos.x, pos.y - bmp.w/2, v, hp, 100);		
 		return true;
 		}
 	}

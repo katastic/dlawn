@@ -1,7 +1,5 @@
 #!/usr/bin/env rdmd
-// file print_words.d
 
-// import the D standard library
 import std;
 import std.stdio;
 import std.file;
@@ -17,41 +15,28 @@ void main(string[] args){
 	auto bytes = read(args[1]);
 	auto b2 = cast(ubyte[])bytes;
 
-	for(int i = 0; i < b2.length; i++)
+	for(int i = 0; i < b2.length-14; i++)
 		{
 		ubyte esc = 0x1B; // '' 0x1B, 27 DEC
 		// '[' 0x5B, 91 DEC
 		// ';' 0x3B, 59 DEC
 		// 'm' 0x6D, 109 DEC
-		
-		// we SHOULD increment after each successful match so we don't double match inside one.
-		if(b2[i] == esc && b2[i+1] == '[' && b2[i+3] == 'm')
+		// we should increment after each successful match so we don't double match inside one.
+		if(b2[i] == esc && b2[i+1] == '[' && b2[i+13] == 'm')
 			{
-			writeln("A"~b2[i+2]);
+			writeln("K ", b2[i+2..i+14], " ", cast(char[])b2[i+2..i+14]);
+			i+=12;
+			continue;
 			}
-		if(b2[i] == esc && b2[i+1] == '[' && b2[i+4] == 'm')
+		if(b2[i] == esc && b2[i+1] == '[' && b2[i+12] == 'm')
 			{
-			writeln("B ", b2[i+2..i+5], " ", cast(char[])b2[i+2..i+5], " - Default Foreground color");	
+			writeln("J ", b2[i+2..i+13], " ", cast(char[])b2[i+2..i+13]);
+			i+=11;
 			}
-		if(b2[i] == esc && b2[i+1] == '[' && b2[i+5] == 'm')
+		if(b2[i] == esc && b2[i+1] == '[' && b2[i+11] == 'm')
 			{
-			writeln("C ", b2[i+2..i+6], " ", cast(char[])b2[i+2..i+6]);
-			}
-		if(b2[i] == esc && b2[i+1] == '[' && b2[i+6] == 'm')
-			{
-			writeln("D ", b2[i+2..i+7], " ", cast(char[])b2[i+2..i+7]);
-			}
-		if(b2[i] == esc && b2[i+1] == '[' && b2[i+7] == 'm')
-			{
-			writeln("E ", b2[i+2..i+8], " ", cast(char[])b2[i+2..i+8]);
-			}
-		if(b2[i] == esc && b2[i+1] == '[' && b2[i+8] == 'm')
-			{
-			writeln("F ", b2[i+2..i+9], " ", cast(char[])b2[i+2..i+9]);
-			}
-		if(b2[i] == esc && b2[i+1] == '[' && b2[i+9] == 'm')
-			{
-			writeln("G ", b2[i+2..i+10], " ", cast(char[])b2[i+2..i+10]);
+			writeln("I ", b2[i+2..i+12], " ", cast(char[])b2[i+2..i+12]);
+			i+=10;
 			}
 		if(b2[i] == esc && b2[i+1] == '[' && b2[i+10] == 'm')
 			{
@@ -64,18 +49,42 @@ void main(string[] args){
 				auto val2 = m[2]; //5
 				auto val3 = m[3]; //241
 				}
+			i+=9;
 			}
-		if(b2[i] == esc && b2[i+1] == '[' && b2[i+11] == 'm')
+		if(b2[i] == esc && b2[i+1] == '[' && b2[i+9] == 'm')
 			{
-			writeln("I ", b2[i+2..i+12], " ", cast(char[])b2[i+2..i+12]);
+			writeln("G ", b2[i+2..i+10], " ", cast(char[])b2[i+2..i+10]);
+			i+=8;
 			}
-		if(b2[i] == esc && b2[i+1] == '[' && b2[i+12] == 'm')
+		if(b2[i] == esc && b2[i+1] == '[' && b2[i+8] == 'm')
 			{
-			writeln("J ", b2[i+2..i+13], " ", cast(char[])b2[i+2..i+13]);
+			writeln("F ", b2[i+2..i+9], " ", cast(char[])b2[i+2..i+9]);
+			i+=7;
 			}
-		if(b2[i] == esc && b2[i+1] == '[' && b2[i+13] == 'm')
+		if(b2[i] == esc && b2[i+1] == '[' && b2[i+7] == 'm')
 			{
-			writeln("K ", b2[i+2..i+14], " ", cast(char[])b2[i+2..i+14]);
+			writeln("E ", b2[i+2..i+8], " ", cast(char[])b2[i+2..i+8]);
+			i+=6;
+			}
+		if(b2[i] == esc && b2[i+1] == '[' && b2[i+6] == 'm')
+			{
+			writeln("D ", b2[i+2..i+7], " ", cast(char[])b2[i+2..i+7]);
+			i+=5;
+			}			
+		if(b2[i] == esc && b2[i+1] == '[' && b2[i+5] == 'm')
+			{
+			writeln("C ", b2[i+2..i+6], " ", cast(char[])b2[i+2..i+6]);
+			i+=4;
+			}		
+		if(b2[i] == esc && b2[i+1] == '[' && b2[i+4] == 'm')
+			{
+			writeln("B ", b2[i+2..i+5], " ", cast(char[])b2[i+2..i+5], " - Default Foreground color");	
+			i+=3;
+			}
+		if(b2[i] == esc && b2[i+1] == '[' && b2[i+3] == 'm')
+			{
+			writeln("A"~b2[i+2]);
+			i+=2;
 			}
 		}
 }

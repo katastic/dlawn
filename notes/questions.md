@@ -1,3 +1,31 @@
+[naming]
+==========================================================================================================================
+
+	pair	x,y
+	ipair	i,j		"integer pair"
+	apair	a,m		"angle pair"
+	vpair	r,s?	"viewport pair"			but r is used for radius! 
+	rpair	rx,ry	[not used]
+			u,v		used anywhere? texture coordinates? for loops?
+
+	dimen	w,h		not thrilled about these names!
+	idimen	w,h
+
+	likewise, using 
+
+		idimen size;	<--- "size" is a very common term!
+		
+		also myObject.size.w
+		is less nice than myObject.w
+
+also:
+
+	rect	(x,y,w,h)
+	irect	(x,y,w,h)	(WARN: currently still using x,y!)
+
+
+and what about when we need to iterate with for loops? We need additional letters.
+
 [todo]
 ==========================================================================================================================
  - I removed the implicit TILE_W conversions on pair -> ipair. They broke pixel map collisions when we added a TILE_W != 1 
