@@ -238,11 +238,11 @@ struct display_t
 //		unit u = g.world.units[0];
 //		drawText2(20, "obj[%.2f,%.2f][%.2f %.2f] %.2f deg", u.x, u.y, u.vx, u.vy, u.angle.radToDeg);
 		drawText2(20, "fps[%d] frame#[%d] objrate[%d] -- Obj1[%.2f,%.2f]", g.stats.fps, g.stats.totalFramesPassed,	 
-					(g.stats.numberParticles.drawn +
-					g.stats.numberUnits.drawn + 
-					g.stats.numberBullets.drawn + 
-					g.stats.numberDudes.drawn +  
-					g.stats.numberStructures.drawn) * g.stats.fps, g.world.objects[0].pos.x, g.world.objects[0].pos.y ); 
+					((*stats["particles"]).drawn +
+					(*stats["units"]).drawn + 
+					(*stats["bullets"]).drawn + 
+					(*stats["dudes"]).drawn +  
+					(*stats["structures"]).drawn) * g.stats.fps, g.world.objects[0].pos.x, g.world.objects[0].pos.y ); 
 
 		string makeString(string name)
 			{
@@ -507,6 +507,7 @@ void execute()
 
 void shutdown() 
 	{
+	stats.list();
 //	con.compress();
 	}
 	

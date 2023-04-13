@@ -449,7 +449,8 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 					drawBitmap(bh["grass"], pair(x-v.ox, y-v.oy), 0);
 				else
 					drawBitmap(bh["sand"], pair(x-v.ox, y-v.oy), 0);
-				stats.numberStructures.drawn++; //todo rename
+	//			stats.numberStructures.drawn++; //todo rename
+				(*stats["structures"]).drawn++;
 				}
 		}
 		

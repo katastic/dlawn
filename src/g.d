@@ -353,7 +353,11 @@ struct statistics_t
 		
 	void list() /// list all keys
 		{
-		assert(false, "NYI");
+		writeln("list of stats keys");
+		foreach(name, k; data)
+			{
+			writeln(" - ", name, " ", k);
+			}
 		}
 
 	// why not use an associated array? runtime add statistics and enumerate them?
@@ -362,12 +366,12 @@ struct statistics_t
 	// but also note we have paired statistics of normal vs clipped variables.
 		
 	// per frame statistics
-	statValue numberUnits;
+/+	statValue numberUnits;
 	statValue numberParticles;
 	statValue numberStructures;
 	statValue numberBullets;
 	statValue numberDudes;
-	
+	+/
 	ulong numberLogEntries=0;
 	
 	ulong fps=0;
@@ -383,11 +387,11 @@ struct statistics_t
 	
 	void reset() // reset counters
 		{ // note we do NOT reset fps and frames_passed here as they are cumulative or handled elsewhere.
-		numberUnits = statValue.init;
+/+		numberUnits = statValue.init;
 		numberParticles = statValue.init;
 		numberStructures = statValue.init;
 		numberBullets = statValue.init;
-		numberDudes = statValue.init;
+		numberDudes = statValue.init;+/
 
 		foreach(key, val; data) //TEST foreach isn't supposed to modify collections?
 			{
