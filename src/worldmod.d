@@ -51,11 +51,14 @@ class world_t
 		
 		objects ~= new dude(pair(750, 400));
 		objects[0].isDebugging = true;
+		objects ~= new dude(pair(850, 400));
+		objects[1].usingAI = true;
+		
 		objects ~= new cow(pair(900, 400));
 		objects ~= new cow(pair(1200, 400));
 		objects ~= new cow(pair(1400, 400));
 
-		con.log("ello love 2302");
+		con.log("'ello love 2023");
 
 		structures ~= new structure(700, 400, bh["fountain"]);
 		
@@ -143,8 +146,8 @@ class world_t
 		drawStat4(particles	, "particles");
 		drawStat4(units		, "units");
 		drawStat4(objects	, "dudes");
-		drawStat4(structures, "structures");		
-		drawStat4(meteors, "meteors");		
+		drawStat4(structures, "structures");
+		drawStat4(meteors	, "meteors");		
 
 //		map.drawMinimap(pair(SCREEN_W-300,50));
 

@@ -455,10 +455,41 @@ class cow : dude
 		}
 	}
 
+class monster : dude // wait, didn't we already start this with cow?
+	{
+	this(pair _pos)
+		{
+		super(_pos);
+		}
+	}
+
+class aicontroller
+	{
+	dude myObject;
+	
+	this(dude _myObject)
+		{
+		myObject = _myObject;
+		}
+	
+	void onTick()
+		{
+		with(myObject)
+			{
+			if(g.world.objects[0].pos.x < pos.x && percent(50))actionLeft();
+			if(g.world.objects[0].pos.x > pos.x && percent(50))actionRight();
+			if(g.world.objects[0].pos.y < pos.y && percent(10))actionUp();
+			}
+		}
+	// ???
+	}
+
 class dude : baseObject
 	{
 	wall2dStyle moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
+	aicontroller ai; //nyi
 	
+	bool usingAI = false;
 	bool isMoving = false;
 	bool isFalling = true;
 	bool isGrounded = false;
@@ -470,6 +501,7 @@ class dude : baseObject
 		{			
 		moveStyle = new wall2dStyle(this);
 		super(_pos, pair(0, 0), bh["dude"]);
+		ai = new aicontroller(this);
 		}
 
 	void mapCollision(DIR hitDirection)
@@ -511,6 +543,7 @@ class dude : baseObject
 	
 	override void onTick()
 		{
+		if(usingAI)ai.onTick();
 		moveStyle.onTick();
 		if(facesVelocity)
 			{
