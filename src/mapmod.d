@@ -414,6 +414,7 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 	
 	this()
 		{
+		import std.random;
 		int z = 0;
 		for(int i = 0; i < size.w; i++)
 			for(int j = 0; j < size.h; j++)
@@ -421,7 +422,7 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 				data[i][j] = 0;
 				z++;
 				if(z>15){z=0; data[i][j] = 1; }
-				if(j > 16) data[i][j] = 1;
+				if(j > 16) data[i][j] = uniform!"[]"(1,3);
 				}
 		}
 			
@@ -439,16 +440,27 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 		int iMax = capHigh(SCREEN_W/TILE_W + cast(int)v.ox/TILE_W, MAP_W);
 		int jMax = capHigh(SCREEN_H/TILE_W + cast(int)v.oy/TILE_W, MAP_H);
 		
-		for(int i = iMin; i < iMax; i++)
-			for(int j = jMin; j < jMax; j++)
+		for(int i = iMin; i <= iMax; i++)
+			for(int j = jMin; j <= jMax; j++)
 				{
 				x = i*TILE_W;
 				y = j*TILE_W;
 				auto val = data[i][j];
-				if(val == 0)
-					drawBitmap(bh["grass"], pair(x-v.ox, y-v.oy), 0);
-				else
-					drawBitmap(bh["sand"], pair(x-v.ox, y-v.oy), 0);
+
+				bitmap* b = null;
+
+				if(val == 0)b = bh["grass"];
+				if(val == 1)b = bh["sand"];
+				if(val == 2)b = bh["brick"];
+				if(val == 3)b = bh["wood"];
+				if(val == 4)b = bh["wall"];
+				if(val == 5)b = bh["reinforcedwall"];
+				if(val == 6)b = bh["lava"];
+				if(val == 7)b = bh["water"];
+				assert(b != null);
+				
+				drawBitmap(b, pair(x-v.ox, y-v.oy), 0);
+
 	//			stats.numberStructures.drawn++; //todo rename
 				(*stats["structures"]).drawn++;
 				}

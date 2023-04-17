@@ -2,11 +2,18 @@
 		[
 			["dude","./data/dude.png"],
 			["smoke","./data/smoke.png"],
-			["grass","./data/grass.png"],
 			["fountain","./data/fountain.png"],
 			["rain","./data/rain.png"],
 			["cow","./data/cow.png"],
+			["asteroid","./data/asteroid2.png"],
 			["explosion","./data/explosion.png"],
+
+			["grass","./data/grass.png"],
 			["sand","./data/wall2.png"],
-			["asteroid","./data/asteroid2.png"]
+			["brick","./data/brick.png"],
+			["wood","./data/wood.png"],
+			["wall","./data/wall.png"],
+			["reinforcedwall","./data/reinforced_wall.png"],
+			["lava","./data/lava.png"],
+			["water","./data/water.png"],
 			] }

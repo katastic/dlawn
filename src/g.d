@@ -104,7 +104,7 @@ class bitmapHandler
 	
 	void load(string name, string path) /// assert/exception guarded bitmap load
 		{
-		assert((name in data) is null, "Overwriting existing bitmap detected!");
+		assert((name in data) is null, "Overwriting an existing bitmap detected! Duplicates in manifest? TODO. std.format errors.");
 		data[name] = getBitmap(path);
 		}
 		
