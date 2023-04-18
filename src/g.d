@@ -156,27 +156,6 @@ class bitmapHandler
 
 bitmapHandler bh;
 
-// 'immutable' 
-//  error associative arrays must be initialized at runtime: https://dlang.org/spec/hash-map.html#runtime_initialization
-// https://dlang.org/spec/hash-map.html#runtime_initialization
-/+immutable string[string] bhc;
-
-shared static this() // we're setting (setting up) an IMMUTABLE string which is so confusing conceptually
-	{
-	// wait, doesn't this also blow away any possibility of COMPILE-TIME type-safe lookup here???
-	// I mean, I guess it's not the end of the world, any BITMAP INVOCATION is going to be WAY EXPENSIVE to draw
-	// than a single hash lookup, right? But at this point, why don't we just scrap this and move to RUN-TIME PARSING
-	// a JSON object.
-	
-	bhc = [ 
-		  "cow": "./data/cow.png",
-		  "rain": "./data/rain.png",
-		  "explosion": "./data/explosion.png",
-		  "sand": "./data/wall2.png",
-		  "asteroid": "./data/asteroid2.png"
-		];
-	}
-+/
 void loadResources()
 	{
 	bh = new bitmapHandler();

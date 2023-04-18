@@ -155,14 +155,16 @@ float distance(float x, float y)
 /// For bitmap culling. Is this point inside the screen?
 bool isInsideScreen(float x, float y, viewport v) 
 	{
-	if(x > 0 && x < v.w && y > 0 && y < v.h)
+	if(	x > 0 && x < v.w + v.ox && 
+		y > 0 && y < v.h + v.oy)
 		{return true;} else{ return false;}
 	}
 
 /// Same as above but includes a bitmaps width/height instead of a single point
 bool isWideInsideScreen(float x, float y, ALLEGRO_BITMAP* b, viewport v) 
 	{
-	if(x >= -b.w/2 && x - b.w/2 < v.w && y - b.h/2 >= -b.w/2 && y < v.h)
+	if(	x >= -b.w/2 && x - b.w/2 < v.w + v.ox &&
+		y - b.h/2 >= -b.w/2 && y < v.h + v.oy)
 		{return true;} else{ return false;} //fixme
 	}
 
@@ -220,6 +222,9 @@ bool percent(float chance)
 	{
 	return uniform!"[]"(0.0, 100.0) < chance;
 	}
+	
+
+bool flipCoin() => cast(bool)uniform!"[]"(0,1); //return a 0 or 1 result
 
 // TODO Fix naming conflict here. This series returns the value. The other works by 
 // reference

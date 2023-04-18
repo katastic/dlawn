@@ -781,9 +781,12 @@ void al_reset_target()
 	}
 
 /// draw scaled bitmap but with a scale factor (simpler than the allegro API version)
-void al_draw_scaled_bitmap2(ALLEGRO_BITMAP *bitmap, float x, float y, float scaleX, float scaleY, int flags=0)
+void al_draw_scaled_bitmap2(ALLEGRO_BITMAP *bmp, float x, float y, float scaleX, float scaleY, int flags=0)
 	{
-	al_draw_scaled_bitmap(bitmap, 0, 0, bitmap.w, bitmap.h, x, y, bitmap.w * scaleX, bitmap.h * scaleY, flags);
+	al_draw_scaled_bitmap(bmp, 
+		0, 0, bmp.w, bmp.h, 
+		x, y, bmp.w * scaleX, bmp.h * scaleY, 
+		flags);
 	}
 
 void al_draw_center_rotated_bitmap(BITMAP* bmp, float x, float y, float angle, int flags)

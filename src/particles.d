@@ -44,6 +44,7 @@ struct particle
 	bool doTinting=true;
 	bool isDead=false;
 	bool doDieOnHit=false;
+	bool flipHorizontal, flipVertical;
 	bitmap* bmp;
 
 	//particle(x, y, vx, vy, 0, 5);
@@ -61,6 +62,8 @@ struct particle
 		rotation = uniform!"[]"(0, 3);
 		bmp = g.bh["smoke"];
 		assert(bmp !is null);
+		flipHorizontal = flipCoin();
+		flipVertical = flipCoin();
 		}
 	
 	this(float _x, float _y, float _vx, float _vy, int _type, int  _lifetime, bitmap* _bmp)
@@ -76,6 +79,8 @@ struct particle
 		rotation = uniform!"[]"(0, 3);
 		bmp = _bmp;
 		assert(bmp !is null);
+		flipHorizontal = flipCoin();
+		flipVertical = flipCoin();
 		}
 
 	// do we need this? why do we also specify _vx, and _vy then???
@@ -97,6 +102,8 @@ struct particle
 		rotation = uniform!"[]"(0, 3);
 		bmp = bh["smoke"];
 		assert(bmp !is null);
+		flipHorizontal = flipCoin();
+		flipVertical = flipCoin();
 		}
 		
 	bool draw(viewport v)
@@ -109,18 +116,33 @@ struct particle
 		float cy = y + v.y - v.oy;
 		float scaleX = (cast(float)lifetime/cast(float)maxLifetime) * b.w;
 		float scaleY = (cast(float)lifetime/cast(float)maxLifetime) * b.h;
+		doScaling=false;
 		if(!doScaling){scaleX = 1; scaleY = 1;}
-
-		if(cx > 0 && cx < SCREEN_W && cy > 0 && cy < SCREEN_H)
+		if(!isInsideScreen(cx, cy, v))
 			{
-			al_draw_tinted_scaled_bitmap(b, c,
+			c = red; // DEBUG. show partially clipped:
+			}
+			al_draw_tinted_scaled_rotated_bitmap(b, c,
+			   bmp.w/2, 
+			   bmp.h/2, 
+			   
+			   cx - b.w/2, 
+			   cy - b.h/2, 
+			   
+			   scaleX, 
+			   scaleY,
+			   0,  //angle
+			   flipHorizontal & flipVertical);
+
+/+				
+			al_draw_tinted_scaled_bitmap2(b, c,
 				0, 0, 
 				b.w, b.h,
 				cx - b.w/2, cy - b.h/2, 
 				scaleX, scaleY, 
-				rotation);
-			return true;
-			}
+				rotation);+/
+		//	return true;
+			//}
 		return false;
 		}
 	

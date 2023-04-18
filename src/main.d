@@ -242,29 +242,10 @@ struct display_t
 					(*stats["units"]).drawn + 
 					(*stats["bullets"]).drawn + 
 					(*stats["dudes"]).drawn +  
-					(*stats["structures"]).drawn) * g.stats.fps, g.world.objects[0].pos.x, g.world.objects[0].pos.y ); 
+					(*stats["tiles"]).drawn) * g.stats.fps, g.world.objects[0].pos.x, g.world.objects[0].pos.y ); 
 
-		string makeString(string name)
-			{
-			string str = name ~ " " ~ format("%d", (*stats[name]).drawn);
-			return str;
-			}
 
-		drawText2(20, "drawn  : structs [%d] particles [%d] bullets [%d] dudes [%d] units [%d]", 
-			(*stats["meteors"]).drawn, 
-			(*stats["particles"]).drawn,
-			(*stats["bullets"]).drawn,
-			(*stats["dudes"]).drawn,
-			(*stats["units"]).drawn);
-
-		drawText2(20, "clipped  : structs [%d] particles [%d] bullets [%d] dudes [%d] units [%d]", 
-			(*stats["meteors"]).clipped, 
-			(*stats["particles"]).clipped,
-			(*stats["bullets"]).clipped,
-			(*stats["dudes"]).clipped,
-			(*stats["units"]).clipped);
-
-		float ifNotZeroPercent(T)(T drawn, T clipped)
+		float ifNotZeroPercent(T)(T drawn, T clipped) /// percent CLIPPED
 			{
 			if(drawn + clipped == 0)
 				return 100;
@@ -272,7 +253,7 @@ struct display_t
 				return cast(float)clipped / (cast(float)drawn + cast(float)clipped) * 100.0;
 			}
 
-		float ifNotZeroPercent2(statValue v)
+		float ifNotZeroPercent2(statValue v) /// percent CLIPPED
 			{
 			if(v.drawn + v.clipped == 0)
 				return 100;
@@ -280,13 +261,52 @@ struct display_t
 				return cast(float)v.clipped / (cast(float)v.drawn + cast(float)v.clipped) * 100.0;
 			}
 
+		string makeString(string name)
+			{
+			string str = name ~ " " ~ format("%d", (*stats[name]).drawn);
+			return str;
+			}
+
+		string makeOf(statValue s)
+			{
+			return format("%d:%d %.0f%%", s.drawn, s.clipped, ifNotZeroPercent2(s));
+			}
+
+		drawText2(20, "meteors[%s] particles[%s] bullets[%s]", 
+			makeOf(*stats["meteors"]), 
+			makeOf(*stats["particles"]),
+			makeOf(*stats["bullets"])
+			);
+			
+		drawText2(20, "dudes[%s] units[%s] structures[%s]",
+				makeOf(*stats["dudes"]),
+				makeOf(*stats["units"]),
+				makeOf(*stats["structures"])
+				);
+
+
+/*		drawText2(20, "drawn  : meteors [%d] particles [%d] bullets [%d] dudes [%d] units [%d]", 
+			(*stats["meteors"]).drawn, 
+			(*stats["particles"]).drawn,
+			(*stats["bullets"]).drawn,
+			(*stats["dudes"]).drawn,
+			(*stats["units"]).drawn);
+
+		drawText2(20, "clipped  : meteors [%d] particles [%d] bullets [%d] dudes [%d] units [%d]", 
+			(*stats["meteors"]).clipped, 
+			(*stats["particles"]).clipped,
+			(*stats["bullets"]).clipped,
+			(*stats["dudes"]).clipped,
+			(*stats["units"]).clipped);
+
+
 		drawText2(20, "percent: structs [%3.1f%%] particles [%3.1f%%] bullets [%3.1f%%] dudes [%3.1f%%] units [%3.1f%%]", 
-			ifNotZeroPercent2(*stats["structures"]), 
+			ifNotZeroPercent2(*stats["tiles"]), 
 			ifNotZeroPercent2(*stats["particles"]), 
 			ifNotZeroPercent2(*stats["bullets"]),
 			ifNotZeroPercent2(*stats["dudes"]),
 			ifNotZeroPercent2(*stats["units"]));
-		
+		*/
 		drawTargetDot(g.mouse_x, g.mouse_y);		// DRAW MOUSE PIXEL HELPER/FINDER
 
 /*

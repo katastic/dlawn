@@ -421,7 +421,6 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 				data[i][j] = 0;
 				z++;
 				
-				
 				import std.math : sin, sqrt;
 				
 				if(z>15){z=0; data[i][j] = 1; }
@@ -441,10 +440,10 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 		float x = 0, y = 0;
 		int iMin = capLow (cast(int)v.ox/TILE_W, 0);
 		int jMin = capLow (cast(int)v.oy/TILE_W, 0);		
-		int iMax = capHigh(SCREEN_W/TILE_W + cast(int)v.ox/TILE_W + 1, MAP_W);
-		int jMax = capHigh(SCREEN_H/TILE_W + cast(int)v.oy/TILE_W + 1, MAP_H);
+		int iMax = capHigh(SCREEN_W/TILE_W + cast(int)v.ox/TILE_W + 1, MAP_W-1);
+		int jMax = capHigh(SCREEN_H/TILE_W + cast(int)v.oy/TILE_W + 1, MAP_H-1);
 		
-		writeln(" - ", pair(iMax, jMax));
+//		writeln(" - ", pair(iMax, jMax));
 		
 		for(int i = iMin; i <= iMax; i++) // FIX WARNING, this shouldn't need +1 !!! are we rounding down?
 			for(int j = jMin; j <= jMax; j++) // actually +1 hits array bounds!
@@ -466,7 +465,7 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 				
 				drawBitmap(b, pair(x-v.ox, y-v.oy), 0);
 
-				(*stats["structures"]).drawn++;
+				(*stats["tiles"]).drawn++;
 				}
 		}
 		

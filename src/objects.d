@@ -650,12 +650,22 @@ class baseObject
 		
 	bool draw(viewport v)
 		{
-		al_draw_center_rotated_bitmap(bmp, 
-			pos.x + v.x - v.ox, 
-			pos.y + v.y - v.oy, 
-			angle, ALLEGRO_FLIP_HORIZONTAL & ALLEGRO_FLIP_VERTICAL);
+		if(isInsideScreen(pos.x, pos.y, v))
+			{
+			al_draw_center_rotated_bitmap(bmp, 
+				pos.x + v.x - v.ox, 
+				pos.y + v.y - v.oy, 
+				angle, ALLEGRO_FLIP_HORIZONTAL & ALLEGRO_FLIP_VERTICAL);
+			return true;
+			}
 
-		return true;
+		// DEBUG. show partially clipped:
+			al_draw_center_rotated_tinted_bitmap(bmp, red, 
+				pos.x + v.x - v.ox, 
+				pos.y + v.y - v.oy, 
+				angle, ALLEGRO_FLIP_HORIZONTAL & ALLEGRO_FLIP_VERTICAL);
+
+		return false;
 		}
 	
 	// INPUTS (do we support mouse input?)
