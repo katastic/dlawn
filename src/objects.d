@@ -19,7 +19,6 @@ import helper;
 import viewportsmod;
 import particles;
 import guns;
-import turretmod;
 import bulletsmod;
 
 // we should organize this at some point. game mechanic constants.

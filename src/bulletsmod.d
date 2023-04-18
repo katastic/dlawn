@@ -9,7 +9,6 @@ import g;
 import viewportsmod;
 import objects;
 import helper;
-import turretmod;
 import particles;
 import molto;
 
