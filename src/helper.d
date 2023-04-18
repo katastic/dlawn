@@ -222,7 +222,6 @@ bool percent(float chance)
 	{
 	return uniform!"[]"(0.0, 100.0) < chance;
 	}
-	
 
 bool flipCoin() => cast(bool)uniform!"[]"(0,1); //return a 0 or 1 result
 
@@ -234,7 +233,6 @@ bool flipCoin() => cast(bool)uniform!"[]"(0,1); //return a 0 or 1 result
 		capRefLow?	(reference versions)
 		rCapLow	
 		refCapLow
-	
 	
 	also is cap ambiguous? I like that it's smaller than 'clamp'
 		cap:

@@ -244,7 +244,6 @@ struct display_t
 					(*stats["dudes"]).drawn +  
 					(*stats["tiles"]).drawn) * g.stats.fps, g.world.objects[0].pos.x, g.world.objects[0].pos.y ); 
 
-
 		float ifNotZeroPercent(T)(T drawn, T clipped) /// percent CLIPPED
 			{
 			if(drawn + clipped == 0)
@@ -284,7 +283,6 @@ struct display_t
 				makeOf(*stats["structures"])
 				);
 
-
 /*		drawText2(20, "drawn  : meteors [%d] particles [%d] bullets [%d] dudes [%d] units [%d]", 
 			(*stats["meteors"]).drawn, 
 			(*stats["particles"]).drawn,
@@ -298,7 +296,6 @@ struct display_t
 			(*stats["bullets"]).clipped,
 			(*stats["dudes"]).clipped,
 			(*stats["units"]).clipped);
-
 
 		drawText2(20, "percent: structs [%3.1f%%] particles [%3.1f%%] bullets [%3.1f%%] dudes [%3.1f%%] units [%3.1f%%]", 
 			ifNotZeroPercent2(*stats["tiles"]), 
