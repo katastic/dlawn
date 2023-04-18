@@ -6,6 +6,7 @@
 			["rain","./data/rain.png"],
 			["cow","./data/cow.png"],
 			["asteroid","./data/asteroid2.png"],
+			["bigasteroid","./data/bigasteroid.png"],
 			["explosion","./data/explosion.png"],
 
 			["grass","./data/grass.png"],

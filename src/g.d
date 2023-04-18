@@ -55,6 +55,8 @@ intrinsicGraph!float testGraph2;
 /+
 	- do we want to merge/support bitmap atlas handler functionality? 
 	- how do we want to handle multiple frame animations?
+
+	- todo: ERROR checking. force people to use lowercase for POSIX/windows compatibility, for example. or printable characters only.
 +/
 class bitmapHandler 
 	{
@@ -66,9 +68,19 @@ class bitmapHandler
 	bitmap*[string] data;
 //	alias data this;
 
-	bitmap* opIndex(string key)
+	bitmap* opIndex(string name)
 		{
-		return *(key in data);
+//		return *(key in data);
+		bitmap** b;
+		b = name in data;
+		if(b is null)
+			{
+			// shouldn't we just dump to con.log and have the con.settings set it to STDOUT?
+			if(usePrettyConsole)con.log(format("Attempting to get a bitmap [%s] that wasn't loaded!", name));
+			else writefln("Attempting to get a bitmap [%s] that wasn't loaded!", name);
+			assert(false);
+			}
+		return *b;
 		}
 	
 	bitmap* get(string name)

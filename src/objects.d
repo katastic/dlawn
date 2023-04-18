@@ -200,9 +200,58 @@ class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 		}
 	}
 	
+class bigMeteor : meteor	
+	{
+	this(pair _pos)
+		{
+		super(_pos);
+		bmp = bh["bigasteroid"];
+		}
+	
+	override void onMapCollision(DIR hitDirection)
+		{
+		ipair p;
+		p.i = cast(int)pos.x/TILE_W;
+		p.j = cast(int)pos.y/TILE_W;
+		with(p)
+		with(g.world.map2)
+		if(isInsideMap(p))
+			{
+			if(data[p.i][p.j] > 0)data[p.i][p.j]--;
+			}
+		
+		with(this)
+		g.world.meteors ~= new meteor(pos, vel);	
+		g.world.meteors ~= new meteor(pos, vel);	
+		g.world.meteors ~= new meteor(pos, vel);	
+		
+		spawnExplosion();
+//			spawnSmoke();
+		//isDead = true;
+		respawn();
+		}
+	}
+	
 class meteor : baseObject
 	{
 	fallingStyle!meteor moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
+
+	this(pair _pos)
+		{
+		import std.random : uniform;
+		vel = pair(-3 + uniform!"[]"(-1,1), 3);
+		super(_pos, vel, bh["asteroid"]);
+		moveStyle = new fallingStyle!meteor(this);
+		flipHorizontal = cast(bool)uniform!"[]"(0, 1);
+		flipVertical = cast(bool)uniform!"[]"(0, 1);
+		}
+
+	this(pair _pos, pair _vel)
+		{
+		import std.random : uniform;
+		this(_pos);
+		vel = pair(_vel.x + uniform!"[]"(-1,1), _vel.y);
+		}
 
 	void spawnSmoke()
 		{
@@ -239,28 +288,19 @@ class meteor : baseObject
 
 	void onMapCollision(DIR hitDirection)
 		{
+		ipair p;
+		p.i = cast(int)pos.x/TILE_W;
+		p.j = cast(int)pos.y/TILE_W;
+		with(p)
+		with(g.world.map2)
+		if(isInsideMap(p))
 			{
-				{
-				ipair p;
-				p.i = cast(int)pos.x/TILE_W;
-				p.j = cast(int)pos.y/TILE_W;
-				with(p)
-				if(i > 0 && i < 256)
-					if(j > 0 && j < 256)
-						g.world.map2.data[p.i][p.j] = 0;
-				spawnExplosion();
-	//			spawnSmoke();
-				}
-			//isDead = true;
-			respawn();
+			if(data[p.i][p.j] > 0)data[p.i][p.j]--;
 			}
-		}
-		
-	this(pair _pos)
-		{
-		vel = pair(-3, 3);
-		super(_pos, vel, bh["asteroid"]);
-		moveStyle = new fallingStyle!meteor(this);
+		spawnExplosion();
+//			spawnSmoke();
+		//isDead = true;
+		respawn();
 		}
 	
 	override void onTick()
@@ -593,6 +633,8 @@ class baseObject
 	float angle=0;	/// pointing angle 
 	float hp=100;
 	string debugString="";
+	bool flipHorizontal=false;
+	bool flipVertical=false;
 
 	void onHit(baseObject by, int damage)
 		{
@@ -611,7 +653,7 @@ class baseObject
 		al_draw_center_rotated_bitmap(bmp, 
 			pos.x + v.x - v.ox, 
 			pos.y + v.y - v.oy, 
-			angle, 0);
+			angle, ALLEGRO_FLIP_HORIZONTAL & ALLEGRO_FLIP_VERTICAL);
 
 		return true;
 		}

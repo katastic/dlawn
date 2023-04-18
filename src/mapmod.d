@@ -238,7 +238,6 @@ class byteMap
 
 class pixelMap : mapBase
 	{
-	idimen size;
 	string name="test";
 	//ubyte[][] data;
 	byteMap data;
@@ -261,8 +260,8 @@ class pixelMap : mapBase
 		al_draw_filled_rectangle(
 			cx, 
 			cy, 
-			cx + size.w*scale,
-			cy + size.h*scale,
+			cx + dim.w*scale,
+			cy + dim.h*scale,
 			color(.25,.25,.25,.50));
 		al_draw_scaled_bitmap2(layers[1].data, cx, cy, scale, scale, 0);
 		al_draw_rectangle(
@@ -278,7 +277,7 @@ class pixelMap : mapBase
 		{
 		import std.stdio : writeln;
 		if(pos.x < 0 || pos.y < 0)return false;
-		if(pos.x >= size.h || pos.y >= size.h)return false;
+		if(pos.x >= dim.h || pos.y >= dim.h)return false;
 
 		// holy shit this is slow
 	//	color c = al_get_pixel(layers[1].data, cast(int)pos.x, cast(int)pos.y);
@@ -332,9 +331,9 @@ class pixelMap : mapBase
 			foreground layers. Simple enough.
 	+/
 	
-	this(idimen _size)
+	this(idimen _dim)
 		{
-		size = _size;
+		dim = _dim;
 //		data = new byteMap(2048, 2048); 
 		data = new byteMap("./data/maps/map1layer1.png");
 /+		layers ~= layer("sky", idimen(2000, 2000), 1); 
@@ -416,13 +415,18 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 		{
 		import std.random;
 		int z = 0;
-		for(int i = 0; i < size.w; i++)
-			for(int j = 0; j < size.h; j++)
+		for(int i = 0; i < dim.w; i++)
+			for(int j = 0; j < dim.h; j++)
 				{
 				data[i][j] = 0;
 				z++;
+				
+				
+				import std.math : sin, sqrt;
+				
 				if(z>15){z=0; data[i][j] = 1; }
 				if(j > 16) data[i][j] = uniform!"[]"(1,3);
+				if(sqrt((j-30)^^2 + sin(i/2/3.14159)*10^^2) < 10)data[i][j] = 2;
 				}
 		}
 			
@@ -437,18 +441,19 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 		float x = 0, y = 0;
 		int iMin = capLow (cast(int)v.ox/TILE_W, 0);
 		int jMin = capLow (cast(int)v.oy/TILE_W, 0);		
-		int iMax = capHigh(SCREEN_W/TILE_W + cast(int)v.ox/TILE_W, MAP_W);
-		int jMax = capHigh(SCREEN_H/TILE_W + cast(int)v.oy/TILE_W, MAP_H);
+		int iMax = capHigh(SCREEN_W/TILE_W + cast(int)v.ox/TILE_W + 1, MAP_W);
+		int jMax = capHigh(SCREEN_H/TILE_W + cast(int)v.oy/TILE_W + 1, MAP_H);
 		
-		for(int i = iMin; i <= iMax; i++)
-			for(int j = jMin; j <= jMax; j++)
+		writeln(" - ", pair(iMax, jMax));
+		
+		for(int i = iMin; i <= iMax; i++) // FIX WARNING, this shouldn't need +1 !!! are we rounding down?
+			for(int j = jMin; j <= jMax; j++) // actually +1 hits array bounds!
 				{
 				x = i*TILE_W;
 				y = j*TILE_W;
+				
 				auto val = data[i][j];
-
 				bitmap* b = null;
-
 				if(val == 0)b = bh["grass"];
 				if(val == 1)b = bh["sand"];
 				if(val == 2)b = bh["brick"];
@@ -461,7 +466,6 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 				
 				drawBitmap(b, pair(x-v.ox, y-v.oy), 0);
 
-	//			stats.numberStructures.drawn++; //todo rename
 				(*stats["structures"]).drawn++;
 				}
 		}
@@ -497,7 +501,7 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 
 class mapBase
 	{
-	idimen dim = idimen(2000, 2000); // we could call this dim.w dim.h for (dim)ensions?
+	idimen dim = idimen(256, 256); // we could call this dim.w dim.h for (dim)ensions?
 
 	void load(){}
 	void save(){}
@@ -506,9 +510,15 @@ class mapBase
 
 	bool isInsideMap(pair pos) //external so others can use it.
 		{
-		if(pos.x < 0 || pos.y < 0)return false;
-		if(pos.x/TILE_W >= dim.w || pos.y/dim.h >= 256)return false;
+		if(pos.x < 0             || pos.y < 0)return false;
+		if(pos.x/TILE_W >= dim.w || pos.y/TILE_W >= dim.h)return false;
+		return true;
+		}
+
+	bool isInsideMap(ipair pos) 
+		{
+		if(pos.i < 0      || pos.j < 0){return false;}
+		if(pos.i >= dim.w || pos.j >= dim.h){return false;}
 		return true;
 		}
 	}
-
