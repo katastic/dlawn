@@ -268,7 +268,7 @@ struct display_t
 
 		string makeOf(statValue s)
 			{
-			return format("%d:%d %.0f%%", s.drawn, s.clipped, ifNotZeroPercent2(s));
+			return format("%d:%d/%d %.0f%%", s.drawn, s.clipped, s.drawn + s.clipped, ifNotZeroPercent2(s));
 			}
 
 		drawText2(20, "meteors[%s] particles[%s] bullets[%s]", 

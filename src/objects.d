@@ -220,14 +220,27 @@ class bigMeteor : meteor
 			}
 		
 		with(this)
-		g.world.meteors ~= new meteor(pos, vel);	
-		g.world.meteors ~= new meteor(pos, vel);	
-		g.world.meteors ~= new meteor(pos, vel);	
-		
+		{
+			{
+			auto m = new meteor(pos, vel);
+			m.isSpawn = true;
+			g.world.meteors ~= new meteor(pos, vel);
+			}
+			{
+			auto m = new meteor(pos, vel);
+			m.isSpawn = true;
+			g.world.meteors ~= new meteor(pos, vel);
+			}
+			{
+			auto m = new meteor(pos, vel);
+			m.isSpawn = true;
+			g.world.meteors ~= new meteor(pos, vel);
+			}
+		}
 		spawnExplosion();
 //			spawnSmoke();
 		//isDead = true;
-		respawn();
+		if(!isSpawn)respawn();
 		}
 	}
 	
@@ -245,11 +258,12 @@ class meteor : baseObject
 		flipVertical = cast(bool)uniform!"[]"(0, 1);
 		}
 
-	this(pair _pos, pair _vel)
+	this(pair _pos, pair _vel, bool _isSpawn=true)
 		{
 		import std.random : uniform;
 		this(_pos);
 		vel = pair(_vel.x + uniform!"[]"(-1,1), _vel.y);
+		isSpawn = _isSpawn;
 		}
 
 	void spawnSmoke()
@@ -299,7 +313,10 @@ class meteor : baseObject
 		spawnExplosion();
 //			spawnSmoke();
 		//isDead = true;
-		respawn();
+		if(!isSpawn)
+			respawn();
+		else
+			isDead = true;
 		}
 	
 	override void onTick()
@@ -626,6 +643,7 @@ class baseObject
 	@disable this(); 
 	bool isDebugging=false; /// display messages for this guy in particular (this allows us to have dump code for say, onDraw, but only the specific ones we care about by marking them ingame).
 	bool isDead = false;	
+	bool isSpawn = false; /// is a spawned child object, feel free to kill it. Used ATM for spawned meteors to not respawn on hit.
 	pair pos; 	/// baseObjects are centered at X/Y (not top-left) so we can easily follow other baseObjects.
 	pair vel;
 	float w=0, h=0;   /// width, height 
@@ -659,11 +677,12 @@ class baseObject
 			}
 
 		// DEBUG. show partially clipped:
+		/+
 			al_draw_center_rotated_tinted_bitmap(bmp, red, 
 				pos.x + v.x - v.ox, 
 				pos.y + v.y - v.oy, 
 				angle, ALLEGRO_FLIP_HORIZONTAL & ALLEGRO_FLIP_VERTICAL);
-
+		+/
 		return false;
 		}
 	
