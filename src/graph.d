@@ -150,6 +150,15 @@ class intrinsicGraph(T)
 		x = _x;
 		y = _y;
 		}
+		
+	void resize(idimen s)
+		{
+		}
+		
+	void drawInterally(viewport v, pair _pos, idimen _size)
+		{
+		
+		}
 
 	void draw(viewport v)
 		{
