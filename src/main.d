@@ -19,7 +19,7 @@ import std.datetime.stopwatch : benchmark, StopWatch, AutoStart;
 //extern (C) int pthread_yield(); //does this ... work? No errors yet I can't tell if it changes anything...
 //------------------------------
 
-pragma(lib, "dallegro5dmd"); // NOTE: WARN. This REQUIRES us decide DMD or LDC here! Don't mix and match! (unless it doesn't matter?) kat 2023.
+pragma(lib, "dallegro5ldc"); // NOTE: WARN. This REQUIRES us decide DMD or LDC here! Don't mix and match! (unless it doesn't matter?) kat 2023.
 
 version(ALLEGRO_NO_PRAGMA_LIB){}else{
 	pragma(lib, "allegro");

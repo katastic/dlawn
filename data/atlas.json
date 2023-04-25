@@ -1,0 +1,8 @@
+{ "tiles":
+		[
+			[0, "empty", true],
+			[1, "grass", false],
+			[2, "wood",  false]
+			],
+	"atlases", ["", "a"]
+	}

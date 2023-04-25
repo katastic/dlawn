@@ -50,6 +50,62 @@ int SCREEN_H = 700;
 intrinsicGraph!float testGraph;
 intrinsicGraph!float testGraph2;
 
+
+
+class atlasHandler2
+	{
+	}
+
+/// (manifest) atlas handler
+/// - for parsing a manifest.json file list of tiles and their string lookups
+///=============================================================================
+class tileInfo
+	{
+	bool isPassable;
+	}
+
+class atlasHandler
+	{
+	bitmap* atlasbmp;
+	bitmap*[256] bmps;
+	tileInfo[256] info;
+	
+	void loadMeta(string jsonpath="./data/atlas.json")
+		{
+		import std.json : JSONValue, parseJSON;
+		import std.file : readText;
+		string s = readText(jsonpath);
+		JSONValue js = parseJSON(s);
+		foreach(i, j; js["tiles"].array)
+			{
+//			writeln(i, " ", j, " ", j.type, " ", j[0], " ", j[1]);
+			long 	index = j[0].integer;
+			string 	bmpname = j[1].str; 
+			bool 	isPassable = j[2].boolean;
+//			writefln("[%s]", path);
+			}
+		}
+	
+	
+	// TODO: alternative atlas formats. offset/borders between sprites
+	// support variable widths.
+	void load(string filepath="./data/atlas.png")
+		{
+		con.log("Loading atlas at ["~filepath~"]");
+		getBitmap(filepath);
+		int k = 0;
+		for(int i = 0; i < 16; i++)
+			for(int j = 0; i < 16; j++)
+				{
+				bmps[k] = al_create_sub_bitmap(atlasbmp, i*TILE_W, j*TILE_W, TILE_W, TILE_W);
+				k++; 
+				}
+		}
+	
+	alias bmps this;
+	}
+
+
 /// Bitmap handler
 ///=============================================================================
 /+
@@ -155,12 +211,15 @@ class bitmapHandler
 	}
 
 bitmapHandler bh;
+atlasHandler ah;
 
 void loadResources()
 	{
 	bh = new bitmapHandler();
 	bh.loadJSON();
 	font1 = getFont("./data/DejaVuSans.ttf", 18);
+	ah.load();
+	ah.loadMeta();
 	}
 
 world_t world;
