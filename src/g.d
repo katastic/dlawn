@@ -14,6 +14,8 @@ import std.algorithm : remove;
 import std.datetime;
 import std.datetime.stopwatch : benchmark, StopWatch, AutoStart;
 import std.exception;
+import std.json : JSONValue, parseJSON, JSONException;
+import std.file : readText;
 
 import helper;
 import objects;
@@ -52,27 +54,96 @@ intrinsicGraph!float testGraph2;
 
 /// this one builds an array/atlas from an [atlasManifest.json] manifest
 /// and picks and chooses what bitmaps from anywhere (doesn't HAVE to be from one file or place)
+
+/// ---> Do we need to specify w and h values if they're TILEs? Maybe for a different version
+// ---> SCHEMA we could also specify all lookups BY FILE for each column.
+//  "bitmap.png":[[0, 0], [32, 0], [32, 32]]
+// should this also be including STATS??? If so, do we want all entries organized by bitmap file?
+
+struct fileScanEntry
+	{
+	string tilename;
+	int x, y;
+	bool isPassable;
+	bool reserved;
+	}
+
+// another problem. what are we using for an TILE INDEX?
 class atlasHandler2 
 	{
-	bitmap*[] sources; // if we load a source / parent bitmap we have to clean it up later! 
-	bitmap*[256] bmps;
-	tileInfo[256] info;
+	fileScanEntry[][string] filesData;
+	bitmap*[string] sources; // if we load a source / parent bitmap we have to clean it up later! 
+		
+	irect[] sourcesMeta;
+	bitmap*[string] bmps;
+	tileInfo[string] info;
 	bool hasLoadedMetaYet=false;
 
-	void loadMeta(string filepath="./data/atlas.json")
+	void loadMeta(string filepath="./data/atlasManifest.json")
 		{
 		con.log("Loading atlasMetadata at ["~filepath~"]");
-		import std.json : JSONValue, parseJSON;
-		import std.file : readText;
 		string s = readText(filepath);
-		JSONValue js = parseJSON(s);
-		foreach(i, j; js["tiles"].array)
+		JSONValue js;
+		try{
+		js = parseJSON(s);
+		}catch(JSONException e){
+		writeln(e.toString());
+		assert("fuck");
+		}
+	
+		foreach(z, q; js.object)
 			{
-//			writeln(i, " ", j, " ", j.type, " ", j[0], " ", j[1]);
-			long 	index = j[0].integer;
-			string 	bmpname = j[1].str; 
-			bool 	isPassable = j[2].boolean;
-//			writefln("[%s]", path);
+			writeln("z:", z, " q:", q);
+			string filename = z;
+			foreach(i, j; q.array)
+				{
+			writeln("	i:", i, " j:", j);
+				foreach(l, m; j.object)
+					{
+					string tilename = l;
+					writeln("tilename: ", tilename);
+					writeln("		object l:[", l, "] m:", m);
+					foreach(n, o; m.array)
+						{
+						writeln("			val n:", n, " o:", o);
+						size_t idx = n;
+						}
+					int valx = cast(int)m[0].integer;
+					int valy = cast(int)m[1].integer;
+					bool valisPassable = cast(bool)m[2].integer;
+					bool valreserved   = cast(bool)m[3].integer;
+					writeln("x: ", valx);
+					writeln("y: ", valy);
+					writeln("isPassable: ", valisPassable);	
+					
+					fileScanEntry f;
+						f.tilename = tilename;
+						f.x = valx;
+						f.y = valy;
+						f.isPassable = valisPassable;
+						f.reserved = valreserved;
+					
+					filesData[filename] ~= f;
+					writeln(filename, "=",f);
+					}
+/+				writeln(i, " ", j, " ", j.type, " ", j[0], " ", j[1], " ", j[2], " ", j[3]);
+				irect r;
+				long 	index = j[0].integer;
+				r.x = cast(int)j[0].integer;
+				r.y = cast(int)j[1].integer;
+				r.w = cast(int)j[2].integer;
+				r.h = cast(int)j[3].integer; +/
+	//			writefln("[%s]", path);
+				
+				}
+			}
+		foreach(i, sz; filesData)
+			{
+			writeln(i, " = ");
+			foreach(j, k; sz)
+				{
+				writeln("	",j, ",", k);
+				}
 			}
 		hasLoadedMetaYet = true;
 		}
@@ -80,19 +151,25 @@ class atlasHandler2
 	// TODO: alternative atlas formats.support variable widths.
 	//  squareAtlases (below). Rectangle atlases. Sparse atlases (auto or somehow detect empties? Or simply load it all and only mark the ones that the atlas.json calls for)
 	// offset/borders between sprites
-	void load(string filepath="./data/atlas.png") // SQUARE atlas
+	void load() // SQUARE atlas
 		{
 		if(!hasLoadedMetaYet)assert(false, "Load the meta data!");
-		con.log("Loading atlas at ["~filepath~"]");
+		con.log("attempting to loading atlas(s)");
+	//	con.log("Loading atlas at ["~filepath~"]");
 		// need to load files based on processing the meta. which means we have to load META first!
-/+		atlasbmp = getBitmap(filepath);
-		int k = 0;
-		for(int i = 0; i < 16; i++)
-			for(int j = 0; j < 16; j++)
+		foreach(filename, entries; filesData) 
+			{
+			sources[filename] = getBitmap(r"./data/" ~ filename);
+			foreach(entryNumber, meta; entries)
 				{
-				bmps[k] = al_create_sub_bitmap(atlasbmp, i*TILE_W, j*TILE_W, TILE_W, TILE_W);
-				k++; 
-				}+/
+				bmps[meta.tilename] = al_create_sub_bitmap(sources[filename], meta.x, meta.y, TILE_W, TILE_W);
+				tileInfo t;
+					t.isPassable = meta.isPassable;
+				info[meta.tilename] = t;
+				// note: we could merge tileInfo and fileScanEntry structures and skip this step
+				}
+			}
+		writeln(info);
 		}
 	
 	alias bmps this;
@@ -102,7 +179,7 @@ class atlasHandler2
 /// (manifest) atlas handler
 /// - for parsing a manifest.json file list of tiles and their string lookups
 ///=============================================================================
-class tileInfo
+struct tileInfo
 	{
 	bool isPassable;
 	}
@@ -255,15 +332,19 @@ class bitmapHandler
 
 bitmapHandler bh;
 atlasHandler ah;
+atlasHandler2 ah2;
 
 void loadResources()
 	{
 	bh = new bitmapHandler();
+	ah = new atlasHandler();
+	ah2 = new atlasHandler2();
 	bh.loadJSON();
 	font1 = getFont("./data/DejaVuSans.ttf", 18);
-	ah = new atlasHandler();
 	ah.load();
 	ah.loadMeta();
+	ah2.loadMeta(); // meta first
+	ah2.load();
 	}
 
 world_t world;

@@ -453,14 +453,14 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 				
 				auto val = data[i][j];
 				bitmap* b = null;
-				if(val == 0)b = bh["grass"];
-				if(val == 1)b = bh["sand"];
-				if(val == 2)b = bh["brick"];
-				if(val == 3)b = bh["wood"];
-				if(val == 4)b = bh["wall"];
-				if(val == 5)b = bh["reinforcedwall"];
-				if(val == 6)b = bh["lava"];
-				if(val == 7)b = bh["water"];
+				if(val == 0)b = ah2["grass"];
+				if(val == 1)b = ah2["sand"];
+				if(val == 2)b = ah2["brick"];
+				if(val == 3)b = ah2["wood"];
+				if(val == 4)b = ah2["wall"];
+				if(val == 5)b = ah2["reinforcedwall"];
+				if(val == 6)b = ah2["lava"];
+				if(val == 7)b = ah2["water"];
 				assert(b != null);
 				
 				drawBitmap(b, pair(x-v.ox, y-v.oy), 0);
