@@ -81,6 +81,8 @@ class atlasHandler2
 
 	void loadMeta(string filepath="./data/atlasManifest.json")
 		{
+		string[] listOfUsedNames;
+		
 		con.log("Loading atlasMetadata at ["~filepath~"]");
 		string s = readText(filepath);
 		JSONValue js;
@@ -162,6 +164,7 @@ class atlasHandler2
 			sources[filename] = getBitmap(r"./data/" ~ filename);
 			foreach(entryNumber, meta; entries)
 				{
+				assert(!(meta.tilename in bmps), "ERROR - Duplicate tilenames in manifest! This would cause accidental overrides! Fix the manifest.");
 				bmps[meta.tilename] = al_create_sub_bitmap(sources[filename], meta.x, meta.y, TILE_W, TILE_W);
 				tileInfo t;
 					t.isPassable = meta.isPassable;

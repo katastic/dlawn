@@ -405,7 +405,7 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 				{
 				int ci = cast(uint)pos.x/TILE_W + i;
 				int cj = cast(uint)pos.y/TILE_W + j;
-				data[ci][cj] = val; 
+				set(ipair(ci,cj), val); 
 //				writeln(ci, " ", cj);
 				}
 			}
@@ -431,7 +431,12 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 			
 	bool set(ipair pos, ubyte val)
 		{
-		data[pos.i][pos.j] = val;
+		if(pos.i >= 0 && pos.i < 256 && 
+		   pos.j >= 0 && pos.j < 256)
+			{
+			data[pos.i][pos.j] = val; 
+			return true;
+			}
 		return false;
 		}
 	
