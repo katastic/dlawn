@@ -379,7 +379,7 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 	idimen size=idimen(256,256);
 	uint[256][256] data;
 		
-	void drawRectangle(rect r, ubyte val)
+	void drawRectangle(irect r, ubyte val)
 		{
 		with(r)
 			{
@@ -387,10 +387,10 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 			assert(y >= 0);
 			assert(x < this.w);
 			assert(y < this.h);
-			for(float j = y; j < y + h; j++)
-			for(float i = x; i < x + w; i++)
+			for(int j = y; j < y + h; j++)
+			for(int i = x; i < x + w; i++)
 				{
-				data[cast(int)i/TILE_W][cast(int)j/TILE_W] = val;
+				set(ipair(i,j), val);
 				}
 			}
 		}
