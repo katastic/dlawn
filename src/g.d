@@ -52,8 +52,54 @@ intrinsicGraph!float testGraph2;
 
 
 
-class atlasHandler2
+/// this one builds an array/atlas from an [atlasManifest.json] manifest
+/// and picks and chooses what bitmaps from anywhere (doesn't HAVE to be from one file or place)
+class atlasHandler2 
 	{
+	bitmap*[] sources; // if we load a source / parent bitmap we have to clean it up later! 
+	bitmap*[256] bmps;
+	tileInfo[256] info;
+	bool hasLoadedMetaYet=false;
+
+	void loadMeta(string filepath="./data/atlas.json")
+		{
+		con.log("Loading atlasMetadata at ["~filepath~"]");
+		import std.json : JSONValue, parseJSON;
+		import std.file : readText;
+		string s = readText(filepath);
+		JSONValue js = parseJSON(s);
+		foreach(i, j; js["tiles"].array)
+			{
+//			writeln(i, " ", j, " ", j.type, " ", j[0], " ", j[1]);
+			long 	index = j[0].integer;
+			string 	bmpname = j[1].str; 
+			bool 	isPassable = j[2].boolean;
+//			writefln("[%s]", path);
+			}
+		hasLoadedMetaYet = true;
+		}
+	
+	// TODO: alternative atlas formats.support variable widths.
+	//  squareAtlases (below). Rectangle atlases. Sparse atlases (auto or somehow detect empties? Or simply load it all and only mark the ones that the atlas.json calls for)
+	// offset/borders between sprites
+	void load(string filepath="./data/atlas.png") // SQUARE atlas
+		{
+		if(!hasLoadedMetaYet)assert(false, "Load the meta data!");
+		con.log("Loading atlas at ["~filepath~"]");
+		// need to load files based on processing the meta. which means we have to load META first!
+/+		atlasbmp = getBitmap(filepath);
+		int k = 0;
+		for(int i = 0; i < 16; i++)
+			for(int j = 0; j < 16; j++)
+				{
+				bmps[k] = al_create_sub_bitmap(atlasbmp, i*TILE_W, j*TILE_W, TILE_W, TILE_W);
+				k++; 
+				}+/
+		}
+	
+	alias bmps this;
+
+
 	}
 
 /// (manifest) atlas handler
@@ -70,11 +116,12 @@ class atlasHandler
 	bitmap*[256] bmps;
 	tileInfo[256] info;
 	
-	void loadMeta(string jsonpath="./data/atlas.json")
+	void loadMeta(string filepath="./data/atlas.json")
 		{
+		con.log("Loading atlasMetadata at ["~filepath~"]");
 		import std.json : JSONValue, parseJSON;
 		import std.file : readText;
-		string s = readText(jsonpath);
+		string s = readText(filepath);
 		JSONValue js = parseJSON(s);
 		foreach(i, j; js["tiles"].array)
 			{
@@ -86,16 +133,16 @@ class atlasHandler
 			}
 		}
 	
-	
-	// TODO: alternative atlas formats. offset/borders between sprites
-	// support variable widths.
-	void load(string filepath="./data/atlas.png")
+	// TODO: alternative atlas formats.support variable widths.
+	//  squareAtlases (below). Rectangle atlases. Sparse atlases (auto or somehow detect empties? Or simply load it all and only mark the ones that the atlas.json calls for)
+	// offset/borders between sprites
+	void load(string filepath="./data/atlas.png") // SQUARE atlas
 		{
 		con.log("Loading atlas at ["~filepath~"]");
-		getBitmap(filepath);
+		atlasbmp = getBitmap(filepath);
 		int k = 0;
 		for(int i = 0; i < 16; i++)
-			for(int j = 0; i < 16; j++)
+			for(int j = 0; j < 16; j++)
 				{
 				bmps[k] = al_create_sub_bitmap(atlasbmp, i*TILE_W, j*TILE_W, TILE_W, TILE_W);
 				k++; 

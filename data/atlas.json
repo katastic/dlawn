@@ -4,5 +4,6 @@
 			[1, "grass", false],
 			[2, "wood",  false]
 			],
-	"atlases", ["", "a"]
+	"atlases":["", "a"],
+	"comment":"for use when all tiles of an atlas have metadata (gonna be a large file!)"
 	}

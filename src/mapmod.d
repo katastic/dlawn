@@ -81,10 +81,10 @@ struct layer
 		
 	this(string name, idimen mapSize, idimen bitmapSize)
 		{
-		assert(false);
 		assert(mapSize.w / bitmapSize.w == mapSize.h / bitmapSize.h, "parallax map doesn't scale evenly with map size!");
 		scale = mapSize.w / bitmapSize.w; // bigger bitmap, smaller 'scale'
 		data = al_create_bitmap(cast(int)bitmapSize.w, cast(int)bitmapSize.h);
+		assert(false, "SHOULDNT BE CALLING THIS");
 		}
 		
 	void onDraw(viewport v)
