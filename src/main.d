@@ -19,9 +19,8 @@ import std.datetime.stopwatch : benchmark, StopWatch, AutoStart;
 //extern (C) int pthread_yield(); //does this ... work? No errors yet I can't tell if it changes anything...
 //------------------------------
 
-
-version(LDC){pragma(msg, "using ldc version of dallegro"); pragma(lib, "dallegro5ldc"); }// NOTE: WARN. This REQUIRES us decide DMD or LDC here! Don't mix and match! (unless it doesn't matter?) kat 2023.
-version(DigitalMars){pragma(msg, "using dmd version of dallegro");  pragma(lib, "dallegro5dmd"); }// NOTE: WARN. This REQUIRES us decide DMD or LDC here! Don't mix and match! (unless it doesn't matter?) kat 2023.
+version(LDC){pragma(msg, "using ldc version of dallegro"); pragma(lib, "dallegro5ldc"); }
+version(DigitalMars){pragma(msg, "using dmd version of dallegro");  pragma(lib, "dallegro5dmd"); }
 
 version(ALLEGRO_NO_PRAGMA_LIB){}else{
 	pragma(lib, "allegro");
@@ -50,7 +49,7 @@ import objects;
 import viewportsmod;
 import molto;
 import g;
-display_t display;
+displayType display;
 //=============================================================================
 
 //https://www.allegro.cc/manual/5/keyboard.html
@@ -58,7 +57,8 @@ display_t display;
 // 		change objects? We have to FIND all keys associated with that object and 
 // 		change them.)
 alias ALLEGRO_KEY = ubyte;
-struct keyset_t
+
+/+struct keyset_t
 		{
 		baseObject obj;
 		ALLEGRO_KEY [ __traits(allMembers, keys_label).length] key;
@@ -66,8 +66,7 @@ struct keyset_t
 		// and have it forward to the object's click_on() method.
 		// But again, that kills the idea of multiplayer.
 		}
-		
-enum keys_label
+enum keys_label // not used?
 	{
 	ERROR = 0,
 	UP_KEY,
@@ -80,6 +79,7 @@ enum keys_label
 	FIRE_RIGHT_KEY,
 	ACTION_KEY
 	}
+	+/	
 
 bool initialize()
 	{
@@ -158,7 +158,7 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 	return 0;
 	}
 	
-struct display_t
+struct displayType
 	{
 	void start_frame()	
 		{
@@ -285,27 +285,6 @@ struct display_t
 				makeOf(*stats["structures"])
 				);
 
-/*		drawText2(20, "drawn  : meteors [%d] particles [%d] bullets [%d] dudes [%d] units [%d]", 
-			(*stats["meteors"]).drawn, 
-			(*stats["particles"]).drawn,
-			(*stats["bullets"]).drawn,
-			(*stats["dudes"]).drawn,
-			(*stats["units"]).drawn);
-
-		drawText2(20, "clipped  : meteors [%d] particles [%d] bullets [%d] dudes [%d] units [%d]", 
-			(*stats["meteors"]).clipped, 
-			(*stats["particles"]).clipped,
-			(*stats["bullets"]).clipped,
-			(*stats["dudes"]).clipped,
-			(*stats["units"]).clipped);
-
-		drawText2(20, "percent: structs [%3.1f%%] particles [%3.1f%%] bullets [%3.1f%%] dudes [%3.1f%%] units [%3.1f%%]", 
-			ifNotZeroPercent2(*stats["tiles"]), 
-			ifNotZeroPercent2(*stats["particles"]), 
-			ifNotZeroPercent2(*stats["bullets"]),
-			ifNotZeroPercent2(*stats["dudes"]),
-			ifNotZeroPercent2(*stats["units"]));
-		*/
 		drawTargetDot(g.mouse_x, g.mouse_y);		// DRAW MOUSE PIXEL HELPER/FINDER
 
 /*
@@ -411,23 +390,11 @@ void execute()
 						{
 						writeln("q is down");
 						viewport v = viewports[0];
-	//					bitmap* bmp = g.world.map.layers[1].data;
 						auto p = g.world.objects[0].pos;
 						int w = 20;
 						int h = 20;
-	//					g.world.map.data.drawRectangle(irect(cast(int)p.x - w/2, cast(int)p.y - h/2,w,h), 0);
 						g.world.map2.drawCircle(p, 5, 0);
 						g.key_q_down = false;
-/*						
-						al_set_target_bitmap(bmp);
-//						al_draw_filled_circle(mouse_x + v.x - v.ox, mouse_y + v.y - v.oy, 50, color(0,0,0,1));
-//						writeln(g.world.objects[0].pos, " ", v.x, " ", v.y, " ", v.ox, " ", v.oy);
-						al_draw_filled_circle(
-							g.world.objects[0].pos.x, 
-							g.world.objects[0].pos.y, 
-							50, color(1,0,0,1));
-						al_reset_target();
-*/
 						}
 					break;
 					}

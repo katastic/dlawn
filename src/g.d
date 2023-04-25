@@ -50,8 +50,6 @@ int SCREEN_H = 700;
 intrinsicGraph!float testGraph;
 intrinsicGraph!float testGraph2;
 
-
-
 /// this one builds an array/atlas from an [atlasManifest.json] manifest
 /// and picks and chooses what bitmaps from anywhere (doesn't HAVE to be from one file or place)
 class atlasHandler2 
@@ -98,7 +96,6 @@ class atlasHandler2
 		}
 	
 	alias bmps this;
-
 
 	}
 
@@ -151,7 +148,6 @@ class atlasHandler
 	
 	alias bmps this;
 	}
-
 
 /// Bitmap handler
 ///=============================================================================
