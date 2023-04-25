@@ -218,6 +218,7 @@ void loadResources()
 	bh = new bitmapHandler();
 	bh.loadJSON();
 	font1 = getFont("./data/DejaVuSans.ttf", 18);
+	ah = new atlasHandler();
 	ah.load();
 	ah.loadMeta();
 	}

@@ -8,6 +8,13 @@
 ldc2 -wi -d-debug -g --gc -stats -ofmain `ls ./src/*.d` -L-L/usr/local/lib/ -L-L./lib/ $@ --preview=shortenedMethods
 
 
+#  --checkaction=context
+# doesn't work atm, missing stdlib assert function it's looking for?
+#  /home/novous/Desktop/git/dlawn/./src/g.d:137: undefined reference to `_D4core8internal7dassert__T14_d_assert_failTbZQtFNaNbNiNfMxAyaxbZAya'
+# /usr/bin/ld: main.o: in function `_D1g13bitmapHandler3getMFAyaZPS8allegro56bitmap14ALLEGRO_BITMAP':
+
+
+
 #  -fprofile-instr-generate
 # https://wiki.dlang.org/LDC_LLVM_profiling_instrumentation
 

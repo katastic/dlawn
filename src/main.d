@@ -1,7 +1,7 @@
 // GLOBAL CONSTANTS
 // =============================================================================
 immutable bool DEBUG_NO_BACKGROUND = false; /// No graphical background so we draw a solid clear color. Does this do anything anymore?
-
+immutable bool AUDIO_ENABLED = false;
 // =============================================================================
 
 import std.stdio;
@@ -19,7 +19,9 @@ import std.datetime.stopwatch : benchmark, StopWatch, AutoStart;
 //extern (C) int pthread_yield(); //does this ... work? No errors yet I can't tell if it changes anything...
 //------------------------------
 
-pragma(lib, "dallegro5ldc"); // NOTE: WARN. This REQUIRES us decide DMD or LDC here! Don't mix and match! (unless it doesn't matter?) kat 2023.
+
+version(LDC){pragma(msg, "using ldc version of dallegro"); pragma(lib, "dallegro5ldc"); }// NOTE: WARN. This REQUIRES us decide DMD or LDC here! Don't mix and match! (unless it doesn't matter?) kat 2023.
+version(DigitalMars){pragma(msg, "using dmd version of dallegro");  pragma(lib, "dallegro5dmd"); }// NOTE: WARN. This REQUIRES us decide DMD or LDC here! Don't mix and match! (unless it doesn't matter?) kat 2023.
 
 version(ALLEGRO_NO_PRAGMA_LIB){}else{
 	pragma(lib, "allegro");
