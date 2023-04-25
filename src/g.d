@@ -69,6 +69,8 @@ struct fileScanEntry
 	}
 
 // another problem. what are we using for an TILE INDEX?
+// otherwise, we cannot TRANSFORM tiles easily if they're all hash lookups
+// also that may be slower.
 class atlasHandler2 
 	{
 	fileScanEntry[][string] filesData;
