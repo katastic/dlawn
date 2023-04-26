@@ -40,6 +40,7 @@ import g;
 import helper;
 import viewportsmod;
 import molto;
+import atlasmod;
 
 import std.stdio;
 
@@ -194,7 +195,7 @@ class byteMap
 		for(float i = -r; i < r; i++)
 		for(float j = -r; j < r; j++)
 			{
-			if(sqrt(i^^2 + j^^2) < r)set(cast(uint)(pos.i + i), cast(uint)(pos.j + j), val);
+			if(sqrt(i^^2 + j^^2) <= r)set(cast(uint)(pos.i + i), cast(uint)(pos.j + j), val);
 			}
 		}
 	
@@ -398,15 +399,15 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 	void drawCircle(pair pos, int r, ubyte val)
 		{
 		import std.math : sqrt;
-		for(int i = -r; i < r; i++)
-		for(int j = -r; j < r; j++)
+		for(int i = -r+1; i < r; i++)
+		for(int j = -r+1; j < r; j++)
 			{
-			if(sqrt(cast(float)i^^2 + cast(float)j^^2) < r)
+			if(sqrt(cast(float)i^^2 + cast(float)j^^2) < r - 1.0 + 0.4)
 				{
 				int ci = cast(uint)pos.x/TILE_W + i;
 				int cj = cast(uint)pos.y/TILE_W + j;
 				set(ipair(ci,cj), val); 
-//				writeln(ci, " ", cj);
+				writeln(ci, " ", cj, " - ", sqrt(cast(float)i^^2 + cast(float)j^^2), " < ", r);
 				}
 			}
 		}

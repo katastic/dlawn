@@ -66,11 +66,11 @@ class world_t
 		testGraph2 = new intrinsicGraph!float("Logic (ms)", g.stats.msLogic, 100, 320, COLOR(1,0,0,1), 1_000_000);
 		
 		import std.random : uniform;
-		for(int i =0; i< 50;i++)
+		for(int i =0; i< 100;i++)
 			{
-//			if(percent(10))
-				//meteors ~= new meteor(pair(uniform(0,map2.w*TILE_W-1),uniform(0,map2.h*TILE_W-1))); //test 
-//			else
+			if(percent(90))
+				meteors ~= new meteor   (pair(uniform(0,map2.w*TILE_W-1),uniform(0,map2.h*TILE_W-1))); //test 
+			else
 				meteors ~= new bigMeteor(pair(uniform(0,map2.w*TILE_W-1),uniform(0,map2.h*TILE_W-1))); //test 
 				
 			}		

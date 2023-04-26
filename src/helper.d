@@ -25,6 +25,18 @@ import molto;
 	//COLOR(w, w, w, 1);
 	//}
 
+// there may be an existing API for this
+bool isAlmost(float val, float equals, float fudge=.01)
+	{
+	if( val > equals - fudge &&
+		val < equals + fudge) return true; else return false;
+	}
+
+bool isZero(float val, float fudge=.01)
+	{
+	return isAlmost(val, 0, fudge);
+	}
+
 // TODO: does this track viewport offset or not?!
 void drawAngleHelper(baseObject o, viewport v, float angle, float distance, ALLEGRO_COLOR color)
 	{

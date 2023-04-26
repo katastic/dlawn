@@ -20,6 +20,7 @@ import viewportsmod;
 import particles;
 import guns;
 import bulletsmod;
+import atlasmod;
 
 // we should organize this at some point. game mechanic constants.
 float STAT_WALK_SPEED = 1245;
@@ -216,7 +217,8 @@ class bigMeteor : meteor
 		with(g.world.map2)
 		if(isInsideMap(p))
 			{
-			if(data[p.i][p.j] > 0)data[p.i][p.j]--;
+			g.world.map2.drawCircle(pos, 2, 0);
+//			if(data[p.i][p.j] > 0)data[p.i][p.j]--;
 			}
 		
 		with(this)
