@@ -540,6 +540,72 @@ int main(string [] args)
 				{
 				modeRunAllegroTests=true;
 				}
+			if(args[1].toLower == "testfail1") // works with gdb break _d_assert
+			// (shows a working stack but variable "frame base" is broken) when using GDB
+			// compiling with LDC might be better?
+			/+
+LDC
+	(gdb) bt
+	#0  0x00007ffff7967f20 in _d_assert_msg () from /lib/x86_64-linux-gnu/libdruntime-ldc-shared.so.100
+	#1  0x000055555558f645 in _Dmain (args=...) at ./src/main.d:546
+	(gdb) bt full
+	#0  0x00007ffff7967f20 in _d_assert_msg () from /lib/x86_64-linux-gnu/libdruntime-ldc-shared.so.100
+	No symbol table info available.
+	#1  0x000055555558f645 in _Dmain (args=...) at ./src/main.d:546
+			modeRunAllegroTests = false
+			modeRunConsoleTests = false
+
+DigitalMars: [with -gdwarf=5 !!!!]
+
+	(gdb) bt
+	#0  0x00005555556da8f0 in _d_assert_msg ()
+	#1  0x00005555556c2753 in _Dmain (args=<error reading variable: Could not find the frame base for "_Dmain".>)
+		at /usr/include/dmd/druntime/import/core/internal/entrypoint.d:560
+	(gdb) bt full
+	#0  0x00005555556da8f0 in _d_assert_msg ()
+	No symbol table info available.
+	#1  0x00005555556c2753 in _Dmain (args=<error reading variable: Could not find the frame base for "_Dmain".>)
+		at /usr/include/dmd/druntime/import/core/internal/entrypoint.d:560
+			modeRunAllegroTests = <error reading variable modeRunAllegroTests (Could not find the frame base for "_Dmain".)>
+			modeRunConsoleTests = <error reading variable modeRunConsoleTests (Could not find the frame base for "_Dmain".)>
+			__r2701 = <error reading variable __r2701 (Could not find the frame base for "_Dmain".)>
+			__key2700 = <error reading variable __key2700 (Could not find the frame base for "_Dmain".)>
+			arg = <error reading variable arg (Could not find the frame base for "_Dmain".)>
+			i = <error reading variable i (Could not find the frame base for "_Dmain".)>
+
+DigitalMars: [WITHOUT gdwarf=5]
+
+	(gdb) bt
+	#0  0x00005555556da8f0 in _d_assert_msg ()
+	#1  0x00005555556c2753 in _Dmain (args=...) at ./src/main.d:578
+	(gdb) bt full
+	#0  0x00005555556da8f0 in _d_assert_msg ()
+	No symbol table info available.
+	#1  0x00005555556c2753 in _Dmain (args=...) at ./src/main.d:578
+			modeRunAllegroTests = false
+			modeRunConsoleTests = false
+			__r2701 = {"/home/novous/Desktop/git/dlawn/main", "testfail1"}
+			__key2700 = 2
+			arg = "testfail1"
+			i = 1
+
+GDB documentation says "Produce debugging information in DWARF format (if that 
+is supported). The value of version may be either 2, 3, 4 or 5; the default 
+version for most targets is 4. DWARF Version 5 is only experimental. "
+
+			+/
+				{
+				assert(false, "fail1");
+				}
+			if(args[1].toLower == "testfail2") // not caught
+				{
+				throw new Exception("fail2");
+				}
+			if(args[1].toLower == "testfail3") // not caught
+				{
+				import std.exception : enforce;
+				enforce(false, "fail3"); 
+				}
 			}
 		}
 

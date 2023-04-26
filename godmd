@@ -1,7 +1,13 @@
 #!/bin/sh
-dmd -debug -gs -gf -gdwarf=5 -g -ofmain `ls ./src/*.d` -L-L./lib/ 
+dmd -debug -gs -gf -g -gx -ofmain `ls ./src/*.d` -L-L./lib/ 
 
+# -gx produce "stack stomp code"
+# LDC equivalent? https://github.com/ldc-developers/ldc/issues/2489
+
+
+# -gdwarf=5
 # -preview=shortenedMethods  should be automatically on by newer versions as of early 2023
+
 
 # we didn't need $@ https://stackoverflow.com/questions/3898665/what-is-in-bash
 #-vgc 

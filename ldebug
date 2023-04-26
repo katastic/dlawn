@@ -1,2 +1,3 @@
 #!/bin/sh
-lldb -o run ./main
+lldb -o 'b _d_assert' -o 'b _d_assert_msg' -o run ./main
+#must be single quotes

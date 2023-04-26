@@ -79,9 +79,13 @@ class atlasHandler2
 	irect[] sourcesMeta;
 	bitmap*[string] bmps;
 	tileInfo[string] info;
-	bool hasLoadedMetaYet=false;
 
-	void loadMeta(string filepath="./data/atlasManifest.json")
+	this(string filepath)
+		{
+		load(filepath);
+		}
+
+	void load(string filepath="./data/atlasManifest.json")
 		{
 		string[] listOfUsedNames;
 		
@@ -149,18 +153,13 @@ class atlasHandler2
 				writeln("	",j, ",", k);
 				}
 			}
-		hasLoadedMetaYet = true;
+		processManifest();
 		}
 	
-	// TODO: alternative atlas formats.support variable widths.
-	//  squareAtlases (below). Rectangle atlases. Sparse atlases (auto or somehow detect empties? Or simply load it all and only mark the ones that the atlas.json calls for)
-	// offset/borders between sprites
-	void load() // SQUARE atlas
+	void processManifest()
 		{
-		if(!hasLoadedMetaYet)assert(false, "Load the meta data!");
-		con.log("attempting to loading atlas(s)");
-	//	con.log("Loading atlas at ["~filepath~"]");
-		// need to load files based on processing the meta. which means we have to load META first!
+		con.log("attempting to loading atlas(s) based on manifest");
+
 		foreach(filename, entries; filesData) 
 			{
 			sources[filename] = getBitmap(r"./data/" ~ filename);
@@ -175,6 +174,19 @@ class atlasHandler2
 				}
 			}
 		writeln(info);
+		}
+
+	void unload()
+		{
+		foreach(b; bmps)
+			{
+			al_destroy_bitmap(b);
+			}
+		foreach(b; sources)
+			{
+			al_destroy_bitmap(b);
+			}
+		// TODO
 		}
 	
 	alias bmps this;
@@ -341,15 +353,19 @@ atlasHandler2 ah2;
 
 void loadResources()
 	{
+	font1 = getFont("./data/DejaVuSans.ttf", 18);
+
 	bh = new bitmapHandler();
 	ah = new atlasHandler();
-	ah2 = new atlasHandler2();
+	ah2 = new atlasHandler2("./data/atlasManifest.json");
 	bh.loadJSON();
-	font1 = getFont("./data/DejaVuSans.ttf", 18);
 	ah.load();
 	ah.loadMeta();
-	ah2.loadMeta(); // meta first
-	ah2.load();
+	}
+	
+void unloadResources()
+	{
+	ah2.unload();
 	}
 
 world_t world;

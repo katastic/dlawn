@@ -1,2 +1,2 @@
 #!/bin/sh
-gdb -ex run ./main
+gdb -ex "break _d_assert" -ex "break _d_assert_msg" -ex run ./main
