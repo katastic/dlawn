@@ -34,6 +34,7 @@ class world_t
 				
 	dude[] objects; // other stuff
 	unit[] units;
+	item[] items;
  	structure[] structures; // should all structures be owned by a planet? are there 'free floating' structures we'd have? an asteroid structure that's just a structure?
 	particle[] particles;
 	bullet[] bullets;
@@ -51,6 +52,7 @@ class world_t
 		
 		objects ~= new dude(pair(750, 400));
 		objects[0].isDebugging = true;
+		objects[0].testCreateItems(this);
 		objects ~= new dude(pair(850, 400));
 		objects[1].usingAI = true;
 		
@@ -154,6 +156,7 @@ class world_t
 		drawStat4(objects	, "dudes");
 		drawStat4(structures, "structures");
 		drawStat4(meteors	, "meteors");		
+		drawStat4(items		, "items");		
 
 //		map.drawMinimap(pair(SCREEN_W-300,50));
 
@@ -185,6 +188,8 @@ class world_t
 		if(key_s_down)p.actionDown();
 		if(key_a_down)p.actionLeft();
 		if(key_d_down)p.actionRight();
+		if(key_e_down)p.actionFire();
+		
 /+
 		if(key_i_down)viewports[0].oy += 2;
 		if(key_k_down)viewports[0].oy -= 2;
@@ -197,12 +202,14 @@ class world_t
 		tick(units);
 		tick(objects);
 		tick(meteors);
+		tick(items);
 			
 		prune(units);
 		prune(particles);
 		prune(bullets);
 		prune(objects);
 		prune(meteors);
+		prune(items);
 		
 		stats.swLogic.stop();
 		stats.msLogic = stats.swLogic.peek.total!"msecs";

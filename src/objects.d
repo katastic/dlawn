@@ -62,12 +62,12 @@ name clashes
 class item : baseObject
 	{
 	bool isInside = false; //or isHidden? Not always the same though...
-	int team;
 	
-	this(uint _team, float _x, float _y, float _vx, float _vy, ALLEGRO_BITMAP* b)
+	this(uint _team, pair _pos, pair _vel, ALLEGRO_BITMAP* b)
 		{	
-//		writeln("ITEM EXISTS BTW at ", x, " ", y);
-		super(pair(_x, _y), pair(_vx, _vy), b);
+		team = _team;
+		super(_pos, _vel, b);
+		writeln("ITEM EXISTS BTW at ", pos.x, " ", pos.y);
 		}
 		
 	override bool draw(viewport v)
@@ -555,11 +555,26 @@ class dude : baseObject
 	bool facingRight = false;
 	bool facesVelocity = false; /// do we automatically flip the bitmap to face the velocity direction?
 	
+	float facingVel()
+		{
+		if(facingRight)return 1.0;
+		return -1.0;
+		}
+	
 	this(pair _pos)
 		{			
 		moveStyle = new wall2dStyle(this);
 		super(_pos, pair(0, 0), bh["dude"]);
 		ai = new aicontroller(this);
+		}
+		
+	import worldmod : world_t;
+	void testCreateItems(world_t w)
+		{
+		item i = new item(0, pos, vel, bh["lava"]);
+		i.isInside = true;
+		items ~= i;
+		w.items ~= i; //world needs to finish setting up before we can reference it! Or send a ref/pointer in args.
 		}
 
 	void mapCollision(DIR hitDirection)
@@ -591,6 +606,27 @@ class dude : baseObject
 	override void actionDown(){moveStyle.actionDown();}
 	override void actionLeft(){moveStyle.actionLeft(); facingRight = false;}
 	override void actionRight(){moveStyle.actionRight(); facingRight = true;}
+
+	item[] items;
+
+	bool hasItem()
+		{
+		return items.length > 0;
+		}
+	
+	override void actionFire()
+		{
+//		if(moveStyle.isActionAvailable)
+		if(hasItem())throwItem();
+		}
+		
+	void throwItem()
+		{
+		assert(hasItem());
+		items[0].isInside = false;
+		items[0].pos = pos;
+		items[0].vel = pair(vel, 1*facingVel(), -1);
+		}
 	
 	void spawnSmoke(float offsetx, float offsety)
 		{
@@ -654,6 +690,7 @@ class baseObject
 	string debugString="";
 	bool flipHorizontal=false;
 	bool flipVertical=false;
+	int team;
 
 	void onHit(baseObject by, int damage)
 		{
@@ -662,6 +699,7 @@ class baseObject
 
 	this(pair _pos, pair _vel, ALLEGRO_BITMAP* _bmp)
 		{
+		team = 0; //fixme
 		pos = _pos;
 		vel = _vel;
 		bmp = _bmp;

@@ -129,7 +129,7 @@ class pygmentize// : prettyPrinter
 			}
 
 		pipes.stdin.writeln(input);
-		pipes.stdin.flush();
+		pipes.stdin.flush(); // we're already flushing!
 		
 		g.stats.numberLogEntries++;
 			
@@ -247,7 +247,9 @@ class logger
 		if(usePrettyPrinter)
 			writeln(printer.convert3(str3));
 		if(usePrettyPrinterDirectly)
+			{
 			printer.convert3(str3);
+			}
 		}		
 	
 	void log(T)(T obj, string str2)

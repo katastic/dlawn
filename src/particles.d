@@ -123,6 +123,7 @@ struct particle
 			c = red; // DEBUG. show partially clipped:
 			return true; //if !debug
 			}
+			
 			al_draw_tinted_scaled_rotated_bitmap(b, c,
 			   bmp.w/2, 
 			   bmp.h/2, 

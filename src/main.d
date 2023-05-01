@@ -132,8 +132,8 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 		}
 
 	import console : logger;
-	con = new logger(); // WARN this should technically be initialized/owned outside world?
-			
+	con = new logger();
+				
 	// load animations/etc
 	// --------------------------------------------------------
 	g.loadResources();
@@ -237,8 +237,6 @@ struct displayType
 
 		al_draw_filled_rounded_rectangle(16, 32, 64+800, last_position_plus_one+32, 8, 8, ALLEGRO_COLOR(.7, .7, .7, .7));
 
-//		unit u = g.world.units[0];
-//		drawText2(20, "obj[%.2f,%.2f][%.2f %.2f] %.2f deg", u.x, u.y, u.vx, u.vy, u.angle.radToDeg);
 		drawText2(20, "fps[%d] frame#[%d] objrate[%d] -- Obj1[%.2f,%.2f]", g.stats.fps, g.stats.totalFramesPassed,	 
 					((*stats["particles"]).drawn +
 					(*stats["units"]).drawn + 
@@ -307,7 +305,6 @@ struct displayType
 				mouse_y, 
 				mouse_x + viewports[0].ox, 
 				mouse_y + viewports[0].oy);
-		
 		}
 	}
 
