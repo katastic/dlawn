@@ -86,7 +86,7 @@ class item : baseObject
 			{
 			pos += vel;
 			vel.x *= .99; 
-			vel.y *= .99; 
+			vel.y += .025; 
 			}
 		}
 	}
@@ -571,7 +571,7 @@ class dude : baseObject
 	import worldmod : world_t;
 	void testCreateItems(world_t w)
 		{
-		item i = new item(0, pos, vel, bh["lava"]);
+		item i = new item(0, pos, vel, bh["carrot"]);
 		i.isInside = true;
 		items ~= i;
 		w.items ~= i; //world needs to finish setting up before we can reference it! Or send a ref/pointer in args.
@@ -616,6 +616,7 @@ class dude : baseObject
 	
 	override void actionFire()
 		{
+		con.log("item.actionFire");
 //		if(moveStyle.isActionAvailable)
 		if(hasItem())throwItem();
 		}
@@ -626,6 +627,8 @@ class dude : baseObject
 		items[0].isInside = false;
 		items[0].pos = pos;
 		items[0].vel = pair(vel, 1*facingVel(), -1);
+		items = items.remove(0); //I release you, my child!
+		con.log("I release you!");
 		}
 	
 	void spawnSmoke(float offsetx, float offsety)

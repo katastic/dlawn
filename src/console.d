@@ -130,6 +130,7 @@ class pygmentize// : prettyPrinter
 
 		pipes.stdin.writeln(input);
 		pipes.stdin.flush(); // we're already flushing!
+		// we could maybe use stdlibc setbuf to set buffer size zero? But it needs before data is sent.
 		
 		g.stats.numberLogEntries++;
 			

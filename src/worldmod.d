@@ -184,11 +184,12 @@ class world_t
 			}
 
 		auto p = objects[0];
+		
+		// Note these are LEVEL triggers, not EDGE triggers! They will continue to fire as long as the key is down.
 		if(key_w_down)p.actionUp();
 		if(key_s_down)p.actionDown();
 		if(key_a_down)p.actionLeft();
 		if(key_d_down)p.actionRight();
-		if(key_e_down)p.actionFire();
 		
 /+
 		if(key_i_down)viewports[0].oy += 2;

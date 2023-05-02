@@ -375,6 +375,7 @@ void execute()
 					isKeySet(ALLEGRO_KEY_S, g.key_s_down);
 					isKeySet(ALLEGRO_KEY_A, g.key_a_down);
 					isKeySet(ALLEGRO_KEY_D, g.key_d_down);		
+					isKeySet(ALLEGRO_KEY_E, g.key_e_down);		
 
 					isKeySet(ALLEGRO_KEY_M, g.key_m_down);
 					isKeySet(ALLEGRO_KEY_I, g.key_i_down);
@@ -382,6 +383,12 @@ void execute()
 					isKeySet(ALLEGRO_KEY_K, g.key_k_down);
 					isKeySet(ALLEGRO_KEY_L, g.key_l_down);
 					isKeySet(ALLEGRO_KEY_Q, g.key_q_down);
+					
+					if(g.key_e_down)
+						{
+						g.world.objects[0].actionFire();
+						key_e_down = false;
+						}
 					
 					if(g.key_q_down)//handleMouseAt(g.mouse_x, g.mouse_y, g.viewports[0]);
 						{

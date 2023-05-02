@@ -53,7 +53,7 @@ class viewBox
 	void actionPrevious()
 		{
 		selectedGraph--;
-		if(selectedGraph < 0)selectedGraph = graphs.length - 1;
+		if(selectedGraph < 0)selectedGraph = cast(int)graphs.length - 1;
 		if(graphs.length == 0)selectedGraph = 0;
 		updateTitleText();
 		}
@@ -61,7 +61,7 @@ class viewBox
 	void actionNext()
 		{
 		selectedGraph++;
-		if(selectedGraph > graphs.length-1)selectedGraph = 0;
+		if(selectedGraph > cast(int)graphs.length-1)selectedGraph = 0;
 		if(graphs.length == 0)selectedGraph = 0;
 		updateTitleText();
 		}

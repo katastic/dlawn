@@ -50,7 +50,7 @@ class atlasHandler2
 		load(filepath);
 		}
 
-	void load(string filepath="./data/atlasManifest.json")
+	final void load(string filepath="./data/atlasManifest.json")
 		{
 		string[] listOfUsedNames;
 		

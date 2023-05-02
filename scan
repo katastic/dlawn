@@ -1,1 +1,1 @@
-dscanner -S ./src/*.d --config ./tools/dscanner.ini | grep -Ev 'undocumented|immutable|120|style'
+dscanner -S ./src/*.d --config ./tools/dscanner.ini | grep -Ev 'undocumented|immutable|120|style' | pygmentize -l D

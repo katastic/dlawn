@@ -407,14 +407,14 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 				int ci = cast(uint)pos.x/TILE_W + i;
 				int cj = cast(uint)pos.y/TILE_W + j;
 				set(ipair(ci,cj), val); 
-				writeln(ci, " ", cj, " - ", sqrt(cast(float)i^^2 + cast(float)j^^2), " < ", r);
+			//	writeln(ci, " ", cj, " - ", sqrt(cast(float)i^^2 + cast(float)j^^2), " < ", r);
 				}
 			}
 		}
 	
 	this()
 		{
-		import std.random;
+		import std.random : uniform;
 		int z = 0;
 		for(int i = 0; i < dim.w; i++)
 			for(int j = 0; j < dim.h; j++)

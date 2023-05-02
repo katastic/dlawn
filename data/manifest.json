@@ -8,6 +8,8 @@
 			["asteroid","./data/asteroid2.png"],
 			["bigasteroid","./data/bigasteroid.png"],
 			["explosion","./data/explosion.png"],
+			
+			["carrot","./data/carrot.png"],
 
 			["grass","./data/grass.png"],
 			["sand","./data/wall2.png"],
