@@ -73,6 +73,71 @@ void unloadResources()
 	ah2.unload();
 	}
 
+
+
+
+
+/// need some sort of timing mechanism/server so we can do stuff like timeouts for throwing an item and picking it back up again.
+/// auto myTimeout = new timeout();
+
+/+ myTimeout.setSeconds(5);
+if(myTimeout) //returns false until its ready
+ {
+ }
+
+all timeouts are handled by a handler that has a list of them and handled as they become available.
+
++/
+
+class timeout
+	{
+	static timeoutHandler myth; // "My Timeouthandler"
+	int totalLength=0; // in frames? in milliseconds? Frames makes upkeep simple.
+	int remaining=0;
+	bool isReady=false;
+	
+	alias isReady this;
+	
+	this(int frames) // how do we select frames or seconds
+		{
+		totalLength = frames;
+		remaining = frames;
+		th.add(this);
+		}
+	
+	static this()
+		{
+		myth = th;
+		}
+	} // there is ONE issue, if we NEED a CLOCK TIME, and 
+	// the GAME LOGIC RATES stutter for some reason then the CLOCK times will be delayed.
+	// if we NEED clock times to be exact, we need a framerate agnostic method (ala Allegro timers)
+	
+struct timeoutHandler
+	{
+	timeout[] myChildren;
+	
+	void add(timeout t)
+		{
+		myChildren ~= t;
+		}
+	
+	void onTick()
+		{
+		foreach(t; myChildren)
+			{
+			t.remaining--;
+			if(t.remaining < 0)t.isReady = true;
+			}
+		}
+	}
+
+timeoutHandler th; // if we don't have this singleton we can't use 
+// static this binding for children for auto registration.
+
+
+
+
 /// Draw a shield! ring
 void drawShield(pair pos, viewport v, float radius, float thickness, COLOR c, float shieldCoefficent)
 	{

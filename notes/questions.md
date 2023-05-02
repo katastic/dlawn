@@ -1,4 +1,5 @@
 
+
 move molto code to all use the actual internal function since all Allegro 5 functions just chain call to it anyway:
 
 _draw_tinted_rotated_scaled_bitmap_region
