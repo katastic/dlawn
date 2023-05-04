@@ -204,6 +204,7 @@ class world_t
 		tick(objects);
 		tick(meteors);
 		tick(items);
+		th.onTick();
 			
 		prune(units);
 		prune(particles);

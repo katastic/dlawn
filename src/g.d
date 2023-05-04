@@ -89,6 +89,8 @@ all timeouts are handled by a handler that has a list of them and handled as the
 
 +/
 
+
+// do we combine event and LEVEL trigger timers together in here? Or separate structs and arrays?
 struct timeout
 	{
 	static timeoutHandler handler; 
@@ -109,27 +111,62 @@ struct timeout
 		{
 		handler = th;
 		}
+		
+	void function () callbackFunction;
 	} // there is ONE issue, if we NEED a CLOCK TIME, and 
 	// the GAME LOGIC RATES stutter for some reason then the CLOCK times will be delayed.
 	// if we NEED clock times to be exact, we need a framerate agnostic method (ala Allegro timers)
 	
+	
+// -- ISSUE: How do we handle/clean a dead timeout? 
+// If it's an EVENT timer we fire the event.
+// but what if it's a level timer? How do we know we're done with it? 
+// If we manually clean them up from the object using them, we better find a way to determine if they're ORPHANS due to OPT-IN resource allocation!
 struct timeoutHandler
 	{
-	timeout[] myChildren;
+	timeout[] myLevelChildren; // these have to be dealt with. AND, can they be reset?
+	timeout[] myEventChildren; // these clean up instantly.
 	
 	void add(timeout t)
 		{
-		myChildren ~= t;
+		myLevelChildren ~= t;
+		}
+		
+	timeout* addLevelTimeout(float time) //constructs timeout and returns pointer to it
+		{
+		timeout t;
+		myLevelChildren ~= t;
+		return &myLevelChildren[$-1];
+		}
+
+	timeout* addEdgeTimeout(float time, void function() _callbackFunction) //constructs timeout and returns pointer to it
+		{
+		timeout t;
+		t.callbackFunction = _callbackFunction;
+		myEventChildren ~= t;
+		return &myEventChildren[$-1];
 		}
 	
 	void onTick()
 		{
-		foreach(t; myChildren)
+		foreach(t; myLevelChildren)
 			{
 			if(!t.isReady)
 				{
 				t.remaining--;
 				if(t.remaining < 0)t.isReady = true; // if(t.pushEvent !is null)t.pushEvent();
+				}
+			}
+		foreach(t; myEventChildren)
+			{
+			if(!t.isReady)
+				{
+				t.remaining--;
+				if(t.remaining < 0)
+					{
+					t.isReady = true;
+					t.callbackFunction();
+					}
 				}
 			}
 		}
