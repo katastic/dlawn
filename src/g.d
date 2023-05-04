@@ -89,9 +89,9 @@ all timeouts are handled by a handler that has a list of them and handled as the
 
 +/
 
-class timeout
+struct timeout
 	{
-	static timeoutHandler myth; // "My Timeouthandler"
+	static timeoutHandler handler; 
 	int totalLength=0; // in frames? in milliseconds? Frames makes upkeep simple.
 	int remaining=0;
 	bool isReady=false;
@@ -102,12 +102,12 @@ class timeout
 		{
 		totalLength = frames;
 		remaining = frames;
-		th.add(this);
+		handler.add(this);
 		}
 	
 	static this()
 		{
-		myth = th;
+		handler = th;
 		}
 	} // there is ONE issue, if we NEED a CLOCK TIME, and 
 	// the GAME LOGIC RATES stutter for some reason then the CLOCK times will be delayed.
@@ -126,10 +126,15 @@ struct timeoutHandler
 		{
 		foreach(t; myChildren)
 			{
-			t.remaining--;
-			if(t.remaining < 0)t.isReady = true;
+			if(!t.isReady)
+				{
+				t.remaining--;
+				if(t.remaining < 0)t.isReady = true; // if(t.pushEvent !is null)t.pushEvent();
+				}
 			}
 		}
+	// we could support 'push' notifications as opposed to polling here. do we need it though?
+	
 	}
 
 timeoutHandler th; // if we don't have this singleton we can't use 

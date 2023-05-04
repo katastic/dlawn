@@ -82,7 +82,7 @@ struct particle
 		flipHorizontal = flipCoin();
 		flipVertical = flipCoin();
 		}
-
+/+
 	// do we need this? why do we also specify _vx, and _vy then???
 	/// spawn smoke with acceleration from unit u
 	this(float _x, float _y, float _vx, float _vy, int _type, int  _lifetime, unit u)
@@ -105,7 +105,7 @@ struct particle
 		flipHorizontal = flipCoin();
 		flipVertical = flipCoin();
 		}
-		
+	+/	
 	bool draw(viewport v)
 		{
 		assert(bmp !is null);

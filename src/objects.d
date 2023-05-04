@@ -70,6 +70,17 @@ class item : baseObject
 		writeln("ITEM EXISTS BTW at ", pos.x, " ", pos.y);
 		}
 		
+	void goInside(dude d)
+		{
+		isInside = true;
+		d.items ~= this;
+		}
+		
+	void goOutside() // but who handles velocity, etc when thrown?
+		{
+		isInside = false;
+		}
+		
 	override bool draw(viewport v)
 		{
 		if(!isInside)
@@ -188,7 +199,7 @@ class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 			
 			foreach(o; g.world.objects)
 				{
-				if(IsInsideRadius(pos, o.pos, 20))
+				if(isInsideRadius(pos, o.pos, 20))
 					{
 					onObjectCollision(o);
 					break;
@@ -542,7 +553,7 @@ class aicontroller
 	// ???
 	}
 
-class dude : baseObject
+class dude : baseObject /// this is the new Unit class until we rename them, old unit is mostly just for old unported ode comparison
 	{
 	wall2dStyle moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
 	aicontroller ai; //nyi
@@ -555,7 +566,7 @@ class dude : baseObject
 	bool facingRight = false;
 	bool facesVelocity = false; /// do we automatically flip the bitmap to face the velocity direction?
 	
-	float facingVel()
+	float facingVel() /// Helper function returns horizontal velocity sign (-1 left, +1 right) for multiplying velocities
 		{
 		if(facingRight)return 1.0;
 		return -1.0;
@@ -569,12 +580,26 @@ class dude : baseObject
 		}
 		
 	import worldmod : world_t;
-	void testCreateItems(world_t w)
+	void testCreateItems(world_t w) /// called by world_t
 		{
-		item i = new item(0, pos, vel, bh["carrot"]);
+		item i = new item(0, pos, vel, bh["carrot"]); // we could use pos(0,0) or negative, for inside items so they get pruned quickly from tests. or just test "isinside" i guess.
 		i.isInside = true;
 		items ~= i;
 		w.items ~= i; //world needs to finish setting up before we can reference it! Or send a ref/pointer in args.
+		}
+
+	void scanForItemsToPickup() // do we do this all the time? Do we speed this up with spatial indexing? Do we fire this off periodically?
+		{
+		foreach(i; g.world.items)
+			{
+			if(isInsideRadius(this.pos, i.pos, 10))
+				{
+				con.log("found item!");
+				i.isInside = true;
+				items ~= i;
+				break;
+				}
+			}
 		}
 
 	void mapCollision(DIR hitDirection)
@@ -624,6 +649,7 @@ class dude : baseObject
 	void throwItem()
 		{
 		assert(hasItem());
+		// "items[0].goOutside()"
 		items[0].isInside = false;
 		items[0].pos = pos;
 		items[0].vel = pair(vel, 1*facingVel(), -1);
@@ -647,6 +673,7 @@ class dude : baseObject
 			facingRight = (vel.x > 0) ? true : false;
 			}
 		if(isGrounded && isMoving)spawnSmoke(0, bmp.w/4);
+		scanForItemsToPickup();
 		}
 	}
 	

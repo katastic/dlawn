@@ -180,7 +180,21 @@ bool isWideInsideScreen(float x, float y, ALLEGRO_BITMAP* b, viewport v)
 		{return true;} else{ return false;} //fixme
 	}
 
-bool IsInsideRadius(pair p, pair q, int radius) 
+bool isInsideRectangle(pair pos, rect b) 
+	{
+	with(pos)
+		{
+		if(		x >= -b.w/2 		&& 
+				x - b.w/2 < b.w 	&&
+				y - b.h/2 >= -b.w/2 &&
+				y < b.h
+				 )
+			{return true;} else{ return false;} //fixme
+		}
+	}
+	
+
+bool isInsideRadius(pair p, pair q, float radius) 
 	{
 	import std.math : sqrt;
 	
