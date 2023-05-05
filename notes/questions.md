@@ -1,4 +1,10 @@
 
+don't classes automatically have a super pointer or parent pointer? So do the component types need to be sent a pointer? Also do they need to be TEMPLATES and do they need to be CLASSes so we have to heap allocate them? maybe try structs
+
+we probably should setup a logic timer and have it have precedence over graphics. but if we frame lock at 30 fps, how are 
+	we doing graphics? Unless we're doing some sort of client-side prediction / extrapolation by continuing to update velocities
+	there's nothing changing between frames. So keep 60 Hz logic, but skip frames if we have to?
+
 
 move molto code to all use the actual internal function since all Allegro 5 functions just chain call to it anyway:
 

@@ -73,10 +73,6 @@ void unloadResources()
 	ah2.unload();
 	}
 
-
-
-
-
 /// need some sort of timing mechanism/server so we can do stuff like timeouts for throwing an item and picking it back up again.
 /// auto myTimeout = new timeout();
 
@@ -88,7 +84,6 @@ if(myTimeout) //returns false until its ready
 all timeouts are handled by a handler that has a list of them and handled as they become available.
 
 +/
-
 
 // do we combine event and LEVEL trigger timers together in here? Or separate structs and arrays?
 struct timeout
@@ -112,7 +107,7 @@ struct timeout
 		handler = th;
 		}
 		
-	void function () callbackFunction;
+	void delegate () callbackFunction;
 	} // there is ONE issue, if we NEED a CLOCK TIME, and 
 	// the GAME LOGIC RATES stutter for some reason then the CLOCK times will be delayed.
 	// if we NEED clock times to be exact, we need a framerate agnostic method (ala Allegro timers)
@@ -139,9 +134,11 @@ struct timeoutHandler
 		return &myLevelChildren[$-1];
 		}
 
-	timeout* addEdgeTimeout(float time, void function() _callbackFunction) //constructs timeout and returns pointer to it
+	timeout* addEdgeTimeout(int time, void delegate() _callbackFunction) //constructs timeout and returns pointer to it
 		{
 		timeout t;
+		t.remaining = time;
+		t.isReady = false;
 		t.callbackFunction = _callbackFunction;
 		myEventChildren ~= t;
 		return &myEventChildren[$-1];
@@ -157,15 +154,18 @@ struct timeoutHandler
 				if(t.remaining < 0)t.isReady = true; // if(t.pushEvent !is null)t.pushEvent();
 				}
 			}
-		foreach(t; myEventChildren)
+		
+		foreach(i, t; myEventChildren)
 			{
 			if(!t.isReady)
 				{
-				t.remaining--;
+//				writeln(t.remaining);
+				myEventChildren[i].remaining--; //can't mutate t inside foreach
 				if(t.remaining < 0)
 					{
-					t.isReady = true;
-					t.callbackFunction();
+					myEventChildren[i].isReady = true;
+					myEventChildren[i].callbackFunction();
+					con.log("Calling callback function");
 					}
 				}
 			}
@@ -176,9 +176,6 @@ struct timeoutHandler
 
 timeoutHandler th; // if we don't have this singleton we can't use 
 // static this binding for children for auto registration.
-
-
-
 
 /// Draw a shield! ring
 void drawShield(pair pos, viewport v, float radius, float thickness, COLOR c, float shieldCoefficent)

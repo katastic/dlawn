@@ -62,12 +62,25 @@ name clashes
 class item : baseObject
 	{
 	bool isInside = false; //or isHidden? Not always the same though...
-	
+	bool isOnDropCooldown = false;
+	timeout cooldown;	
+	gravityStyle!item moveStyle; // this needs corrected API
+
 	this(uint _team, pair _pos, pair _vel, ALLEGRO_BITMAP* b)
-		{	
+		{
 		team = _team;
 		super(_pos, _vel, b);
 		writeln("ITEM EXISTS BTW at ", pos.x, " ", pos.y);
+		moveStyle = new gravityStyle!item(this); // this needs corrected API. obviously sleep deprived code.
+		}
+		
+	void onMapCollision(DIR d)
+		{
+		vel = 0;
+		}
+		
+	void onObjectCollision(baseObject by)
+		{
 		}
 		
 	void goInside(dude d)
@@ -78,7 +91,19 @@ class item : baseObject
 		
 	void goOutside() // but who handles velocity, etc when thrown?
 		{
-		isInside = false;
+		if(isInside)
+			{
+			isInside = false;
+			th.addEdgeTimeout(cast(int)(60*1.5), &callback);
+			isOnDropCooldown = true;
+			con.log("item - setup pickup cooldown");
+			}
+		}
+		
+	void callback()
+		{
+		con.log("item - we got callback function from timeout");
+		isOnDropCooldown = false;
 		}
 		
 	override bool draw(viewport v)
@@ -95,9 +120,10 @@ class item : baseObject
 		{
 		if(!isInside)
 			{
-			pos += vel;
-			vel.x *= .99; 
-			vel.y += .025; 
+			//pos += vel;
+			//vel.x *= .99; 
+			//vel.y += .025; 
+			moveStyle.onTick();
 			}
 		}
 	}
@@ -211,6 +237,39 @@ class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 		}
 	}
 	
+class gravityStyle(T)  /// Falling object gravity
+	{
+	bool isColliding=true; // does it collide with objects  NYI
+	T myObject;
+	this(T d)
+		{
+		myObject = d;
+		}
+
+	void onTick()
+		{
+		with(myObject)
+			{
+			//writeln(*pos, " ", *vel);
+			pos += vel;
+			vel.y += .1;
+//			writeln("Meteor: ", pos, " ", vel);
+			
+			foreach(o; g.world.objects)
+				{
+				if(isInsideRadius(pos, o.pos, 20))
+					{
+					onObjectCollision(o);
+					break;
+					}
+				}
+				
+			if(!g.world.map2.isValidMovement(pos))onMapCollision(DIR.DOWN);
+			}
+		}
+	}
+
+
 class bigMeteor : meteor	
 	{
 	this(pair _pos)
@@ -592,9 +651,11 @@ class dude : baseObject /// this is the new Unit class until we rename them, old
 		{
 		foreach(i; g.world.items)
 			{
-			if(isInsideRadius(this.pos, i.pos, 10))
+			if(isInsideRadius(this.pos, i.pos, 10) && !i.isInside && !i.isOnDropCooldown)
 				{
-				con.log("found item!");
+				import std.format;
+				string temp = format("%s found item %s!", this, i);
+				con.log(temp);
 				i.isInside = true;
 				items ~= i;
 				break;
@@ -650,7 +711,8 @@ class dude : baseObject /// this is the new Unit class until we rename them, old
 		{
 		assert(hasItem());
 		// "items[0].goOutside()"
-		items[0].isInside = false;
+//		items[0].isInside = false;
+		items[0].goOutside(); // handle data structure stuff
 		items[0].pos = pos;
 		items[0].vel = pair(vel, 1*facingVel(), -1);
 		items = items.remove(0); //I release you, my child!
