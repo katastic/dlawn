@@ -41,6 +41,7 @@ import allegro5.allegro_ttf;
 import allegro5.allegro_color;
 import allegro5.allegro_audio;
 import allegro5.allegro_acodec;
+import allegro5.shader;
 
 import testsmod;
 import audiomod;
@@ -80,6 +81,13 @@ enum keys_label // not used?
 	ACTION_KEY
 	}
 	+/	
+float [12]tints = [
+      1.0, 0.0, 1.0,
+      0.0, 4.0, 1.0,
+      1.0, 0.0, 4.0,
+      4.0, 4.0, 1.0
+   ];
+ALLEGRO_SHADER *shader;
 
 bool initialize()
 	{
@@ -111,6 +119,10 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 		al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_REQUIRE);
 		}
 	}
+
+	//see https://www.allegro.cc/manual/5/al_set_new_display_flags
+	int display_flags = 0;
+	al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE | display_flags);
 
 	al_display 	= al_create_display(g.SCREEN_W, g.SCREEN_H);
 	queue		= al_create_event_queue();
@@ -155,8 +167,25 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 	al_start_timer(fps_timer);
 	al_start_timer(screencap_timer);
 	
+	shader = al_create_shader(ALLEGRO_SHADER_PLATFORM.ALLEGRO_SHADER_AUTO);
+	const char* psource = r"./data/shaders/ex_shader_pixel.glsl";
+	const char* vsource = r"./data/shaders/ex_shader_vertex.glsl";
+	assert(shader);
+	
+	if(!al_attach_shader_source_file(shader, ALLEGRO_SHADER_TYPE.ALLEGRO_VERTEX_SHADER, vsource)){writefln("%s", to!string(al_get_shader_log(shader))); assert(false);}
+	if(!al_attach_shader_source_file(shader, ALLEGRO_SHADER_TYPE.ALLEGRO_PIXEL_SHADER, psource)){writefln("%s", to!string(al_get_shader_log(shader))); assert(false);}
+	if(!al_build_shader(shader))assert(false);
+		
 	return 0;
 	}
+	
+void shutdown() 
+	{
+	stats.list();
+//	con.compress();
+	al_destroy_shader(shader);
+	}
+
 	
 struct displayType
 	{
@@ -168,7 +197,8 @@ struct displayType
 		}
 		
 	void end_frame()
-		{	
+		{
+		al_use_shader(null);
 		al_flip_display();
 		}
 
@@ -191,15 +221,16 @@ struct displayType
 		
 	static if(true) //draw left viewport
 		{
+		/+
 		al_set_clipping_rectangle(
 			g.viewports[0].x, 
 			g.viewports[0].y, 
 			g.viewports[0].x + g.viewports[0].w ,  //-1
 			g.viewports[0].y + g.viewports[0].h); //-1
-		
+		+/
 		static if(DEBUG_NO_BACKGROUND)
 			al_clear_to_color(ALLEGRO_COLOR(0, 0, 0, 1));
-		
+
 		g.world.draw(g.viewports[0]);
 		}
 
@@ -495,11 +526,6 @@ void execute()
 		}
 	}
 
-void shutdown() 
-	{
-	stats.list();
-//	con.compress();
-	}
 	
 void setupFloatingPoint()
 	{

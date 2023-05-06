@@ -193,7 +193,6 @@ bool isInsideRectangle(pair pos, rect b)
 		}
 	}
 	
-
 bool isInsideRadius(pair p, pair q, float radius) 
 	{
 	import std.math : sqrt;

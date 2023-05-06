@@ -24,7 +24,7 @@ import mapmod;
 import molto;
 import console;
 import g;
-
+import main : shader;
 class world_t
 	{	
 //	pixelMap map;
@@ -148,8 +148,10 @@ class world_t
 			}
 			
 //		map.onDraw(viewports[0]);
+		al_use_shader(shader);
 		map2.onDraw(viewports[0]);
-		
+		al_use_shader(null);
+
 		drawStat4(bullets	, "bullets");
 		drawStat4(particles	, "particles");
 		drawStat4(units		, "units");

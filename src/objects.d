@@ -269,7 +269,6 @@ class gravityStyle(T)  /// Falling object gravity
 		}
 	}
 
-
 class bigMeteor : meteor	
 	{
 	this(pair _pos)

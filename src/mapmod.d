@@ -448,9 +448,12 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 		int jMin = capLow (cast(int)v.oy/TILE_W, 0);		
 		int iMax = capHigh(SCREEN_W/TILE_W + cast(int)v.ox/TILE_W + 1, MAP_W-1);
 		int jMax = capHigh(SCREEN_H/TILE_W + cast(int)v.oy/TILE_W + 1, MAP_H-1);
-		
+
+		import main : tints;
+		al_set_shader_float_vector("tint", 3, &tints[0], 1);
+//https://www.allegro.cc/manual/5/al_hold_bitmap_drawing
 //		writeln(" - ", pair(iMax, jMax));
-		
+		al_hold_bitmap_drawing(true);
 		for(int i = iMin; i <= iMax; i++) // FIX WARNING, this shouldn't need +1 !!! are we rounding down?
 			for(int j = jMin; j <= jMax; j++) // actually +1 hits array bounds!
 				{
@@ -473,6 +476,7 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 
 				(*stats["tiles"]).drawn++;
 				}
+		al_hold_bitmap_drawing(false);
 		}
 		
 	void onTick()

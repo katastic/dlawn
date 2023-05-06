@@ -1,3 +1,5 @@
+we could make a class that encapsulates allegro so you operate on relevant functions through a pointer and can only have that pointer if allegro is setup correctly.
+
 
 don't classes automatically have a super pointer or parent pointer? So do the component types need to be sent a pointer? Also do they need to be TEMPLATES and do they need to be CLASSes so we have to heap allocate them? maybe try structs
 
