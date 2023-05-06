@@ -136,6 +136,7 @@ class world_t
 
 		void drawStat4(T)(ref T obj, string name)
 			{
+			al_hold_bitmap_drawing(true);
 			foreach(ref o; obj)
 				{
 				if(o.draw(v))
@@ -145,6 +146,7 @@ class world_t
 					stats[name].clipped++;
 					}
 				}
+			al_hold_bitmap_drawing(false);
 			}
 			
 //		map.onDraw(viewports[0]);
