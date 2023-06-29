@@ -1,4 +1,200 @@
 /+
+	isometric work:
+		- load an isometric map
+		- add multiple layer support to map loader. Then we could do top/bottom layer for basic DataJack support.
+		
+	map work
+		--> one thing in favor of NOT JSON is how easy it is to corrupt JSON by forgetting to repeat a comma.
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		- object loading (kinda game specific)
+			- objectID [from a table we add], x, y, health, 
+			
+		objectMapIDTable =
+			[
+			myObject, pointer to x field, pointer to y field, etc
+			]
+			
+		so when we save, or load, it knows to grab from/into that specific field
+		
+		objectMappingIDTable
+			[ 000==entry1==[goblin, goblin.x, goblin.y, goblin.hp],
+			  001==entry2==[player, player.x, player.y, player.hp],
+			  ...
+			  ];
+			  
+		mapfile is like: (say, CSV)
+				x	y	 hp
+			000,5	, 0, 100
+			000,25	, 1, 100
+			000,8	,23, 100
+			001,34	, 0, 100
+			
+				// do we support any value for N/A, non-override?
+				// for example, we can have a NAME field for bosses
+				// and override stats, but otherwise have them NULL for non-bosses
+				
+				// alternatively, boss/elites get their own objectID. But the schema will still have to change if we want to have MAP specified overrides.
+				
+				// if not, all overrides will have to be hardcoded or at least specified in another file.
+				
+		the MAIN BENEFIT to this CSV is extreme simplicity of processing and editing. More objects? Just add a line. 
+		
+		We may want an OBJID string instead of OBJID# in case we move objects/delete/add objects. So it's a hash instead, just like atlas.
+		
+		GOBLIN
+		PLAYER
+		REDMAN
+		BLUMAN
+		etc.
+		
+		also don't have to be same length. Easier in code to specify specific versions too, though be careful to have binary code referencing objects that might not be there/subject to change.
+
+		[[loading from map]]
+			each entry# in file, look up # in objectMappingIDTable, and then
+			create an object of that type, and start setting values for each column
+			
+			
+		---> if we do JSON/YAML/etc
+	
+		CSV // no support for comments unless we add them, not hard given simplicity.
+			000,5	, 0, 100
+			000,25	, 1, 100
+			000,8	,23, 100
+			001,34	, 0, 100
+		
+		JSON // no support for comments in code
+		{"objects":
+			[
+			{"type":0, "x":5, "y":0, "hp":100},
+			{"type":0, "x":25, "y":1, "hp":100},
+			{"type":0, "x":8, "y":23, "hp":100},
+			{"type":1, "x":34, "y":0, "hp":100, "mapnote":"red player here"},
+			{"type":-1, "x":34, "y":0, "hp":100, "mapnote":"don't forget to add blue player"}, 
+			{"type":2, "x":34, "y":0} // minimum required values only
+			]}
+			
+			// note we can throw optional fields on the end easily. In fact, any field can be optional technically, though no x,y makes no sense usually even if the object is invisible we want to be able to see it in the editor to edit it. So type, x, and y should all be required.
+			
+			// negative ID range is special. -1 is a mapnote. But objects can have notes too.
+
+
+		YAML (the dashes and indention matter!)
+		
+			https://github.com/dlang-community/D-YAML
+			(and maybe others, mir-yaml, etc)
+		
+#this is a comment
+---
+objects:
+- type: 0
+  x: 5
+  y: 0
+  hp: 100
+- type: 0
+  x: 25
+  y: 1
+  hp: 100
+- type: 0
+  x: 8
+  y: 23
+  hp: 100
+- type: 1
+  x: 34
+  y: 0
+  hp: 100
+  mapnote: red player here
+- type: -1
+  x: 34
+  y: 0
+  hp: 100
+  mapnote: don't forget to add blue player
+- type: 2
+  x: 34
+  y: 0
+
+
+TOML		(more or less INI format. more for config files but still consider)
+	https://code.dlang.org/packages/toml
+	
+	
+	https://toml.io/en/
+	
+	https://toml.io/en/v1.0.0 reference
+	
+	double brackets is an ARRAY of tables (with same name)
+	
+#this is a comment
+[[objects]]
+type = 0
+x = 5
+y = 0
+hp = 100
+
+[[objects]]
+type = 0
+x = 25
+y = 1
+hp = 100
+
+[[objects]]
+type = 0
+x = 8
+y = 23
+hp = 100
+
+[[objects]]
+type = 1
+x = 34
+y = 0
+hp = 100
+mapnote = "red player here"
+
+[[objects]]
+type = -1
+x = 34
+y = 0
+hp = 100
+mapnote = "don't forget to add blue player"
+
+[[objects]]
+type = 2
+x = 34
+y = 0
+
+
+
+ -----> I mean, lots of these don't matter since an editor will be making most of these except for the initial debugging, which I'll be doing. End users don't matter as much.
+
+TOML we can also do
+
+[[object]]
+	type = 2
+	pos = [23, -23] # just like pairs
+[[object]]
+	type = 2
+	pos = [23, 0] 
+
+there's also shorthand "inline tables" if we care:
+
+objects = [ { type = 1, x = 2, y = 3 },
+           { type = 7, x = 8, y = 9 },
+           { type = 2, x = 4, y = 8 } ]
+
+see  https://toml.io/en/v1.0.0
+
+
+https://martin-ueding.de/posts/json-vs-yaml-vs-toml/
++/
+/+
 	clonk is pixels.
 	terreria is 16x16 tiles
 	starbound is 8x8	(really?)
@@ -548,17 +744,31 @@ class isometricFlatMap : mapBase
 		for(int i = 0; i < wide; i++)
 			for(int j = 0; j < tall; j++)
 				{
+				bitmap* bmp;
 				pair pt = screenToMapSpace(pair(i*ISOTILE_W,j*ISOTILE_H));
 				ipair ipt = ipair(pt); // round it off
 //				writeln(pt);
 				float rowOffsetX = 0;
 				float rowOffsetY = 0;
-				if(ipt.i % 1)
+	//			writeln(i," ",j,pt, ipt);
+				switch(ipt.i % 5)
 					{
-					rowOffsetX = ISOTILE_W/2;
-					rowOffsetY = ISOTILE_H/2;
+					case 0:
+						bmp = ah2["isotile01"]; break;
+					case 1:
+						bmp = ah2["isotile02"]; break;
+					case 2:
+						bmp = ah2["isotile03"]; break;
+					case 3:
+						bmp = ah2["isotile04"]; break;
+					case 4:
+						bmp = ah2["isotile05"]; break;
+					default:
+						assert(0);
+						break;
 					}
-				drawBitmap(ah2["isotile"], 
+				
+				drawBitmap(bmp, 
 					pair(
 						ipt.i*ISOTILE_W/2 - v.ox + 300 + rowOffsetX, 
 						ipt.j*ISOTILE_H/2 - v.oy + 300 + rowOffsetY), 0);

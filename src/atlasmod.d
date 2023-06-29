@@ -1,3 +1,9 @@
+/+
+	--> ADD. ERROR. HANDLING.
+		- missing file? huge stack trace.
+		- accessing a non-existant key? boom.
+		- at least make the error obvious and legible instead of a stack dump. 
++/
 import std.stdio;
 import std.conv;
 import std.string;
@@ -64,7 +70,7 @@ class atlasHandler2
 		writeln(e.toString());
 		assert("fuck");
 		}
-	
+		if(js.object is null)assert(0, "FAILED TO LOAD JSON MANIFEST FILE."); // is this the right test?
 		foreach(z, q; js.object)
 			{
 			writeln("z:", z, " q:", q);

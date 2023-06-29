@@ -156,8 +156,10 @@ class world_t
 		if(timeIndex > 256)timeIndex = 0;
 		al_use_shader(shader);
 		al_set_shader_float("timeIndex", timeIndex);
-		map2.onDraw(viewports[0]);
+			map2.onDraw(viewports[0]);
 		al_use_shader(null);
+		map3d.onDraw(viewports[0]);
+
 
 		drawStat4(bullets	, "bullets");
 		drawStat4(particles	, "particles");
@@ -167,7 +169,6 @@ class world_t
 		drawStat4(meteors	, "meteors");		
 		drawStat4(items		, "items");		
 
-		map3d.onDraw(viewports[0]);
 
 //		map.drawMinimap(pair(SCREEN_W-300,50));
 
