@@ -19,8 +19,9 @@ import std.datetime.stopwatch : benchmark, StopWatch, AutoStart;
 //extern (C) int pthread_yield(); //does this ... work? No errors yet I can't tell if it changes anything...
 //------------------------------
 
-version(LDC){pragma(msg, "using ldc version of dallegro"); pragma(lib, "dallegro5ldc"); }
-version(DigitalMars){pragma(msg, "using dmd version of dallegro");  pragma(lib, "dallegro5dmd"); }
+version(LDC)		{pragma(msg, "using ldc version of dallegro"); pragma(lib, "dallegro5ldc"); }
+version(DigitalMars){pragma(msg, "using dmd version of dallegro"); pragma(lib, "dallegro5dmd"); }
+version(GNU)		{pragma(msg, "using gdc version of dallegro"); pragma(lib, "dallegro5gdc"); } //NYI
 
 version(ALLEGRO_NO_PRAGMA_LIB){}else{
 	pragma(lib, "allegro");
@@ -88,7 +89,7 @@ float [12]tints = [
       4.0, 4.0, 1.0
    ];
 ALLEGRO_SHADER *shader;
-
+float timeIndex=0;
 bool initialize()
 	{
 	al_set_config_value(al_get_system_config(), "trace", "level", "info"); // enable logging. see https://github.com/liballeg/allegro5/issues/1339
@@ -174,7 +175,11 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 	
 	if(!al_attach_shader_source_file(shader, ALLEGRO_SHADER_TYPE.ALLEGRO_VERTEX_SHADER, vsource)){writefln("%s", to!string(al_get_shader_log(shader))); assert(false);}
 	if(!al_attach_shader_source_file(shader, ALLEGRO_SHADER_TYPE.ALLEGRO_PIXEL_SHADER, psource)){writefln("%s", to!string(al_get_shader_log(shader))); assert(false);}
-	if(!al_build_shader(shader))assert(false);
+	if(!al_build_shader(shader))
+		{
+		writefln("%s", to!string(al_get_shader_log(shader)));
+		assert(false);
+		}
 		
 	return 0;
 	}

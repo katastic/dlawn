@@ -449,8 +449,9 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 		int iMax = capHigh(SCREEN_W/TILE_W + cast(int)v.ox/TILE_W + 1, MAP_W-1);
 		int jMax = capHigh(SCREEN_H/TILE_W + cast(int)v.oy/TILE_W + 1, MAP_H-1);
 
-		import main : tints;
+		import main : tints, timeIndex;
 		al_set_shader_float_vector("tint", 3, &tints[0], 1);
+		al_set_shader_float("timeIndex", timeIndex);
 //https://www.allegro.cc/manual/5/al_hold_bitmap_drawing
 //		writeln(" - ", pair(iMax, jMax));
 		al_hold_bitmap_drawing(true);
@@ -508,13 +509,69 @@ class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if t
 		}
 	}
 
+/// Requirements: 
+///  - flat. Does not have any map heights. Just tiles + objects
+/// we have to sort the object list against our projection matrix. best way to do this?
+/// also if we have 3d coordinates all a sudden, we've got TRIPLETS instead of PAIRS.
+/// unless we throw Z on a separate variable which is ugly but allows all other code to work for now.
+struct triplet{float x,y,z;} // or trip.  or pair3?
+
+pair mapToScreenSpace(pair pos) /// note: float pair in case we want to go from 1.5 tile to screen space
+	{
+	return pair((pos.x - pos.y) * ISOTILE_W/2, (pos.x + pos.y) * ISOTILE_H/2);
+	// https://clintbellanger.net/articles/isometric_math/
+	}
+
+pair screenToMapSpace(pair screen)
+	{
+	pair map = pair
+		(
+			(screen.x / (ISOTILE_W/2) + screen.y / (ISOTILE_H/2)) /2,
+			(screen.y / (ISOTILE_H/2) -(screen.x / (ISOTILE_W/2))) /2
+		);
+	return map;
+	}
+	
+const int ISOTILE_W = 128;
+const int ISOTILE_H = 64;
+class isometricFlatMap : mapBase
+	{
+	void onDraw(viewport v)
+		{
+		// we need to cycle through possible slanted values on our screen, and lookup each one
+		// and draw them. So that we're back-of-screen order first.
+		// however, how do we decide a width and height?
+
+		// we could find screenspace min/max of all tile corners.
+		int wide=30;
+		int tall=30;
+		for(int i = 0; i < wide; i++)
+			for(int j = 0; j < tall; j++)
+				{
+				pair pt = screenToMapSpace(pair(i*ISOTILE_W,j*ISOTILE_H));
+				ipair ipt = ipair(pt); // round it off
+//				writeln(pt);
+				float rowOffsetX = 0;
+				float rowOffsetY = 0;
+				if(ipt.i % 1)
+					{
+					rowOffsetX = ISOTILE_W/2;
+					rowOffsetY = ISOTILE_H/2;
+					}
+				drawBitmap(ah2["isotile"], 
+					pair(
+						ipt.i*ISOTILE_W/2 - v.ox + 300 + rowOffsetX, 
+						ipt.j*ISOTILE_H/2 - v.oy + 300 + rowOffsetY), 0);
+				}
+		}
+	}
+
 class mapBase
 	{
 	idimen dim = idimen(256, 256); // we could call this dim.w dim.h for (dim)ensions?
 
-	void load(){}
-	void save(){}
-	
+	void load() = 0;
+	void save() = 0;
 	bool isValidMovement(pair pos) = 0;
 
 	bool isInsideMap(pair pos) //external so others can use it.

@@ -28,7 +28,8 @@ import g;
 struct fileScanEntry
 	{
 	string tilename;
-	int x, y;
+	uint x, y;
+	uint w, h;
 	bool isPassable;
 	bool reserved;
 	}
@@ -83,16 +84,22 @@ class atlasHandler2
 						}
 					int valx = cast(int)m[0].integer;
 					int valy = cast(int)m[1].integer;
-					bool valisPassable = cast(bool)m[2].integer;
-					bool valreserved   = cast(bool)m[3].integer;
+					uint valw = cast(uint)m[2].integer;
+					uint valh = cast(uint)m[3].integer;
+					bool valisPassable = cast(bool)m[4].integer;
+					bool valreserved   = cast(bool)m[5].integer;
 					writeln("x: ", valx);
 					writeln("y: ", valy);
+					writeln("w: ", valw);
+					writeln("h: ", valh);
 					writeln("isPassable: ", valisPassable);	
 					
 					fileScanEntry f;
 						f.tilename = tilename;
 						f.x = valx;
 						f.y = valy;
+						f.w = valw;
+						f.h = valh;
 						f.isPassable = valisPassable;
 						f.reserved = valreserved;
 					
@@ -131,7 +138,7 @@ class atlasHandler2
 			foreach(entryNumber, meta; entries)
 				{
 				assert(!(meta.tilename in bmps), "ERROR - Duplicate tilenames in manifest! This would cause accidental overrides! Fix the manifest.");
-				bmps[meta.tilename] = al_create_sub_bitmap(sources[filename], meta.x, meta.y, TILE_W, TILE_W);
+				bmps[meta.tilename] = al_create_sub_bitmap(sources[filename], meta.x, meta.y, meta.w, meta.h);
 				tileInfo t;
 					t.isPassable = meta.isPassable;
 				info[meta.tilename] = t;

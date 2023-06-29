@@ -29,6 +29,7 @@ class world_t
 	{	
 //	pixelMap map;
 	tileMap map2;
+	isometricFlatMap map3d;
 	player[] players;
 	team[] teams;
 				
@@ -49,6 +50,7 @@ class world_t
 
 //		map = new pixelMap(idimen(4096, 4096));
 		map2 = new tileMap();
+		map3d = new isometricFlatMap();
 		
 		objects ~= new dude(pair(750, 400));
 		objects[0].isDebugging = true;
@@ -148,9 +150,12 @@ class world_t
 				}
 			al_hold_bitmap_drawing(false);
 			}
-			
+		import main:timeIndex;
 //		map.onDraw(viewports[0]);
+		timeIndex++;
+		if(timeIndex > 256)timeIndex = 0;
 		al_use_shader(shader);
+		al_set_shader_float("timeIndex", timeIndex);
 		map2.onDraw(viewports[0]);
 		al_use_shader(null);
 
@@ -161,6 +166,8 @@ class world_t
 		drawStat4(structures, "structures");
 		drawStat4(meteors	, "meteors");		
 		drawStat4(items		, "items");		
+
+		map3d.onDraw(viewports[0]);
 
 //		map.drawMinimap(pair(SCREEN_W-300,50));
 

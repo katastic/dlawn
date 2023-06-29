@@ -1,3 +1,18 @@
+we could do pixel shader based lighting, multitexturing, as well as distance from light source.
+
+	a second lighting shader
+	
+	see https://github.com/liballeg/allegro5/blob/master/examples/ex_shader_multitex.c
+
+         al_set_shader_sampler("tex2", bitmap[1], 1);
+
+see also al_get_default_shader_source for default fragment shaders?
+
+
+---> SHADER WEBSITE
+http://shdr.bkcore.com/#1/lZAxT8MwEIX/yslTClGbiLK0YkJiAzGxUFSZxEldOb7Idlraqv+ds92kUGBgiGL7fXf37h1YiUXXCO0sm72y1ohCWokaVrJetVAp5G6+0BtudlLXsBHFDVRPaBqu6JkElCU0XOpktNCHhYaIlNLAXTgmWZqn2WgOk0noCRpRD1yBCgcyP5M7oRRuPea/4IJ6VlVnBdHjW7iGEl1ycpLSuNHck7VaPhhe35/bTpO+7ipOSyEfZ54+svTPfblzRr53TkSbLVrpiPqp6D6KTsuKzpSF618fOaEf37UpNFgK9SLF9ne5NbgWhR826P8I/6TS6tGC3IvkqxkKIV5jXD4fvxzxF7YIDOH1mw+phYyfT69Ud+mXCqkmxPuWstCVzeLfTmy351qLpQ97vLbs+Ak=
+
+
 we could make a class that encapsulates allegro so you operate on relevant functions through a pointer and can only have that pointer if allegro is setup correctly.
 
 

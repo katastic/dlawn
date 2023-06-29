@@ -1,0 +1,12 @@
+echo "WARN: LTO doesn't work (too much RAM usage) on 4 GB machines, consider cancelling"
+
+# /usr/bin/time -v 
+gdc -L./lib/ -L/lib/ -L-L./lib/ ./src/*.d -fpreview=shortenedmethods -ogdcmain
+
+# /usr/bin/time -v gdc ./src/*.d -flto=1 -fanalyzer -O1 -fpreview=shortenedmethods
+# uses insane amounts of RAM
+# possibly using -O1 optimizes the number of function calls away inlining
+# maybe reducing the memory usage
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=44563
+
+# still can't run this on my 4 GB machine, though firefox is still open.

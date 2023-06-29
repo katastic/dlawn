@@ -4,8 +4,7 @@ import g;
 void runConsoleTests() /// Test D stuff without loading the entire game.
 	{
 	writeln("Running console tests");
-	
-	
+		
 	statistics_t s;
 	s.inc("tacos");
 	s.inc("tacos");
