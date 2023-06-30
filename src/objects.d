@@ -57,8 +57,7 @@ class objectHandler /// load a MAP format full of objects. could be in objects.d
 			{
 			writeln(o);
 			}
-		import core.stdc.stdlib : exit;
-		exit(0);
+//		import core.stdc.stdlib : exit; exit(0);
 		}
 	void save(){}
 	}

@@ -18,14 +18,15 @@
 	
 	"isotile01.png":[
 	{"isotile01":[0,0,128,64,1,0]}],
-	
 	"isotile02.png":[
 	{"isotile02":[0,0,128,64,1,0]}],
-	
 	"isotile03.png":[
 	{"isotile03":[0,0,128,64,1,0]}],
 	"isotile04.png":[
 	{"isotile04":[0,0,128,64,1,0]}],
 	"isotile05.png":[
-	{"isotile05":[0,0,128,64,1,0]}]
+	{"isotile05":[0,0,128,64,1,0]}],
+	
+	"isowall01.png":[
+	{"isowall01":[0,0,64,128,1,0]}]
 }

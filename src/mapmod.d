@@ -737,10 +737,14 @@ class isometricFlatMap : mapBase
 	
 	this()
 		{
+		for(int i = 0; i < 256; i++)data[i][i] = 5;
+
+
 		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 1;
 		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 2;
 		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 3;
 		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 4;
+		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 5; // wall
 		writeln(data);
 //		assert(0);
 		}
@@ -752,13 +756,13 @@ class isometricFlatMap : mapBase
 		// however, how do we decide a width and height?
 
 		// we could find screenspace min/max of all tile corners.
-		int wide=64;
-		int tall=64;
-		for(int i = 0; i < wide; i++)
-			for(int j = 0; j < tall; j++)
+		int wide=32;
+		int tall=32;
+		for(int j = tall; j > -tall; j--)
+			for(int i = wide; i > -wide; i--)
 				{
 				bitmap* bmp;
-				pair pt = screenToMapSpace(pair(i*ISOTILE_W,j*ISOTILE_H));
+				pair  pt  = screenToMapSpace(pair(i*ISOTILE_W,j*ISOTILE_H));
 				ipair ipt = ipair(pt); // round it off
 //				writeln(pt);
 				float rowOffsetX = 0;
@@ -779,6 +783,8 @@ class isometricFlatMap : mapBase
 						bmp = ah2["isotile04"]; break;
 					case 4:
 						bmp = ah2["isotile05"]; break;
+					case 5:
+						bmp = ah2["isowall01"]; break;
 					default:
 						assert(0);
 						break;
