@@ -47,10 +47,16 @@ class objectHandler /// load a MAP format full of objects. could be in objects.d
 	
 	void load(string path)
 		{
-			// https://github.com/dlang-community/toml
+		// https://github.com/dlang-community/toml
+		// https://toml.dpldocs.info/v2.0.1/toml.toml.TOMLValue.html
 		import std.file : read;
-		auto doc = parseTOML(cast(string)read(path));
-		writeln(doc);
+		auto data = parseTOML(cast(string)read(path));
+		//writeln(data["objects"]);
+//		pragma(msg, typeof(data["objects"]));
+		foreach(o;data["objects"].array)
+			{
+			writeln(o);
+			}
 		import core.stdc.stdlib : exit;
 		exit(0);
 		}
