@@ -570,7 +570,7 @@ class pixelMap : mapBase
 	}
 
 /// Tile map
-class tileMap : mapBase 	// why is this called instance? It's a type. MAybe if there was a separate definition? like tileType vs tileInstance?
+class tileMap : mapBase
 	{
 	float w=256, h=256;
 	idimen size=idimen(256,256);
@@ -728,10 +728,23 @@ pair screenToMapSpace(pair screen)
 	return map;
 	}
 	
-const int ISOTILE_W = 128;
-const int ISOTILE_H = 64;
+const int ISOTILE_W = 64;
+const int ISOTILE_H = 32;
 class isometricFlatMap : mapBase
 	{
+	import std.random : uniform;
+	int[256][256] data;
+	
+	this()
+		{
+		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 1;
+		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 2;
+		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 3;
+		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 4;
+		writeln(data);
+//		assert(0);
+		}
+		
 	void onDraw(viewport v)
 		{
 		// we need to cycle through possible slanted values on our screen, and lookup each one
@@ -739,8 +752,8 @@ class isometricFlatMap : mapBase
 		// however, how do we decide a width and height?
 
 		// we could find screenspace min/max of all tile corners.
-		int wide=30;
-		int tall=30;
+		int wide=64;
+		int tall=64;
 		for(int i = 0; i < wide; i++)
 			for(int j = 0; j < tall; j++)
 				{
@@ -751,7 +764,10 @@ class isometricFlatMap : mapBase
 				float rowOffsetX = 0;
 				float rowOffsetY = 0;
 	//			writeln(i," ",j,pt, ipt);
-				switch(ipt.i % 5)
+				if(ipt.i > 255 || ipt.j > 255)continue;
+				if(ipt.i < 0 || ipt.j < 0)continue;
+	//			writeln(ipt, " ",data[ipt.i][ipt.j]);
+				switch(data[ipt.i][ipt.j])
 					{
 					case 0:
 						bmp = ah2["isotile01"]; break;
