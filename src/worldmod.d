@@ -30,6 +30,7 @@ class world_t
 //	pixelMap map;
 	tileMap map2;
 	isometricFlatMap map3d;
+	objectHandler oh;
 	player[] players;
 	team[] teams;
 				
@@ -51,6 +52,9 @@ class world_t
 //		map = new pixelMap(idimen(4096, 4096));
 		map2 = new tileMap();
 		map3d = new isometricFlatMap();
+		
+		oh = new objectHandler("./data/maps/objectmap.toml");
+		
 		
 		objects ~= new dude(pair(750, 400));
 		objects[0].isDebugging = true;

@@ -35,7 +35,31 @@ float stat_meteor_explosion_diameter = 234;
 float stat_meteor_damage = 23;
 // also combined meteors
 
-/+
+
+pragma(lib, "toml");
+import toml;
+class objectHandler /// load a MAP format full of objects. could be in objects.d
+	{
+	this(string path)
+		{
+		load(path);
+		}
+	
+	void load(string path)
+		{
+			// https://github.com/dlang-community/toml
+		import std.file : read;
+		auto doc = parseTOML(cast(string)read(path));
+		writeln(doc);
+		import core.stdc.stdlib : exit;
+		exit(0);
+		}
+	void save(){}
+	}
+	
+	
+	
+	/+
 	stuff
 	
 	- sun casts scorching rays

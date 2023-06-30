@@ -727,7 +727,7 @@ pair screenToMapSpace(pair screen)
 		);
 	return map;
 	}
-	
+
 const int ISOTILE_W = 64;
 const int ISOTILE_H = 32;
 class isometricFlatMap : mapBase

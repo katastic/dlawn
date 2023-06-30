@@ -1,0 +1,18 @@
+[[objects]]
+	type = "player"
+	x = 25
+	y = 30
+	mapnote = "this guy fucks."
+[[objects]]
+	type = "player"
+	x = 26
+	y = 30
+[[objects]]
+	type = "player"
+	x = 27
+	y = 30
+[[objects]]
+	type = "player"
+	x = 28
+	y = 30
+	

@@ -1,5 +1,5 @@
 #!/bin/sh
-dmd -debug -gs -gf -g -gx -ofmain `ls ./src/*.d` -L-L./lib/ 
+dmd -debug -gs -gf -g -gx -ofmain `ls ./src/*.d` `ls ./toml/src/toml/*.d` -L-L./lib/ 
 
 # -gx produce "stack stomp code"
 # LDC equivalent? https://github.com/ldc-developers/ldc/issues/2489
