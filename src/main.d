@@ -549,6 +549,7 @@ void setupFloatingPoint()
 //=============================================================================
 int main(string [] args)
 	{
+	string testModeArg="";
 	bool modeRunAllegroTests=false;
 	bool modeRunConsoleTests=false;
 	setupFloatingPoint();	
@@ -567,15 +568,22 @@ int main(string [] args)
 			g.SCREEN_H = to!int(args[2]);
 			writeln("New resolution is ", g.SCREEN_W, "x", g.SCREEN_H);
 			}else{
-			switch(args[1].toLower)
-				{
-				case "test":
-					modeRunConsoleTests=true;
-				break;
-				case "allegrotest":
-					modeRunAllegroTests=true;
-				break;
-				case "testfail1": // works with gdb break _d_assert
+			testModeArg=args[1].toLower;
+			}
+		}
+
+	if(testModeArg != "")
+		{
+		switch(testModeArg)
+			{
+			case "test":
+				runConsoleTests();
+			break;
+			case "testcache":
+				testCachedAA();
+			break;
+
+			case "testfail1": // works with gdb break _d_assert
 				// (shows a working stack but variable "frame base" is broken) when using GDB
 				// compiling with LDC might be better?
 				/+
@@ -642,13 +650,7 @@ int main(string [] args)
 					writeln("ERROR - Unhandled mode argument! [", args[1].toLower, "]");
 					return 1;
 				break;
-				}
 			}
-		}
-
-	if(modeRunConsoleTests)
-		{
-		runConsoleTests();
 		}else{
 	
 		return al_run_allegro(

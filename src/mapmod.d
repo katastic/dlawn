@@ -735,17 +735,36 @@ class isometricFlatMap : mapBase
 	import std.random : uniform;
 	int[256][256] data;
 	
+	override void load(string path)
+		{
+		import toml;
+		import std.file : read;
+		auto tomldata = parseTOML(cast(string)read(path));
+		//writeln(data["objects"]);
+		pragma(msg, typeof(tomldata["map"]["layer1"]));
+		foreach(idx,o; tomldata["map"]["layer1"].array)
+			{
+			writeln("----", o);
+			for(int j = 0; j < 10; j++)
+				{
+				data[idx+16][j+16] = cast(int)o[j].integer;
+				}
+			}
+		return;
+		}
+
 	this()
 		{
-		for(int i = 0; i < 256; i++)data[i][i] = 5;
+		load("./data/maps/map3d.toml");
+//		for(int i = 0; i < 256; i++)data[i][i] = 5;
 
-
+/+
 		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 1;
 		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 2;
 		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 3;
 		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 4;
-		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 5; // wall
-		writeln(data);
+		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 5; // wall+/
+//		writeln(data);
 //		assert(0);
 		}
 		
@@ -754,12 +773,17 @@ class isometricFlatMap : mapBase
 		// we need to cycle through possible slanted values on our screen, and lookup each one
 		// and draw them. So that we're back-of-screen order first.
 		// however, how do we decide a width and height?
+		
+		
+		pair minValue = pair(999,999);
+		pair maxValue = pair(-999,-999);
 
 		// we could find screenspace min/max of all tile corners.
+		import std.algorithm : min, max;
 		int wide=32;
 		int tall=32;
-		for(int j = tall; j > -tall; j--)
-			for(int i = wide; i > -wide; i--)
+		for(int j = tall; j > 0; j--)
+			for(int i = wide; i > 0; i--)
 				{
 				bitmap* bmp;
 				pair  pt  = screenToMapSpace(pair(i*ISOTILE_W,j*ISOTILE_H));
@@ -767,9 +791,13 @@ class isometricFlatMap : mapBase
 //				writeln(pt);
 				float rowOffsetX = 0;
 				float rowOffsetY = 0;
-	//			writeln(i," ",j,pt, ipt);
+//				writeln(i," ",j,pt, ipt);
+				minValue.x = min(ipt.i, minValue.x);
+				minValue.y = min(ipt.j, minValue.y);
+				maxValue.x = max(ipt.i, maxValue.x);
+				maxValue.y = max(ipt.j, maxValue.y);
 				if(ipt.i > 255 || ipt.j > 255)continue;
-				if(ipt.i < 0 || ipt.j < 0)continue;
+				if(ipt.i < 0   || ipt.j < 0)continue;
 	//			writeln(ipt, " ",data[ipt.i][ipt.j]);
 				switch(data[ipt.i][ipt.j])
 					{
@@ -795,6 +823,7 @@ class isometricFlatMap : mapBase
 						ipt.i*ISOTILE_W/2 - v.ox + 300 + rowOffsetX, 
 						ipt.j*ISOTILE_H/2 - v.oy + 300 + rowOffsetY), 0);
 				}
+		writeln("min/max map value coordinates:", minValue, "/", maxValue);
 		}
 	}
 
@@ -802,8 +831,8 @@ class mapBase
 	{
 	idimen dim = idimen(256, 256); // we could call this dim.w dim.h for (dim)ensions?
 
-	void load() = 0;
-	void save() = 0;
+	void load(string path){};
+	void save(string path){};
 	bool isValidMovement(pair pos) = 0;
 
 	bool isInsideMap(pair pos) //external so others can use it.

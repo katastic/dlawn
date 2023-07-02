@@ -34,6 +34,141 @@ const int MAP_H = 256;
 
 alias idx = size_t; /// alias for an index into an array. so int myTeamIndex; becomes idx myTeam; and it's obvious it's a lookup number.
 
+/**
+	cachedAA
+
+	First time accessed, it passes through the const char to the AA. Then it caches the resulting pointer
+
+	issues
+		- we're no longer using the AA. But we are still using the const char (hopefully! not a string!)
+		value. Though that's a pointer to the static segment, right? So it's just a 64-bit value passed, yielding a new 64-bit value.
+		
+		- pure performance: we do have an if, however, 99.999% of CPUs are going to notice the branch is always taken (after the
+		 inital value settles) so that should become a nop
+		 
+		 - how do we link it to a specific AA? constructor? Then we can't one-liner it right?
+		 - can we use as struct so we don't have to allocate? Also how does a class
+			automatically store cached values?! 
+		- what if we need to lookup multiple values?
+		- maybe this would be better built into the atlas/object/etc handler itself? (using a re-usable template for all three)
+			so that the handler itself stores a list of cache 
+		- i mean, why not just store the value yourself in the using function? We have to initalize it. WE have to store it. We have to NEVER accidentally call it with two different values. (Calling it once with a new string once cached will implicity with NO ERROR only give you the first one!)
+*/
+alias cstr = const char *;
+
+// how do we detect the same one quickly without basically re-implementing a hashmap?
+// we keep track of which ones we have recieved, and then use a pointer to the value. But...
+// It feels like that's just... a hashmap to a hashmap value. But isn't there SOME kind of context
+// clue? What if, at COMPILE TIME, we marked all accesses? But that might be WAY too complex for D.
+// we basically grepping for any atlasHandler[""] accesses, finding the unique ones, and assigning an index.
+// then we put them all next to each other and use an array[indexOffset] to access them so that the
+// COMPILED CODE is just like, an enum access.
+
+/+
+like 
+
+enum AtlasHandlerValues
+	{
+	"red":1,
+	"grass":2,
+	"goblin":3
+	}
+
+but the code sees "red" etc and replaces it
+
+	myArray["goblin"] 
+		becomes
+	myArray[3]
+
+
+
+
+what if we do something cheeky. for any cached value we can of course, just 
+store the cached value in our object/class/whatever. So, can we have 
+template mixin magic automatically add the fields to the struct?
+
+struct
+	{
+	void test()
+		{
+		cached!int temp["salgkdndkslagna"];
+		}
+	}
+
+becomes:
+
+struct
+	{
+	cached!int temp;
+	void test()
+		{
+		cached!int temp["salgkdndkslagna"];
+		}
+	}
+	
+is there any way we can just have like a singular
+
+cachedHandler inside our objects? But then again, it needs to redirect to the right one.
+
+What is the easiest way to do this with compile time introspection?
+
++/
+
+class cachedHandler(T) 
+	{
+	T[] indexedArray;
+	T[cstr] myAA;
+	
+	int nextUnusedIndex()
+		{
+		
+		}
+	
+	
+	}
+
+class cachedAA(T) 
+	{
+	bool isCached=false;
+	T cachedValue;
+	T[cstr] myAA;
+	//https://dlang.org/library/object/op_equals.html
+	
+	this(T[cstr] AA)
+		{
+		myAA = AA;
+		}
+	
+	T get(cstr key)	// could override square bracket AA notation using opequals/whatever
+		{
+		// todo range checking
+		if(isCached)
+			{
+			writeln("using cached");
+			return cachedValue;
+			}
+		isCached = true;
+		cachedValue = myAA[key];
+		return cachedValue;
+		}
+	}
+	
+void testCachedAA()
+	{
+	int[cstr] myAA;
+	myAA["taco"] = 1;
+	
+	auto c = new cachedAA!int(myAA);
+	writeln("---");
+	writeln(c.get("taco"));
+	writeln("---");
+	writeln(c.get("taco"));
+	writeln("---");
+	myAA["taco"] = 1212;
+	writeln(c.get("taco"));
+	}
+
+
 //ALLEGRO_CONFIG* 		cfg;  //whats this used for?
 ALLEGRO_DISPLAY* 		al_display;
 ALLEGRO_EVENT_QUEUE* 	queue;
