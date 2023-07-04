@@ -741,7 +741,7 @@ class isometricFlatMap : mapBase
 		import std.file : read;
 		auto tomldata = parseTOML(cast(string)read(path));
 		//writeln(data["objects"]);
-		pragma(msg, typeof(tomldata["map"]["layer1"]));
+//		pragma(msg, typeof(tomldata["map"]["layer1"]));
 		foreach(idx,o; tomldata["map"]["layer1"].array)
 			{
 			writeln("----", o);
