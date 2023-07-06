@@ -149,6 +149,8 @@ alias KEY_DOWN = ALLEGRO_KEY_DOWN; // i'll leave them coded as an open question 
 alias KEY_LEFT = ALLEGRO_KEY_LEFT; 
 alias KEY_RIGHT = ALLEGRO_KEY_RIGHT; 
 
+struct triplet{float x,y,z;} // or trip.  or pair3?
+
 // pairs, trios, etc code
 // ----------------------------------------------------------------
 

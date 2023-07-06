@@ -1,0 +1,32 @@
+[[animation]]
+	name = "player"
+	alignmentMode = "centered" # A ball/smoke that shrinks should remain in center  [centered/zeroed - start at top-left 0,0]
+	alignmentOffsetX = 0
+	alignmentOffsetY = 0
+	scalesWithHeight = true
+	
+	frames = [ 
+				{ name = 'player01', stance = 0, frame = 0, dir = 0},
+				{ name = 'player02', stance = 0, frame = 1, dir = 0},
+				{ name = 'player03', stance = 0, frame = 2, dir = 0},
+				{ name = 'player04', stance = 0, frame = 3, dir = 0},
+				
+				{ name = 'player05', stance = 0, frame = 0, dir = 1},
+				{ name = 'player06', stance = 0, frame = 1, dir = 1},
+				{ name = 'player07', stance = 0, frame = 2, dir = 1},
+				{ name = 'player08', stance = 0, frame = 3, dir = 1},
+				
+				{ name = 'player09', stance = 0, frame = 0, dir = 2},
+				{ name = 'player10', stance = 0, frame = 1, dir = 2},
+				{ name = 'player11', stance = 0, frame = 2, dir = 2},
+				{ name = 'player12', stance = 0, frame = 3, dir = 2},
+
+				{ name = 'player13', stance = 0, frame = 0, dir = 3, alpha = 0.5},
+				{ name = 'player14', stance = 0, frame = 1, dir = 3, alpha = 0.5},
+				{ name = 'player15', stance = 0, frame = 2, dir = 3, alpha = 0.5},
+				{ name = 'player16', stance = 0, frame = 3, dir = 3, alpha = 0.5},
+			    ]
+
+[[animation]]
+	name = "guard"
+	

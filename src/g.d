@@ -117,9 +117,8 @@ What is the easiest way to do this with compile time introspection?
 void forceProgramExit() // see https://forum.dlang.org/post/mailman.809.1291665200.21107.digitalmars-d-learn@puremagic.com
 	{
 	writeln("Forcing program exit.");
-	//core.runtime.Runtime.terminate(); doesn't work
-	// ./src/g.d(120): Error: undefined identifier `runtime` in package `core`
-	
+	import core.runtime;
+	core.runtime.Runtime.terminate();
 	// or
 	import core.stdc.stdlib : exit;
 	exit(0);

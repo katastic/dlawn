@@ -710,7 +710,6 @@ class tileMap : mapBase
 /// we have to sort the object list against our projection matrix. best way to do this?
 /// also if we have 3d coordinates all a sudden, we've got TRIPLETS instead of PAIRS.
 /// unless we throw Z on a separate variable which is ugly but allows all other code to work for now.
-struct triplet{float x,y,z;} // or trip.  or pair3?
 
 pair mapToScreenSpace(pair pos) /// note: float pair in case we want to go from 1.5 tile to screen space
 	{

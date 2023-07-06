@@ -18,9 +18,174 @@ There's the potential for an interesting risk/reward mechanic here: trigger an a
 // flashbangs (stun)
 // smoke grenades
 // gas grenades (sleep? poison?)? Expensive and rare like Thief 1/2?
+/+
+	healthkit
+	hacking kit
+	breach kit
+	grenades
++/
 
-import g, molto;
+import g, molto, objects, helper : capReset;
+import toml;
+import std.stdio;
+/+
+	need additional layer:
+	
+	for every direction
+		for every stance		[prone, walking, running]
+			listOfFrames[]
+			
+	do we want an animation format that lets you combine animation directives 
+	with the file loading instead of naming every singl eframe and THEN binding
+	them?
+	
+	do we have any support alternative player skins?
+		- simple: tinting? Do we need a mask
 
++/
+
+struct anim
+	{
+	int currentFrame;
+	int numDirections;
+	int numFramesPerDirection;
+	
+	int numFramesTotal() // function because this should be single-responsibility principle (SRP)
+		{
+		return numFramesPerDirection * numDirections;
+		}
+		
+	bitmap*[] frames;
+	}
+
+class animationHandler
+	{
+	void loadAnimationMeta(string path)
+		{
+		import std.file : read;
+		auto data = parseTOML(cast(string)read(path));
+		//writeln(data["objects"]);
+//		pragma(msg, typeof(data["objects"]));
+		foreach(o;data["objects"].array)
+			{
+			writeln(o);
+			}
+		}
+	
+	anim[const char*] anims;
+
+	bitmap* get(const char *name, int frame, int direction)
+		{
+		assert(name in anims);
+		with(anims[name])
+			{
+			assert(direction < numDirections);
+			assert(frame < numFramesTotal());
+			return frames[currentFrame];
+			}
+		}
+
+	bitmap* getNext(const char *name, int direction)
+		{
+		assert(name in anims);
+		with(anims[name])
+			{
+			assert(direction < numDirections);
+			capReset(currentFrame, numFramesTotal()-1, 0); 
+			return frames[currentFrame];
+			}
+		}
+	}
+
+/+
+	is there ANYWAY to integrate optional triplets into pair code?
++/
+
+class movementStyle2
+	{
+	unit myObject;
+	@disable this();
+	
+	this(unit _myObject)
+		{
+		assert(_myObject !is null);
+		myObject = _myObject;
+		}
+	
+	void onTick() = 0;
+	}
+
+// class flatWalkerStyle(T) : movementStyle2(T)
+// template functions are NON-VIRTUAL and cannot be inhereted from!
+// or is that an old post from 2012?
+	
+class flatWalkerStyle : movementStyle2
+	{
+	// "I want to move up/down/left/right"
+	bool tryToMove(pair posDifference)
+		{
+		// "Yes"
+		//return true
+		
+		alias p = posDifference; // set animation direction.
+		if		(p.x < 0 && p.y < 0){ _myObject.direction = 0; }
+		else if	(p.x > 0 && p.y < 0){ _myObject.direction = 1; }
+		else if	(p.x < 0 && p.y > 0){ _myObject.direction = 2; }
+		else if	(p.x > 0 && p.y > 0){ _myObject.direction = 3; }
+		
+		return true;
+		// "No"
+		//notifyCollisions(); // we hit some stuff
+	//	return false; 
+		}
+	
+	this(unit _myObject)
+		{
+		super(_myObject);
+		}
+		
+	void onTick()
+		{
+		
+		}
+	}
+
+class unit : baseObject /// Physics operating generic object
+	{
+	movementStyle2 	moveStyle; 
+	anim 			myAnim;
+	float maxHp;
+	float hp;
+	triplet pos3; // TODO
+	triplet vel3; // TODO. 
+		
+	this(pair _pos, movementStyle2 _moveStyle)
+		{
+		moveStyle = _moveStyle;
+		super(_pos, pair(0,0), bh["grass"]);
+		}
+	}
+	
+class cleanerDroid : unit
+	{
+	this(pair _pos)
+		{
+		super(_pos, new flatWalkerStyle(cast(unit)this));
+		}
+	}
+
+class runner : unit // how are we going to integrate 3D?!
+	{
+	this(pair _pos)
+		{
+		gun = gunType();
+		
+		super(_pos, new flatWalkerStyle(cast(unit)this));
+		}
+		
+	gunType gun;
+	}
+	
 struct damageType
 	{
 	float bruteDamage;
@@ -141,8 +306,10 @@ struct ammoType
 	// accuracy modifiers
 	}
 
-struct gunStats // what about gunmods
+struct gunType // what about gunmods
 	{
+	string name;
+	string description;
 	ammoType[] ammoTypes;
 		
 	bool hasLaserSight;
@@ -154,7 +321,9 @@ struct gunStats // what about gunmods
 	bool doesBulletFaceDirection; // or does it stay solid (like a sphere shot)
 	float penetrationRating;
 	
-	bool hasDuckBill;	// spread shots are horziontal only, not in a cone. Or just separate X and Y spread values.
+//	bool hasDuckBill;	// spread shots are horziontal only, not in a cone. Or just separate X and Y spread values.
+	float spreadX;
+	float spreadY;
 	
 	float damagePerShot;
 	float shotsPerSecond; // fire rate

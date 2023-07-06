@@ -34,6 +34,8 @@ version(ALLEGRO_NO_PRAGMA_LIB){}else{
 	pragma(lib, "allegro_acodec");
 }
 
+pragma(lib, "toml");
+
 import allegro5.allegro;
 import allegro5.allegro_primitives;
 import allegro5.allegro_image;

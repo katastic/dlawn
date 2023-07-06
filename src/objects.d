@@ -35,8 +35,6 @@ float stat_meteor_explosion_diameter = 234;
 float stat_meteor_damage = 23;
 // also combined meteors
 
-
-pragma(lib, "toml");
 import toml;
 class objectHandler /// load a MAP format full of objects. could be in objects.d
 	{
@@ -221,7 +219,7 @@ class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it
 		}
 	}
 		
-class movementStyle
+class movementStyle // NOT USED?
 	{
 	pair* pos;
 	pair* vel;
@@ -251,6 +249,7 @@ class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 			//writeln(*pos, " ", *vel);
 			pos += vel;
 //			writeln("Meteor: ", pos, " ", vel);
+			
 			
 			foreach(o; g.world.objects)
 				{

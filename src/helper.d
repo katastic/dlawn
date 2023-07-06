@@ -265,6 +265,13 @@ bool flipCoin() => cast(bool)uniform!"[]"(0,1); //return a 0 or 1 result
 				2.provide a fitting climax or conclusion to.
 +/
 
+// do these need to be REF parameters?
+T capReset(T)(T val, T max, T resetValue=0) /// If val > max, val = resetValue=0
+	{
+	return (val <= max) ? val : resetValue;
+	}
+
+
 T capHigh(T)(T val, T max)
 	{
 	if(val > max)
