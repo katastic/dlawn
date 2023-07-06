@@ -128,10 +128,11 @@ class flatWalkerStyle : movementStyle2
 		//return true
 		
 		alias p = posDifference; // set animation direction.
-		if		(p.x < 0 && p.y < 0){ _myObject.direction = 0; }
-		else if	(p.x > 0 && p.y < 0){ _myObject.direction = 1; }
-		else if	(p.x < 0 && p.y > 0){ _myObject.direction = 2; }
-		else if	(p.x > 0 && p.y > 0){ _myObject.direction = 3; }
+		if		(p.x < 0 && p.y < 0){ myObject.direction = 0; }
+		else if	(p.x > 0 && p.y < 0){ myObject.direction = 1; }
+		else if	(p.x < 0 && p.y > 0){ myObject.direction = 2; }
+		else if	(p.x > 0 && p.y > 0){ myObject.direction = 3; }
+		myObject.pos += posDifference;
 		
 		return true;
 		// "No"
@@ -154,10 +155,15 @@ class unit : baseObject /// Physics operating generic object
 	{
 	movementStyle2 	moveStyle; 
 	anim 			myAnim;
+	int direction; // facing direction
 	float maxHp;
 	float hp;
 	triplet pos3; // TODO
 	triplet vel3; // TODO. 
+		
+	void onHit(baseObject by) // could be bullet, or unit. might want two different functions for this.
+		{
+		}
 		
 	this(pair _pos, movementStyle2 _moveStyle)
 		{

@@ -280,7 +280,7 @@ struct displayType
 					(*stats["units"]).drawn + 
 					(*stats["bullets"]).drawn + 
 					(*stats["dudes"]).drawn +  
-					(*stats["tiles"]).drawn) * g.stats.fps, g.world.objects[0].pos.x, g.world.objects[0].pos.y ); 
+					(*stats["tiles"]).drawn) * g.stats.fps, g.world.units[0].pos.x, g.world.units[0].pos.y ); 
 
 		float ifNotZeroPercent(T)(T drawn, T clipped) /// percent CLIPPED
 			{
@@ -356,7 +356,7 @@ void handleMouseAt(int x, int y, viewport v)
 	float cx = x + v.x - v.ox;
 	float cy = y + v.y + v.oy;
 	
-	if(g.world.map2.isInsideMap(pair(cx,cy)))
+//	if(g.world.map2.isInsideMap(pair(cx,cy)))
 		{
 //		g.world.map.data.set(ipair(pair(cx, cy)), 0);
 //		al_set_target_bitmap(g.world.map.layers[1].data);
@@ -424,20 +424,20 @@ void execute()
 					
 					if(g.key_e_down)
 						{
-						g.world.objects[0].actionFire();
+						g.world.units[0].actionFire();
 						key_e_down = false;
 						}
-					
+					/+
 					if(g.key_q_down)//handleMouseAt(g.mouse_x, g.mouse_y, g.viewports[0]);
 						{
 						writeln("q is down");
 						viewport v = viewports[0];
-						auto p = g.world.objects[0].pos;
+						auto p = g.world.units[0].pos;
 						int w = 20;
 						int h = 20;
 						g.world.map2.drawCircle(p, 4, 0);
 						g.key_q_down = false;
-						}
+						}+/
 					break;
 					}
 					

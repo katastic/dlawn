@@ -22,6 +22,10 @@ import guns;
 import bulletsmod;
 import atlasmod;
 
+import datajack; // gamemodule
+
+
+
 // we should organize this at some point. game mechanic constants.
 float STAT_WALK_SPEED = 1245;
 float STAT_RUN_SPEED  = 1245;
@@ -38,6 +42,7 @@ float stat_meteor_damage = 23;
 import toml;
 class objectHandler /// load a MAP format full of objects. could be in objects.d
 	{
+	unit data; //baseobject, or unit? or (T)
 	this(string path)
 		{
 		load(path);
@@ -53,7 +58,7 @@ class objectHandler /// load a MAP format full of objects. could be in objects.d
 //		pragma(msg, typeof(data["objects"]));
 		foreach(o;data["objects"].array)
 			{
-			writeln(o);
+			writeln(o); // how do we parse object types? This is a pretty specialized handler then?
 			}
 //		import core.stdc.stdlib : exit; exit(0);
 		}
@@ -155,6 +160,7 @@ class item : baseObject
 		}
 	}
 	
+/+
 class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it, make sure to override if you don't want those physics.
 	{
 	float maxHP=100.0; /// Maximum health points
@@ -218,7 +224,7 @@ class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it
 		return true;
 		}
 	}
-		
++/		
 class movementStyle // NOT USED?
 	{
 	pair* pos;
@@ -251,7 +257,7 @@ class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 //			writeln("Meteor: ", pos, " ", vel);
 			
 			
-			foreach(o; g.world.objects)
+			foreach(o; g.world.units)
 				{
 				if(isInsideRadius(pos, o.pos, 20))
 					{
@@ -283,7 +289,7 @@ class gravityStyle(T)  /// Falling object gravity
 			vel.y += .1;
 //			writeln("Meteor: ", pos, " ", vel);
 			
-			foreach(o; g.world.objects)
+			foreach(o; g.world.units)
 				{
 				if(isInsideRadius(pos, o.pos, 20))
 					{
@@ -323,17 +329,17 @@ class bigMeteor : meteor
 			{
 			auto m = new meteor(pos, vel);
 			m.isSpawn = true;
-			g.world.meteors ~= new meteor(pos, vel);
+		//	g.world.meteors ~= new meteor(pos, vel);
 			}
 			{
 			auto m = new meteor(pos, vel);
 			m.isSpawn = true;
-			g.world.meteors ~= new meteor(pos, vel);
+		//	g.world.meteors ~= new meteor(pos, vel);
 			}
 			{
 			auto m = new meteor(pos, vel);
 			m.isSpawn = true;
-			g.world.meteors ~= new meteor(pos, vel);
+		//	g.world.meteors ~= new meteor(pos, vel);
 			}
 		}
 		spawnExplosion();
@@ -631,9 +637,9 @@ class aicontroller
 		{
 		with(myObject)
 			{
-			if(g.world.objects[0].pos.x < pos.x && percent(50))actionLeft();
-			if(g.world.objects[0].pos.x > pos.x && percent(50))actionRight();
-			if(g.world.objects[0].pos.y < pos.y && percent(10))actionUp();
+			if(g.world.units[0].pos.x < pos.x && percent(50))actionLeft();
+			if(g.world.units[0].pos.x > pos.x && percent(50))actionRight();
+			if(g.world.units[0].pos.y < pos.y && percent(10))actionUp();
 			}
 		}
 	// ???

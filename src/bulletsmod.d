@@ -15,6 +15,8 @@ import molto;
 import std.math : cos, sin;
 import std.stdio;
 
+import datajack; // gamemodule
+
 class bullet : baseObject
 	{
 	bool isDebugging=false;

@@ -27,6 +27,9 @@ import console;
 import worldmod;
 import atlasmod;
 
+import datajack; // gamemodule
+
+
 const int TILE_W = 32;
 const int TILE_H = 32; // beware some stuff assumed TILE_W=TILE_H so they just used TILE_W everywhere.
 const int MAP_W = 256;

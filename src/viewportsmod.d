@@ -2,14 +2,15 @@ import objects;
 import g;
 import helper;
 import molto;
+import datajack;
 
 class viewport
 	{
 //	unit attachedUnit;
 
 	bool isAttached=false;
-	bool isConfinedToMap=true;
-	dude* attachedObject;
+	bool isConfinedToMap=false;
+	unit* attachedObject;
 	
 	bool seekFormula(pair position, pair goal, pair velocity)
 		{
@@ -20,7 +21,7 @@ class viewport
 		return false; // return true if we're done
 		}
 		
-	void attach(dude* o)
+	void attach(unit* o)
 		{
 		isAttached = true;
 		attachedObject = o;
@@ -67,7 +68,7 @@ class viewport
 		if(attachedObject is null)isAttached = false;
 		if(isAttached)
 			{
-			dude* ao = attachedObject;
+			unit* ao = attachedObject;
 //			writeln(pair(ao.pos, w/2, h/2), " vs (", ox, ",", oy, ")");
 //			seekFormula(pair(x,y), attachedObject.pos, pair(0,0));
 			ox = (attachedObject.pos.x - w/2);
@@ -77,8 +78,8 @@ class viewport
 				{
 				clampLow(ox, 0);
 				clampLow(oy, 0);
-				if(ox + w > g.world.map2.size.w*TILE_W)clampHigh(ox, g.world.map2.size.w*TILE_W - w); // fixme?
-				if(oy + h > g.world.map2.size.h*TILE_W)clampHigh(oy, g.world.map2.size.h*TILE_W - h);
+	//			if(ox + w > g.world.map2.size.w*TILE_W)clampHigh(ox, g.world.map2.size.w*TILE_W - w); // fixme?
+	//			if(oy + h > g.world.map2.size.h*TILE_W)clampHigh(oy, g.world.map2.size.h*TILE_W - h);
 				}
 /+ fixme
 			if(ox < ao.pos.x - w/2)ox-=((ao.pos.x - w/2) - ox)/2;
