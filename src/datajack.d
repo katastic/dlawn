@@ -13,7 +13,6 @@ There's the potential for an interesting risk/reward mechanic here: trigger an a
 
 // highscore uses replay system so people can't cheat online scores.
 
-
 // GAGDET: scout eye drone like Perfect Dark
 // flashbangs (stun)
 // smoke grenades

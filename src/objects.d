@@ -24,8 +24,6 @@ import atlasmod;
 
 import datajack; // gamemodule
 
-
-
 // we should organize this at some point. game mechanic constants.
 float STAT_WALK_SPEED = 1245;
 float STAT_RUN_SPEED  = 1245;
@@ -64,8 +62,6 @@ class objectHandler /// load a MAP format full of objects. could be in objects.d
 		}
 	void save(){}
 	}
-	
-	
 	
 	/+
 	stuff

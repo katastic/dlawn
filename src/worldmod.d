@@ -121,14 +121,12 @@ class world_t
 		al_use_shader(null);
 		map3d.onDraw(viewports[0]);
 
-
 		drawStat4(bullets	, "bullets");
 		drawStat4(particles	, "particles");
 		drawStat4(units		, "units");
 	//	drawStat4(objects	, "dudes");
 		drawStat4(structures, "structures");
 		drawStat4(items		, "items");		
-
 
 //		map.drawMinimap(pair(SCREEN_W-300,50));
 
@@ -207,19 +205,6 @@ class world_t
 		//see https://forum.dlang.org/post/sagacsjdtwzankyvclxn@forum.dlang.org
 		}
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /+ dlawn/asteroid version
 class world_t
@@ -360,7 +345,6 @@ class world_t
 		al_use_shader(null);
 		map3d.onDraw(viewports[0]);
 
-
 		drawStat4(bullets	, "bullets");
 		drawStat4(particles	, "particles");
 		drawStat4(units		, "units");
@@ -368,7 +352,6 @@ class world_t
 		drawStat4(structures, "structures");
 		drawStat4(meteors	, "meteors");		
 		drawStat4(items		, "items");		
-
 
 //		map.drawMinimap(pair(SCREEN_W-300,50));
 

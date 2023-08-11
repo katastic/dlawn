@@ -86,7 +86,6 @@
 			
 			// negative ID range is special. -1 is a mapnote. But objects can have notes too.
 
-
 		YAML (the dashes and indention matter!)
 		
 			https://github.com/dlang-community/D-YAML
@@ -120,7 +119,6 @@ objects:
 - type: 2
   x: 34
   y: 0
-
 
 TOML		(more or less INI format. more for config files but still consider)
 	https://code.dlang.org/packages/toml
@@ -170,8 +168,6 @@ type = 2
 x = 34
 y = 0
 
-
-
  -----> I mean, lots of these don't matter since an editor will be making most of these except for the initial debugging, which I'll be doing. End users don't matter as much.
 
 TOML we can also do
@@ -190,7 +186,6 @@ objects = [ { type = 1, x = 2, y = 3 },
            { type = 2, x = 4, y = 8 } ]
 
 see  https://toml.io/en/v1.0.0
-
 
 https://martin-ueding.de/posts/json-vs-yaml-vs-toml/
 +/

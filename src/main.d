@@ -193,7 +193,6 @@ void shutdown()
 	al_destroy_shader(shader);
 	}
 
-	
 struct displayType
 	{
 	void start_frame()	
@@ -532,7 +531,6 @@ void execute()
 //		pthread_yield(); //doesn't seem to change anything useful here. Are we already VSYNC limited to 60 FPS?
 		}
 	}
-
 	
 void setupFloatingPoint()
 	{

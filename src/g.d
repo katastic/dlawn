@@ -29,7 +29,6 @@ import atlasmod;
 
 import datajack; // gamemodule
 
-
 const int TILE_W = 32;
 const int TILE_H = 32; // beware some stuff assumed TILE_W=TILE_H so they just used TILE_W everywhere.
 const int MAP_W = 256;
@@ -83,9 +82,6 @@ but the code sees "red" etc and replaces it
 		becomes
 	myArray[3]
 
-
-
-
 what if we do something cheeky. for any cached value we can of course, just 
 store the cached value in our object/class/whatever. So, can we have 
 template mixin magic automatically add the fields to the struct?
@@ -126,8 +122,6 @@ void forceProgramExit() // see https://forum.dlang.org/post/mailman.809.12916652
 	import core.stdc.stdlib : exit;
 	exit(0);
 	}
-
-
 
 class cachedHandler(T) 
 	{
@@ -180,7 +174,6 @@ void testCachedAA()
 	myAA["taco"] = 1212;
 	writeln(c.get("taco"));
 	}
-
 
 //ALLEGRO_CONFIG* 		cfg;  //whats this used for?
 ALLEGRO_DISPLAY* 		al_display;

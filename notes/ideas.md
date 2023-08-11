@@ -1,3 +1,20 @@
+ecophage
+================================================================================================
+	- we could do some sort of colony management stuff like Colonization, and Oxygen Not Included
+		- multiple food stuffs together, increase gather rate / stamina / etc.
+	- we could make it a fantasy game with orcs and stuff taking over the world and a wizard is like "bitch, we're going to fantasy mars. So you gotta get as much resources as possible before the orcs from WC2 take over."
+	
+
+
+robinhood GTA mafia
+================================================================================================
+	- formations of thugs
+	- rob rich
+	- give some to poor to gain favor. robinhood meets al capone
+
+star control2? gravity well?
+================================================================================================
+
 
 
 datajack style game

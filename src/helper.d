@@ -271,7 +271,6 @@ T capReset(T)(T val, T max, T resetValue=0) /// If val > max, val = resetValue=0
 	return (val <= max) ? val : resetValue;
 	}
 
-
 T capHigh(T)(T val, T max)
 	{
 	if(val > max)
