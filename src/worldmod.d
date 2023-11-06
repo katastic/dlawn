@@ -27,12 +27,16 @@ import g;
 import main : shader;
 
 import datajack; // gamemodule
+import gui;
 
 class world_t
-	{	
+	{
+	
+	dragAndDropGrid grid;	
+			
 //	pixelMap map;
 	tileMap map2;
-	isometricFlatMap map3d;
+//	isometricFlatMap map3d;
 	objectHandler oh;
 	player[] players;
 	team[] teams;
@@ -46,13 +50,15 @@ class world_t
 //	meteor[] meteors;
 
 	this()
-		{		
+		{
+		grid = new dragAndDropGrid();
+			
 		players ~= new player(); //CHICKEN OR EGG.
 		players[0].myTeam = 0; // teams[0];
 
 //		map = new pixelMap(idimen(4096, 4096));
-//		map2 = new tileMap();
-		map3d = new isometricFlatMap();
+		map2 = new tileMap();
+		//map3d = new isometricFlatMap();
 		
 		oh = new objectHandler("./data/maps/objectmap.toml"); //NYI
 		
@@ -117,9 +123,9 @@ class world_t
 		if(timeIndex > 256)timeIndex = 0;
 		al_use_shader(shader);
 		al_set_shader_float("timeIndex", timeIndex);
-			//map2.onDraw(viewports[0]);
+			map2.onDraw(viewports[0]);
 		al_use_shader(null);
-		map3d.onDraw(viewports[0]);
+		//map3d.onDraw(viewports[0]);
 
 		drawStat4(bullets	, "bullets");
 		drawStat4(particles	, "particles");
@@ -129,6 +135,8 @@ class world_t
 		drawStat4(items		, "items");		
 
 //		map.drawMinimap(pair(SCREEN_W-300,50));
+
+		grid.draw(v);
 
 		testGraph.draw(v);
 		testGraph2.draw(v);
