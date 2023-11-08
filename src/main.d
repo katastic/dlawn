@@ -485,6 +485,7 @@ void execute()
 					
 					if(event.mouse.button == 1)
 						{
+						world.grid.eventClickAt(pair(mouse_x, mouse_y));
 						}
 					if(event.mouse.button == 2)
 						{

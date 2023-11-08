@@ -40,13 +40,24 @@ class dragAndDropGrid
 	{ 
 	pair canvasPos; // do we care about a width/height?
 	
+	bool eventClickAt(pair screenPos)
+		{
+		writeln("eventClickAt(", screenPos, ")");
+	//	auto p = pair(screenPos.x - canvasPos.x, screenPos.y - canvasPos.y);
+		//if(p.x < 0 || p.y < 0)return false;
+		
+		return checkForItemsGivenClick(screenPos);
+		}
+	
 	bool checkForItemsGivenClick(pair hitCanvasPos)
 		{
 		foreach(i; items)
 			{
 			pair itemMousePosition = i.getMousePosition();
-			if(hitCanvasPos.x == itemMousePosition.x 	// test RANGE
-			 && hitCanvasPos.y == itemMousePosition.y)
+			writeln(i.name);
+			writeln("hitCanvasPos ", hitCanvasPos, " vs ", "itemMousePosition ", itemMousePosition);
+			if(hitCanvasPos.x >= itemMousePosition.x && hitCanvasPos.x <= itemMousePosition.x + gridSize
+			 && hitCanvasPos.y >= itemMousePosition.y && hitCanvasPos.y <= itemMousePosition.y + gridSize)
 				con.log(i.name ~ " was found");
 				return true;
 			}
@@ -135,7 +146,9 @@ class draggableItem
 	
 	pair getMousePosition()
 		{
-		return pair(owner.canvasPos.x + tableMouseX, owner.canvasPos.y + tableMouseY);
+		auto p = pair(owner.canvasPos.x + gridPosition.i*owner.gridSize, owner.canvasPos.y + gridPosition.j*owner.gridSize);
+		writeln("getMousePosition = ", p);
+		return p;
 		}
 
 	this(ipair _gridPosition, ipair _bulkSize, dragAndDropGrid _owner, bitmap* b)
@@ -150,7 +163,7 @@ class draggableItem
 	bool isPickedUp; // if true, mouse coordinates can float to follow mouse and when set 
 					// back we update to table coordinates, on fail to set, we reset back to mouseX, mouseY
 	
-		float tableMouseX, tableMouseY; //screen/mouse position of our top-left point in table
+//		float tableMouseX, tableMouseY; //screen/mouse position of our top-left point in table FROM gridPosition
 		float floatingMouseX, floatingMouseY; // are these TABLE RELATIVE though or SCREEN RELATIVE? What if we're dragging between windows or out of window!
 		float mouseWidth, mouseHeight; /// pixel width/height of graphic. Could also just use image->w,h
 	
