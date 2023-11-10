@@ -25,6 +25,23 @@ import molto;
 	//COLOR(w, w, w, 1);
 	//}
 
+
+
+bool isWithin(T)(T val, T lowBound, T highBound) /// NOTE this range is inclusive [ ] range
+	{
+	if(val >= lowBound && val <= highBound)return true;
+	return false;
+	}
+
+bool isWithin(pair val, pair lowBound, pair highBound) /// NOTE this range is inclusive [ ] range
+	{
+	if(
+		val.x >= lowBound.x && val.x <= highBound.x &&
+		val.y >= lowBound.y && val.y <= highBound.y
+		) return true;
+	return false;
+	}
+
 // there may be an existing API for this
 bool isAlmost(float val, float equals, float fudge=.01)
 	{

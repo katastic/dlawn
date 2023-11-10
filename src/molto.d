@@ -179,7 +179,17 @@ struct rect
 	{
 	float x,y,w,h; //alternative, a pair and dim, and/or write applicable conversion functions
 	// rect is WAY easier than a pair+dim or some tuple strangeness.
+	
+	this(pair a, pair b)
+		{
+		x = a.x;
+		y = a.y;
+		w = b.x; // warn name mismatch
+		h = b.y; // warn name mismatch
+		}
 	} // ALSO, what if we want x1,y1, x2,y2 instead of x,y,w,h? pair?
+
+
 
 void testipair()
 	{

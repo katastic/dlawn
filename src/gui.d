@@ -37,8 +37,10 @@ struct viewStack
 // we need an UNDO feature if the placement is invalid or cancelled. 
 
 class dragAndDropGrid
-	{ 
-	pair canvasPos; // do we care about a width/height?
+	{
+	rect canvas; // x,y screen coords, then w/h 
+	//pair canvasPos; // do we care about a width/height?
+//	rect canvas;
 	
 	bool eventClickAt(pair screenPos)
 		{
@@ -51,36 +53,49 @@ class dragAndDropGrid
 	
 	bool checkForItemsGivenClick(pair hitCanvasPos)
 		{
+		import helper : isWithin;
+
 		foreach(i; items)
 			{
 			pair itemMousePosition = i.getMousePosition();
-			writeln(i.name);
-			writeln("hitCanvasPos ", hitCanvasPos, " vs ", "itemMousePosition ", itemMousePosition);
-			if(hitCanvasPos.x >= itemMousePosition.x && hitCanvasPos.x <= itemMousePosition.x + gridSize
-			 && hitCanvasPos.y >= itemMousePosition.y && hitCanvasPos.y <= itemMousePosition.y + gridSize)
+	//		writeln("searching:", i.name);
+//			writeln("hitCanvasPos ", hitCanvasPos, " vs ", "itemMousePosition ", itemMousePosition);
+			
+			if(
+				hitCanvasPos.isWithin(itemMousePosition, pair(itemMousePosition, gridSize, gridSize))
+				){
+				i.eventActivate();
 				con.log(i.name ~ " was found");
 				return true;
+				}
 			}
 		return false;
 		}
 	
+	pair getWidthHeightFromGridSize(ipair grid)
+		{
+		return pair(gridSize*grid.i,gridSize*grid.j);
+		}
+	
 	this()
 		{
-		canvasPos = pair(100, 100);
+		int i=16;
+		int j=5;
 		gridDim = ipair(16, 5);
+		canvas = rect(pair(100.0, 100.0), getWidthHeightFromGridSize(gridDim));
 			{
-			draggableItem d = new draggableItem(ipair(0,0), ipair(1,1), this, bh["grass"]);
-			d.name = "one";
+			draggableItem d = new draggableItem(ipair(0,0), ipair(1,1), this, bh["fountain"]);
+			d.name = "sword";
 			items ~= d;
 			}
 			{
-			draggableItem d = new draggableItem(ipair(0,1), ipair(1,1), this, bh["sand"]);
-			d.name = "two";
+			draggableItem d = new draggableItem(ipair(0,1), ipair(1,1), this, bh["dude"]);
+			d.name = "shield";
 			items ~= d;
 			}
 			{
 			draggableItem d = new draggableItem(ipair(1,1), ipair(1,1), this, bh["carrot"]);
-			d.name = "three";
+			d.name = "armor";
 			items ~= d;
 			}
 		}
@@ -111,19 +126,23 @@ class dragAndDropGrid
 		
 	void drawGrid()
 		{
-		int w = gridDim.i;
-		int h = gridDim.j;
+		int w = cast(int)canvas.w/gridSize;
+		int h = cast(int)canvas.h/gridSize;
 		for(int i = 0; i < w; i++)
 			{
 			al_draw_line(
-						canvasPos.x + gridSize*i, canvasPos.y, 
-						canvasPos.x + gridSize*i, canvasPos.y + gridSize*(h-1), white, 1.0f);
+						canvas.x + gridSize*(i), 
+						canvas.y, 
+						canvas.x + gridSize*(i), 
+						canvas.y + canvas.h-gridSize, white, 1.0f);
 			}
 		for(int j = 0; j < h; j++)
 			{
 			al_draw_line(
-						canvasPos.x             , canvasPos.y + gridSize*j, 
-						canvasPos.x + gridSize*(w-1), canvasPos.y + gridSize*j, white, 1.0f);
+						canvas.x             ,
+						canvas.y + gridSize*(j), 
+						canvas.x + canvas.w-gridSize, 
+						canvas.y + gridSize*(j), white, 1.0f);
 			}
 		}
 	
@@ -133,7 +152,7 @@ class dragAndDropGrid
 		drawGrid();
 		foreach(i; items)
 			{
-			i.draw(canvasPos, v);
+			i.draw(canvas, v);
 			}
 		}
 	
@@ -143,10 +162,33 @@ class dragAndDropGrid
 // maybe it depends on the event. pressing [escape] or [right click] is reset for example.
 class draggableItem
 	{
+	bool hasBeenActivated = false;
+	
+	bool eventActivate()
+		{
+		hasBeenActivated = !hasBeenActivated;
+		con.log(name ~ " has been activated!");
+		return true;
+		} /// double click or right-click activate
+	// do we want other event options? right-click drop down options like SS1 change burst type, or ammo type?	
+	
+	bool eventDropIntoWorld()
+		{
+		return true;
+		}
+	
+	bool eventTrash()
+		{
+		return true;
+		// delete me?
+		}
+	
 	
 	pair getMousePosition()
 		{
-		auto p = pair(owner.canvasPos.x + gridPosition.i*owner.gridSize, owner.canvasPos.y + gridPosition.j*owner.gridSize);
+		auto p = pair(
+			owner.canvas.x + gridPosition.i*owner.gridSize, 
+			owner.canvas.y + gridPosition.j*owner.gridSize); // this can't be right?
 		writeln("getMousePosition = ", p);
 		return p;
 		}
@@ -164,8 +206,8 @@ class draggableItem
 					// back we update to table coordinates, on fail to set, we reset back to mouseX, mouseY
 	
 //		float tableMouseX, tableMouseY; //screen/mouse position of our top-left point in table FROM gridPosition
-		float floatingMouseX, floatingMouseY; // are these TABLE RELATIVE though or SCREEN RELATIVE? What if we're dragging between windows or out of window!
-		float mouseWidth, mouseHeight; /// pixel width/height of graphic. Could also just use image->w,h
+//		float floatingMouseX, floatingMouseY; // are these TABLE RELATIVE though or SCREEN RELATIVE? What if we're dragging between windows or out of window!
+//		float mouseWidth, mouseHeight; /// pixel width/height of graphic. Could also just use image->w,h
 	
 	void pickUp()
 		{
@@ -226,12 +268,11 @@ class draggableItem
 	bitmap* image; // no animated/modifiable images
 	void* myItemPtr; //for command callbacks
 
-	void draw(pair offset, viewport v)
+	void draw(rect canvas, viewport v)
 		{
-		int gridSize = owner.gridSize;
 		drawBitmap(image, 
-			pair(v.x + gridSize*gridPosition.i + offset.x, 
-				 v.y + gridSize*gridPosition.j + offset.y), 0);
+			pair(v.x + canvas.x + gridPosition.i*owner.gridSize, 
+				 v.y + canvas.y + gridPosition.j*owner.gridSize), hasBeenActivated);
 		}
 	}
 

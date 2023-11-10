@@ -1,3 +1,17 @@
+dlawn
+================================================================================================
+
+ - send logs to a seperate frame debugger either on localhost or another PC with bigger screen. filter options. sql?
+
+
+
+
+
+
+
+
+
+
 ecophage
 ================================================================================================
 	- we could do some sort of colony management stuff like Colonization, and Oxygen Not Included
