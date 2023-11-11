@@ -52,13 +52,13 @@ class dragAndDropGrid
 			items ~= d;
 			}
 			{
-			draggableItem d = new draggableItem(ipair(1,0), ipair(1,1), this, bh["grass"]);
-			d.name = "shield";
+			draggableItem d = new draggableItem(ipair(1,0), ipair(1,1), this, bh["ammo"]);
+			d.name = "ammo";
 			items ~= d;
 			}
 			{
-			draggableItem d = new draggableItem(ipair(2,0), ipair(1,1), this, bh["carrot"]);
-			d.name = "armor";
+			draggableItem d = new draggableItem(ipair(2,0), ipair(1,1), this, bh["hypo"]);
+			d.name = "hypo";
 			items ~= d;
 			}
 		}

@@ -10,6 +10,8 @@
 			["explosion","./data/explosion.png"],
 			
 			["wrench","./data/wrench.png"],
+			["ammo","./data/ammo.png"],
+			["hypo","./data/hypo.png"],
 
 			["carrot","./data/carrot.png"],
 
