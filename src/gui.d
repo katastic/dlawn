@@ -39,8 +39,29 @@ struct viewStack
 class dragAndDropGrid
 	{
 	rect canvas; // x,y screen coords, then w/h 
-	//pair canvasPos; // do we care about a width/height?
-//	rect canvas;
+	
+	this()
+		{
+		int i=16;
+		int j=5;
+		gridDim = ipair(10, 4);
+		canvas = rect(pair(600.0, 200.0), getWidthHeightFromGridSize(gridDim));
+			{
+			draggableItem d = new draggableItem(ipair(0,0), ipair(1,3), this, bh["wrench"]);
+			d.name = "wrench";
+			items ~= d;
+			}
+			{
+			draggableItem d = new draggableItem(ipair(1,0), ipair(1,1), this, bh["grass"]);
+			d.name = "shield";
+			items ~= d;
+			}
+			{
+			draggableItem d = new draggableItem(ipair(2,0), ipair(1,1), this, bh["carrot"]);
+			d.name = "armor";
+			items ~= d;
+			}
+		}
 	
 	bool eventClickAt(pair screenPos)
 		{
@@ -55,17 +76,20 @@ class dragAndDropGrid
 		{
 		import helper : isWithin;
 
-		foreach(i; items)
+		foreach(it; items)
 			{
-			pair itemMousePosition = i.getMousePosition();
+			pair itemMousePosition = it.getMousePosition();
 	//		writeln("searching:", i.name);
 //			writeln("hitCanvasPos ", hitCanvasPos, " vs ", "itemMousePosition ", itemMousePosition);
 			
 			if(
-				hitCanvasPos.isWithin(itemMousePosition, pair(itemMousePosition, gridSize, gridSize))
+				hitCanvasPos.isWithin(itemMousePosition, 
+					pair(itemMousePosition, 
+						gridSize*it.bulkSize.i, 
+						gridSize*it.bulkSize.j))
 				){
-				i.eventActivate();
-				con.log(i.name ~ " was found");
+				it.eventActivate();
+				con.log(it.name ~ " was found");
 				return true;
 				}
 			}
@@ -75,29 +99,6 @@ class dragAndDropGrid
 	pair getWidthHeightFromGridSize(ipair grid)
 		{
 		return pair(gridSize*grid.i,gridSize*grid.j);
-		}
-	
-	this()
-		{
-		int i=16;
-		int j=5;
-		gridDim = ipair(16, 5);
-		canvas = rect(pair(100.0, 100.0), getWidthHeightFromGridSize(gridDim));
-			{
-			draggableItem d = new draggableItem(ipair(0,0), ipair(1,1), this, bh["fountain"]);
-			d.name = "sword";
-			items ~= d;
-			}
-			{
-			draggableItem d = new draggableItem(ipair(0,1), ipair(1,1), this, bh["dude"]);
-			d.name = "shield";
-			items ~= d;
-			}
-			{
-			draggableItem d = new draggableItem(ipair(1,1), ipair(1,1), this, bh["carrot"]);
-			d.name = "armor";
-			items ~= d;
-			}
 		}
 		
 //	int[16][128] gridLookupTable;  // each occupied tile
@@ -122,26 +123,28 @@ class dragAndDropGrid
 	
 	void drawBackground()
 		{
+		with(canvas)
+			al_draw_filled_rectangle(x, y, x + w, y + h, color(.2,.2,.2,.5));
 		}
 		
 	void drawGrid()
 		{
 		int w = cast(int)canvas.w/gridSize;
 		int h = cast(int)canvas.h/gridSize;
-		for(int i = 0; i < w; i++)
+		for(int i = 0; i < w+1; i++)
 			{
 			al_draw_line(
 						canvas.x + gridSize*(i), 
 						canvas.y, 
 						canvas.x + gridSize*(i), 
-						canvas.y + canvas.h-gridSize, white, 1.0f);
+						canvas.y + canvas.h, white, 1.0f);
 			}
-		for(int j = 0; j < h; j++)
+		for(int j = 0; j < h+1; j++)
 			{
 			al_draw_line(
 						canvas.x             ,
 						canvas.y + gridSize*(j), 
-						canvas.x + canvas.w-gridSize, 
+						canvas.x + canvas.w, 
 						canvas.y + gridSize*(j), white, 1.0f);
 			}
 		}
