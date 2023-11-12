@@ -68,7 +68,7 @@ class dragAndDropGrid
 	
 
 	bool areWeCarryingAnItem = false;
-	draggableItem itemWereCarring = null;
+	draggableItem itemWereCarrying = null;
 
 	bool eventClickAt(pair screenPos)
 		{
@@ -85,17 +85,17 @@ class dragAndDropGrid
 				{
 	//			result.eventActivate();
 				result.actionPickUp();
-				itemWereCarring = result;
+				itemWereCarrying = result;
 				areWeCarryingAnItem = true;
 				return true;
 				}
 			}else{
 			auto result = checkForItemsGivenClick(screenPos);
 			writeln("3");
-			if(result is null) // if no item is there, we can place it [ignoring bulk size]
+			if(result is null)// if no item is there, we can place it
 				{
 	//			result.eventActivate();
-				if(itemWereCarring.actionPlaceAtGrid(ipair(cast(int)(screenPos.x-canvas.x)/gridSize, cast(int)(screenPos.y-canvas.y)/gridSize))) // on true, we placed it (there's nothing in the way)
+				if(itemWereCarrying.actionPlaceAtGrid(ipair(cast(int)(screenPos.x-canvas.x)/gridSize, cast(int)(screenPos.y-canvas.y)/gridSize))) // on true, we placed it (there's nothing in the way)
 					{
 					writeln("4");
 					areWeCarryingAnItem = false; 
@@ -104,7 +104,18 @@ class dragAndDropGrid
 					areWeCarryingAnItem = true;
 					}
 				return true;
-				}	
+				}else{
+				// if there's one, we swap positions?
+				//  || result is itemWereCarrying
+				result.isPickedUp = false;
+				ipair tempPos = itemWereCarrying.gridPosition;
+				itemWereCarrying.actionPlaceAtGrid(
+					ipair(cast(int)(screenPos.x-canvas.x)/gridSize, 
+						cast(int)(screenPos.y-canvas.y)/gridSize));
+				result.gridPosition = tempPos;
+				itemWereCarrying = null; 
+				areWeCarryingAnItem = false;
+				}
 			}
 		return false;
 		}
@@ -317,12 +328,23 @@ class draggableItem
 	void draw(rect canvas, viewport v)
 		{
 		if(!isPickedUp)
+			{
 			drawBitmap(image, 
 				pair(v.x + canvas.x + gridPosition.i*owner.gridSize, 
 					 v.y + canvas.y + gridPosition.j*owner.gridSize), hasBeenActivated);
+			}
 		else
+			{
+			// draw half transparent
+			drawTintedBitmap(image, 
+				color(1.0,1.0,1.0,0.25),
+				pair(v.x + canvas.x + gridPosition.i*owner.gridSize, 
+					 v.y + canvas.y + gridPosition.j*owner.gridSize), hasBeenActivated);
+
+			// draw following mouse
 			drawBitmap(image, 
 				pair(mouse_x, mouse_y), hasBeenActivated);
+			}
 		}
 	}
 
