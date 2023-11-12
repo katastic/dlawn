@@ -1,3 +1,9 @@
+
+// BUG TO FIX: [1,1] disk dropped on top of a [1,3] wrench. The disk fits, it swaps
+// but now the wrench is being placed in the disk's spot. Which ONLY has room for [1,1].
+// The wrench is now superimposed on the two lower item spots.
+// Solution: [[TEST]] the swap end location before commiting to the reversal.
+
 import allegro5.allegro;
 import allegro5.allegro_primitives;
 import allegro5.allegro_image;
@@ -64,9 +70,13 @@ class dragAndDropGrid
 			d.name = "hypo";
 			items ~= d;
 			}
+			{
+			draggableItem d = new draggableItem(ipair(3,0), ipair(1,1), this, bh["disk"]);
+			d.name = "disk";
+			items ~= d;
+			}
 		}
 	
-
 	bool areWeCarryingAnItem = false;
 	draggableItem itemWereCarrying = null;
 
