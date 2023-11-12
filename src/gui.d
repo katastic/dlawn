@@ -39,6 +39,9 @@ struct viewStack
 class dragAndDropGrid
 	{
 	rect canvas; // x,y screen coords, then w/h 
+	draggableItem[] items;
+	int gridSize = 32;
+	ipair gridDim;
 	
 	this()
 		{
@@ -63,16 +66,50 @@ class dragAndDropGrid
 			}
 		}
 	
+
+	bool areWeCarryingAnItem = false;
+	draggableItem itemWereCarring = null;
+
 	bool eventClickAt(pair screenPos)
 		{
 		writeln("eventClickAt(", screenPos, ")");
 	//	auto p = pair(screenPos.x - canvasPos.x, screenPos.y - canvasPos.y);
 		//if(p.x < 0 || p.y < 0)return false;
-		
-		return checkForItemsGivenClick(screenPos);
+				
+		if(!areWeCarryingAnItem)
+			{
+			writeln("2");
+			// check if we're touching a new item
+			auto result = checkForItemsGivenClick(screenPos);
+			if(result !is null)
+				{
+	//			result.eventActivate();
+				result.actionPickUp();
+				itemWereCarring = result;
+				areWeCarryingAnItem = true;
+				return true;
+				}
+			}else{
+			auto result = checkForItemsGivenClick(screenPos);
+			writeln("3");
+			if(result is null) // if no item is there, we can place it [ignoring bulk size]
+				{
+	//			result.eventActivate();
+				if(itemWereCarring.actionPlaceAtGrid(ipair(cast(int)(screenPos.x-canvas.x)/gridSize, cast(int)(screenPos.y-canvas.y)/gridSize))) // on true, we placed it (there's nothing in the way)
+					{
+					writeln("4");
+					areWeCarryingAnItem = false; 
+					}else{
+					writeln("5");
+					areWeCarryingAnItem = true;
+					}
+				return true;
+				}	
+			}
+		return false;
 		}
 	
-	bool checkForItemsGivenClick(pair hitCanvasPos)
+	draggableItem checkForItemsGivenClick(pair hitCanvasPos)
 		{
 		import helper : isWithin;
 
@@ -88,12 +125,12 @@ class dragAndDropGrid
 						gridSize*it.bulkSize.i, 
 						gridSize*it.bulkSize.j))
 				){
-				it.eventActivate();
 				con.log(it.name ~ " was found");
-				return true;
+				return it;
 				}
 			}
-		return false;
+		con.log("none found");
+		return null;
 		}
 	
 	pair getWidthHeightFromGridSize(ipair grid)
@@ -102,13 +139,7 @@ class dragAndDropGrid
 		}
 		
 //	int[16][128] gridLookupTable;  // each occupied tile
-	rect dim;
-	
-	draggableItem[] items;
-	int gridSize = 32;
-	ipair gridDim;
-	
-	//dostuff()
+		//dostuff()
 	// the idea is, for the grid, each cell contains the lookup index of the relevant item in the items[] list.
 	// if we find an empty place for our item (easy to search surrounding tiles on a mouse click), we just add the 
 	// number to the items[] list.
@@ -166,6 +197,27 @@ class dragAndDropGrid
 class draggableItem
 	{
 	bool hasBeenActivated = false;
+	dragAndDropGrid owner; // for requesting deletion, and drawing gridsize, and canvas dim.
+	bool isPickedUp; // if true, mouse coordinates can float to follow mouse and when set 
+					// back we update to table coordinates, on fail to set, we reset back to mouseX, mouseY
+	
+//		float tableMouseX, tableMouseY; //screen/mouse position of our top-left point in table FROM gridPosition
+//		float floatingMouseX, floatingMouseY; // are these TABLE RELATIVE though or SCREEN RELATIVE? What if we're dragging between windows or out of window!
+//		float mouseWidth, mouseHeight; /// pixel width/height of graphic. Could also just use image->w,h
+	
+	bool actionPickUp()
+		{
+		isPickedUp = true;
+		return true;
+		}
+
+	bool actionPlaceAtGrid(ipair _gridPosition) // this should be in grid???
+		{
+		writeln("actionPlaceAtGrid: ", _gridPosition);
+		isPickedUp = false;
+		gridPosition = _gridPosition;
+		return true;
+		}
 	
 	bool eventActivate()
 		{
@@ -186,7 +238,6 @@ class draggableItem
 		// delete me?
 		}
 	
-	
 	pair getMousePosition()
 		{
 		auto p = pair(
@@ -204,14 +255,6 @@ class draggableItem
 		image = b;
 		}
 		
-	dragAndDropGrid owner; // for requesting deletion, and drawing gridsize, and canvas dim.
-	bool isPickedUp; // if true, mouse coordinates can float to follow mouse and when set 
-					// back we update to table coordinates, on fail to set, we reset back to mouseX, mouseY
-	
-//		float tableMouseX, tableMouseY; //screen/mouse position of our top-left point in table FROM gridPosition
-//		float floatingMouseX, floatingMouseY; // are these TABLE RELATIVE though or SCREEN RELATIVE? What if we're dragging between windows or out of window!
-//		float mouseWidth, mouseHeight; /// pixel width/height of graphic. Could also just use image->w,h
-	
 	void pickUp()
 		{
 		isPickedUp=true;
@@ -253,7 +296,7 @@ class draggableItem
 		
 	bool isOutsideWindow(pair testPos)
 		{
-		rect dim = owner.dim;
+		rect dim = owner.canvas;
 		return (testPos.x < dim.x || testPos.x > dim.x+dim.w-1 ||
 				testPos.y < dim.y || testPos.y > dim.y+dim.y-1)
 			? true : false;
@@ -273,9 +316,13 @@ class draggableItem
 
 	void draw(rect canvas, viewport v)
 		{
-		drawBitmap(image, 
-			pair(v.x + canvas.x + gridPosition.i*owner.gridSize, 
-				 v.y + canvas.y + gridPosition.j*owner.gridSize), hasBeenActivated);
+		if(!isPickedUp)
+			drawBitmap(image, 
+				pair(v.x + canvas.x + gridPosition.i*owner.gridSize, 
+					 v.y + canvas.y + gridPosition.j*owner.gridSize), hasBeenActivated);
+		else
+			drawBitmap(image, 
+				pair(mouse_x, mouse_y), hasBeenActivated);
 		}
 	}
 
