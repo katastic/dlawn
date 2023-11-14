@@ -1,8 +1,33 @@
 
-// BUG TO FIX: [1,1] disk dropped on top of a [1,3] wrench. The disk fits, it swaps
+// ISSUE: What if we drop a 2x2 ON ITSELF but on a NEW position?
+// Q:is there a simpler case we can brute force all these problems? 
+// I have a grid. Place on grid. Test for valid grid. Is not valid? Revert.
+
+// For now, [HALF FIXED] if we drop it on itself anywhere, revert. Still need to handle
+// dropping on offset position.
+
+// minor BUG: if we do the "faded item to mark old position" when we replace it with a new item
+// the fade is still there superimposed with the replaced position.
+// - do we get rid of fade altogether, or, only use it when not replacing an item? Then is 
+// it even useful to mark original position?
+
+
+// BUG: I'm able to drop a 2x2 onto a 1x1 by leaving it on position 1x1 inside the 2x2?
+// I think it's because we MOVED IT it's not registering correctly anymore.
+
+// [+] BUG TO FIX: [1,1] disk dropped on top of a [1,3] wrench. The disk fits, it swaps
 // but now the wrench is being placed in the disk's spot. Which ONLY has room for [1,1].
 // The wrench is now superimposed on the two lower item spots.
 // Solution: [[TEST]] the swap end location before commiting to the reversal.
+// [+] BUG. if we auto replace, instead of just pickup the old item (which we should probably do)
+// we can end up replacing the item INSIDE the NEW item. 2x2 next to a 1x1. Move 2x2 onto 1x1.
+// 1x1 is now INSIDE 2x2 at position 0x1. 
+// <-- fixed by picking up next item and testing all locations
+
+
+// ADD
+// - basic sort functionality
+// - sort by type
 
 import allegro5.allegro;
 import allegro5.allegro_primitives;
@@ -21,7 +46,6 @@ void drawTitledWindow(pair pos, idimen size) //why is ths position AND idimen?
 	{
 	
 	}
-
 
 // do we want this kind of thing to do built-in clipping?
 // we only REALLY need an pair offset, and viewport. Each subsequent call adds their window position
@@ -55,26 +79,13 @@ class dragAndDropGrid
 		int j=5;
 		gridDim = ipair(10, 4);
 		canvas = rect(pair(600.0, 200.0), getWidthHeightFromGridSize(gridDim));
-			{
-			draggableItem d = new draggableItem(ipair(0,0), ipair(1,3), this, bh["wrench"]);
-			d.name = "wrench";
-			items ~= d;
-			}
-			{
-			draggableItem d = new draggableItem(ipair(1,0), ipair(1,1), this, bh["ammo"]);
-			d.name = "ammo";
-			items ~= d;
-			}
-			{
-			draggableItem d = new draggableItem(ipair(2,0), ipair(1,1), this, bh["hypo"]);
-			d.name = "hypo";
-			items ~= d;
-			}
-			{
-			draggableItem d = new draggableItem(ipair(3,0), ipair(1,1), this, bh["disk"]);
-			d.name = "disk";
-			items ~= d;
-			}
+		
+		items ~= new draggableItem(ipair(0,0), ipair(1,3), this, bh["wrench"], "wrench");
+		items ~= new draggableItem(ipair(1,0), ipair(1,1), this, bh["ammo"], "ammo");
+		items ~= new draggableItem(ipair(2,0), ipair(1,1), this, bh["hypo"], "hypo");
+		items ~= new draggableItem(ipair(3,0), ipair(1,1), this, bh["disk"], "disk");
+		items ~= new draggableItem(ipair(4,0), ipair(2,2), this, bh["armor"], "armor");
+		
 		}
 	
 	bool areWeCarryingAnItem = false;
@@ -89,7 +100,7 @@ class dragAndDropGrid
 		if(!areWeCarryingAnItem)
 			{
 			writeln("2");
-			// check if we're touching a new item
+			// check if we're touching a new item to pickup
 			auto result = checkForItemsGivenClick(screenPos);
 			if(result !is null)
 				{
@@ -99,7 +110,11 @@ class dragAndDropGrid
 				areWeCarryingAnItem = true;
 				return true;
 				}
-			}else{
+			}else{ // if we ARE carrying an item:  check if there's a spot clear at the point
+				// THE ISSUE. what if we're taking up more than one spot?
+				// we gotta search all spots.
+				// AND, if we only have ONE replacement, we replace it.
+				// HOWEVER, if more than ONE we just reject the placement.
 			auto result = checkForItemsGivenClick(screenPos);
 			writeln("3");
 			if(result is null)// if no item is there, we can place it
@@ -108,23 +123,60 @@ class dragAndDropGrid
 				if(itemWereCarrying.actionPlaceAtGrid(ipair(cast(int)(screenPos.x-canvas.x)/gridSize, cast(int)(screenPos.y-canvas.y)/gridSize))) // on true, we placed it (there's nothing in the way)
 					{
 					writeln("4");
-					areWeCarryingAnItem = false; 
+					areWeCarryingAnItem = false;  // how could this possibly fail???
 					}else{
 					writeln("5");
 					areWeCarryingAnItem = true;
 					}
 				return true;
-				}else{
-				// if there's one, we swap positions?
-				//  || result is itemWereCarrying
-				result.isPickedUp = false;
-				ipair tempPos = itemWereCarrying.gridPosition;
-				itemWereCarrying.actionPlaceAtGrid(
-					ipair(cast(int)(screenPos.x-canvas.x)/gridSize, 
-						cast(int)(screenPos.y-canvas.y)/gridSize));
-				result.gridPosition = tempPos;
-				itemWereCarrying = null; 
-				areWeCarryingAnItem = false;
+				}else {
+					
+				if(result == itemWereCarrying)
+					{
+					itemWereCarrying.isPickedUp = false;
+					areWeCarryingAnItem = false;
+					// NOTE: This fails if we're trying to MOVE a 2x2 one space over (by clicking inside itself but not the 0x0 position)
+					}else{
+					int val=0;
+					for(int i=0; i<=itemWereCarrying.bulkSize.i;i++)
+						for(int j=0; j<=itemWereCarrying.bulkSize.j;j++)
+							{
+							writeln("i,j", i, ",", j);
+							auto t = checkForItemsGivenClick(pair(screenPos, i*gridSize, j*gridSize)); // logic bug: this should only ever equal one or zero unless we have overlaps
+							if(t !is null && t !is itemWereCarrying) //if we find an item in a bulkslot that isn't us, increment val
+								val++;
+								
+							// does this FAIL if we drop an item on itself?
+							}
+					if(val == 1)
+						{
+						/+ SWAP ITEM CODE
+						  - Fails if big item replaces small item (overlaps more items)
+						result.isPickedUp = false;
+						ipair tempPos = itemWereCarrying.gridPosition;
+						itemWereCarrying.actionPlaceAtGrid(
+							ipair(cast(int)(screenPos.x-canvas.x)/gridSize, 
+								cast(int)(screenPos.y-canvas.y)/gridSize));
+						result.gridPosition = tempPos;
+						itemWereCarrying = null; 
+						areWeCarryingAnItem = false;
+						+/
+						
+						result.isPickedUp = true;
+							
+						ipair tempPos = itemWereCarrying.gridPosition;
+						itemWereCarrying.actionPlaceAtGrid(
+							ipair(cast(int)(screenPos.x-canvas.x)/gridSize, 
+								cast(int)(screenPos.y-canvas.y)/gridSize));
+						itemWereCarrying = result;
+						result.gridPosition = tempPos;
+				//		areWeCarryingAnItem = false;	
+						
+						}else{
+						writeln("REJECTED NUMBER OF ITEMS (error if==0):", val);
+						assert(val != 0, "REJECT ITEMS");
+						}
+					}
 				}
 			}
 		return false;
@@ -136,8 +188,8 @@ class dragAndDropGrid
 
 		foreach(it; items)
 			{
+			writeln("searching:", it.name);
 			pair itemMousePosition = it.getMousePosition();
-	//		writeln("searching:", i.name);
 //			writeln("hitCanvasPos ", hitCanvasPos, " vs ", "itemMousePosition ", itemMousePosition);
 			
 			if(
@@ -153,7 +205,7 @@ class dragAndDropGrid
 		con.log("none found");
 		return null;
 		}
-	
+
 	pair getWidthHeightFromGridSize(ipair grid)
 		{
 		return pair(gridSize*grid.i,gridSize*grid.j);
@@ -217,8 +269,18 @@ class dragAndDropGrid
 // maybe it depends on the event. pressing [escape] or [right click] is reset for example.
 class draggableItem
 	{
-	bool hasBeenActivated = false;
 	dragAndDropGrid owner; // for requesting deletion, and drawing gridsize, and canvas dim.
+
+	ipair gridPosition; // where in inventory is it if it's placed. top-left
+	ipair bulkSize; // width/height of item (no support for L-shaped/odd-shaped items. 1x1. 3x1, 2x2, etc)
+	bool flipVertical; // if we have system shock 1/remake style rotatable items
+	bool flipHorizontal;
+	string name;
+	string description;
+	bitmap* image; // no animated/modifiable images
+	void* myItemPtr; //for command callbacks
+
+	bool hasBeenActivated = false;
 	bool isPickedUp; // if true, mouse coordinates can float to follow mouse and when set 
 					// back we update to table coordinates, on fail to set, we reset back to mouseX, mouseY
 	
@@ -264,16 +326,17 @@ class draggableItem
 		auto p = pair(
 			owner.canvas.x + gridPosition.i*owner.gridSize, 
 			owner.canvas.y + gridPosition.j*owner.gridSize); // this can't be right?
-		writeln("getMousePosition = ", p);
+		writeln("getMousePosition = ", p, " grid:", gridPosition.i, ",", gridPosition.j);
 		return p;
 		}
 
-	this(ipair _gridPosition, ipair _bulkSize, dragAndDropGrid _owner, bitmap* b)
+	this(ipair _gridPosition, ipair _bulkSize, dragAndDropGrid _owner, bitmap* _b, string _name)
 		{
 		owner = _owner;
 		gridPosition = _gridPosition;
 		bulkSize = _bulkSize;
-		image = b;
+		image = _b;
+		name = _name;
 		}
 		
 	void pickUp()
@@ -325,15 +388,6 @@ class draggableItem
 		
 	void dropItemIntoWorld(){}
 	void removeMeFromList(){}
-	
-	ipair gridPosition; // where in inventory is it if it's placed. top-left
-	ipair bulkSize; // width/height of item (no support for L-shaped/odd-shaped items. 1x1. 3x1, 2x2, etc)
-	bool flipVertical; // if we have system shock 1/remake style rotatable items
-	bool flipHorizontal;
-	string name;
-	string description;
-	bitmap* image; // no animated/modifiable images
-	void* myItemPtr; //for command callbacks
 
 	void draw(rect canvas, viewport v)
 		{
