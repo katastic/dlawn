@@ -25,8 +25,6 @@ import molto;
 	//COLOR(w, w, w, 1);
 	//}
 
-
-
 bool isWithin(T)(T val, T lowBound, T highBound) /// NOTE this range is inclusive [ ] range
 	{
 	if(val >= lowBound && val <= highBound)return true;

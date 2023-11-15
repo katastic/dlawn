@@ -13,7 +13,6 @@
 // - do we get rid of fade altogether, or, only use it when not replacing an item? Then is 
 // it even useful to mark original position?
 
-
 // BUG: I'm able to drop a 2x2 onto a 1x1 by leaving it on position 1x1 inside the 2x2?
 // I think it's because we MOVED IT it's not registering correctly anymore.
 

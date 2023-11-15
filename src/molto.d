@@ -189,8 +189,6 @@ struct rect
 		}
 	} // ALSO, what if we want x1,y1, x2,y2 instead of x,y,w,h? pair?
 
-
-
 void testipair()
 	{
 	import std.math.rounding : floor, ceil;
@@ -359,8 +357,7 @@ struct pair
 		{
         return pair(x / rhs, y / rhs);
 		}
-	
-	
+		
 	bool opEquals(const int val) const @safe nothrow pure // what about float/double scenarios?
 		{
 		assert(val == 0, "Did you really mean to check a pair to something other than 0 == 0,0? This should only be for velocity pairs = 0");
