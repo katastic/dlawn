@@ -1,4 +1,6 @@
 
+// -- BUG: you can drop items OUTSIDE the grid!
+
 // ISSUE: What if we drop a 2x2 ON ITSELF but on a NEW position?
 // Q:is there a simpler case we can brute force all these problems? 
 // I have a grid. Place on grid. Test for valid grid. Is not valid? Revert.
@@ -23,7 +25,6 @@
 // we can end up replacing the item INSIDE the NEW item. 2x2 next to a 1x1. Move 2x2 onto 1x1.
 // 1x1 is now INSIDE 2x2 at position 0x1. 
 // <-- fixed by picking up next item and testing all locations
-
 
 // ADD
 // - basic sort functionality
@@ -75,8 +76,6 @@ class dragAndDropGrid
 	
 	this()
 		{
-		int i=16;
-		int j=5;
 		gridDim = ipair(10, 4);
 		canvas = rect(pair(600.0, 200.0), getWidthHeightFromGridSize(gridDim));
 		
@@ -85,21 +84,65 @@ class dragAndDropGrid
 		items ~= new draggableItem(ipair(2,0), ipair(1,1), this, bh["hypo"], "hypo");
 		items ~= new draggableItem(ipair(3,0), ipair(1,1), this, bh["disk"], "disk");
 		items ~= new draggableItem(ipair(4,0), ipair(2,2), this, bh["armor"], "armor");
-		
 		}
 	
 	bool areWeCarryingAnItem = false;
 	draggableItem itemWereCarrying = null;
 
+	ipair screenToGrid(pair screenPos)
+		{
+		return ipair((screenPos-pair(canvas.x,canvas.y))/gridSize);
+		}
+
+	bool attemptPlaceAt(pair screenPos)
+		{
+		writeln("attemptPlaceAt ", screenPos);
+		if(canWePlaceAt(screenPos))
+			{
+//			writeln("1 ", screenPos, "    ", pair(canvas.x,canvas.y) );
+//			writeln("2 ", (screenPos-pair(canvas.x,canvas.y)));
+//			writeln("3 ", (screenPos-pair(canvas.x,canvas.y))/gridSize);
+//			writeln("4 ", ipair((screenPos-pair(canvas.x,canvas.y))/gridSize));
+			itemWereCarrying.gridPosition = screenToGrid(screenPos);
+//			writeln("the new gridposition is:", itemWereCarrying.gridPosition);
+			itemWereCarrying.isPickedUp = false;
+			areWeCarryingAnItem = false;
+			return true;
+			}
+		return false;
+		}
+
+	bool attemptSwapAt(pair screenPos, draggableItem result)
+		{
+		writeln("attemptSwapAt ", screenPos);
+		if(canWePlaceAt(screenPos))
+			{
+			itemWereCarrying.gridPosition = screenToGrid(screenPos);
+			itemWereCarrying.isPickedUp = false;
+			
+			itemWereCarrying = result;
+			itemWereCarrying.isPickedUp = true;
+			return true;
+			}
+		return false;
+		}
+
+	bool canWePlaceAt(pair screenPos)
+		{
+		if(screenPos.x - canvas.x < 0 ||
+		   screenPos.y - canvas.y < 0 ||
+		   screenPos.x - canvas.x > gridDim.i*gridSize ||
+		   screenPos.y - canvas.y > gridDim.j*gridSize)return false;
+		return true;
+		}
+
 	bool eventClickAt(pair screenPos)
 		{
 		writeln("eventClickAt(", screenPos, ")");
-	//	auto p = pair(screenPos.x - canvasPos.x, screenPos.y - canvasPos.y);
-		//if(p.x < 0 || p.y < 0)return false;
-				
+
 		if(!areWeCarryingAnItem)
 			{
-			writeln("2");
+			writeln("2 PICKUP");
 			// check if we're touching a new item to pickup
 			auto result = checkForItemsGivenClick(screenPos);
 			if(result !is null)
@@ -116,10 +159,12 @@ class dragAndDropGrid
 				// AND, if we only have ONE replacement, we replace it.
 				// HOWEVER, if more than ONE we just reject the placement.
 			auto result = checkForItemsGivenClick(screenPos);
-			writeln("3");
+			writeln("3 CARRYING");
 			if(result is null)// if no item is there, we can place it
 				{
+				writeln("4 EMPTY DROP");
 	//			result.eventActivate();
+		/*
 				if(itemWereCarrying.actionPlaceAtGrid(ipair(cast(int)(screenPos.x-canvas.x)/gridSize, cast(int)(screenPos.y-canvas.y)/gridSize))) // on true, we placed it (there's nothing in the way)
 					{
 					writeln("4");
@@ -127,10 +172,11 @@ class dragAndDropGrid
 					}else{
 					writeln("5");
 					areWeCarryingAnItem = true;
-					}
+					}*/
+				attemptPlaceAt(screenPos);
 				return true;
-				}else {
-					
+				}else {					
+				writeln("5 ATTEMPT SWAP");
 				if(result == itemWereCarrying)
 					{
 					itemWereCarrying.isPickedUp = false;
@@ -161,7 +207,7 @@ class dragAndDropGrid
 						itemWereCarrying = null; 
 						areWeCarryingAnItem = false;
 						+/
-						
+						/+
 						result.isPickedUp = true;
 							
 						ipair tempPos = itemWereCarrying.gridPosition;
@@ -170,8 +216,9 @@ class dragAndDropGrid
 								cast(int)(screenPos.y-canvas.y)/gridSize));
 						itemWereCarrying = result;
 						result.gridPosition = tempPos;
+						+/
 				//		areWeCarryingAnItem = false;	
-						
+						attemptSwapAt(screenPos, result);
 						}else{
 						writeln("REJECTED NUMBER OF ITEMS (error if==0):", val);
 						assert(val != 0, "REJECT ITEMS");
@@ -400,11 +447,11 @@ class draggableItem
 		else
 			{
 			// draw half transparent
-			drawTintedBitmap(image, 
+/+			drawTintedBitmap(image, 
 				color(1.0,1.0,1.0,0.25),
 				pair(v.x + canvas.x + gridPosition.i*owner.gridSize, 
 					 v.y + canvas.y + gridPosition.j*owner.gridSize), hasBeenActivated);
-
++/
 			// draw following mouse
 			drawBitmap(image, 
 				pair(mouse_x, mouse_y), hasBeenActivated);

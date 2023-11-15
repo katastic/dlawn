@@ -183,8 +183,8 @@ ALLEGRO_TIMER* 			screencap_timer;
 
 FONT* 	font1;
 
-int SCREEN_W = 1360;
-int SCREEN_H = 700;
+int SCREEN_W = 1200;
+int SCREEN_H = 400;
 enum DIR { UP, DOWN, LEFT, RIGHT, UPLEFT, UPRIGHT, DOWNRIGHT, DOWNLEFT, NONE=0};
 
 intrinsicGraph!float testGraph;

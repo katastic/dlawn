@@ -316,11 +316,50 @@ struct ipair
 		i = val;
 		j = val;
 		}
+
 	}
 
 struct pair
 	{
 	float x=0, y=0;
+	
+	// what about the following scenarios:
+	// if(pair < 0)   		(both coordinates are higher/lower than 0)
+	// if(pair < pair)		(both coordinates are higher/lower than the second pair coords)
+	
+	int opCmp(ref const int s)//https://forum.dlang.org/thread/zljczqndhxifttonlmtl@forum.dlang.org
+		{//https://dlang.org/spec/operatoroverloading.html#compare
+		if(x < s && y < s)return -1;
+		if(x > s && y > s)return 1;
+		return 0; // NOTE: should we return zero if only one case is true???
+		} // HOWEVER, if we're doing that we're not going to get a TYPE ERROR if someone accidentally compares a pair to an int
+	
+	// this ~ rhs
+    pair opBinary(string op : "+")(pair rhs)
+		{
+        return pair(x + rhs.x, y + rhs.y);
+		}
+    pair opBinary(string op : "-")(pair rhs)
+		{
+        return pair(x - rhs.x, y - rhs.y);
+		}
+    pair opBinary(string op : "*")(int rhs)
+		{
+        return pair(x * rhs, y * rhs);
+		}
+    pair opBinary(string op : "*")(float rhs)
+		{
+        return pair(x * rhs, y * rhs);
+		}
+    pair opBinary(string op : "/")(int rhs)
+		{
+        return pair(x / rhs, y / rhs);
+		}
+    pair opBinary(string op : "/")(float rhs)
+		{
+        return pair(x / rhs, y / rhs);
+		}
+	
 	
 	bool opEquals(const int val) const @safe nothrow pure // what about float/double scenarios?
 		{

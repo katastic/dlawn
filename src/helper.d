@@ -35,6 +35,7 @@ bool isWithin(T)(T val, T lowBound, T highBound) /// NOTE this range is inclusiv
 
 bool isWithin(pair val, pair lowBound, pair highBound) /// NOTE this range is inclusive [ ] range
 	{
+//	writeln(" - isWithin(T) -", val, " low:", lowBound, " high:", highBound);
 	if(
 		val.x >= lowBound.x && val.x <= highBound.x &&
 		val.y >= lowBound.y && val.y <= highBound.y
