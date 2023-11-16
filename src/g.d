@@ -182,6 +182,7 @@ ALLEGRO_TIMER* 			fps_timer;
 ALLEGRO_TIMER* 			screencap_timer;
 
 FONT* 	font1;
+FONT* 	activeFont;
 
 int SCREEN_W = 1200;
 int SCREEN_H = 400;
@@ -200,6 +201,7 @@ viewport[2] viewports;
 void loadResources()
 	{
 	font1 = getFont("./data/DejaVuSans.ttf", 18);
+	activeFont = font1;
 
 	bh = new bitmapHandler();
 	ah = new atlasHandler();

@@ -778,19 +778,19 @@ void drawTextArray(pair pos, COLOR c, string[] strings)
 /// Draw text using most common settings
 void drawText(A...)(float x, float y, COLOR c, string formatStr, A a)
 	{
-	al_draw_text(g.font1, c, x, y, ALLEGRO_ALIGN_LEFT, format(formatStr, a).toStringz); 
+	al_draw_text(g.activeFont, c, x, y, ALLEGRO_ALIGN_LEFT, format(formatStr, a).toStringz); 
 	}
 
 /// Draw text using most common settings
 void drawTextCenter(A...)(float x, float y, COLOR c, string formatStr, A a)
 	{
-	al_draw_text(g.font1, c, x, y, ALLEGRO_ALIGN_CENTER, format(formatStr, a).toStringz); 
+	al_draw_text(g.activeFont, c, x, y, ALLEGRO_ALIGN_CENTER, format(formatStr, a).toStringz); 
 	}
 	
 /// Draw text with help of textHelper auto-indenting
 void drawText2(A...)(float x, string formatStr, A a)
 	{
-	al_draw_text(g.font1, ALLEGRO_COLOR(0, 0, 0, 1), x, textHelper(), ALLEGRO_ALIGN_LEFT, format(formatStr, a).toStringz); 
+	al_draw_text(g.activeFont, ALLEGRO_COLOR(0, 0, 0, 1), x, textHelper(), ALLEGRO_ALIGN_LEFT, format(formatStr, a).toStringz); 
 	}	
 
 /// Helper functions using universal function call syntax.
@@ -824,7 +824,7 @@ string splitStringAtWidth(string str, int pixelWidth)
 	return output;
 	}
 
-
+/+
 string[] splitStringArrayAtWidth(string str, int pixelWidth)
 	{
 	ulong numCharactersWide = pixelWidth/charWidth;
@@ -849,8 +849,40 @@ string[] splitStringArrayAtWidth(string str, int pixelWidth)
 //	writeln("finished:\n", output);
 	return output;
 	}
++/
+
+// NOTE: This doesn't account for any rich text encoding. We could split on whitespace
+// but we'd have to have some sort of applyRichTextToEachWord() to ensure colorizing 
+// is spread to each now split word. And we'd also need a getTextFromRichText().length 
+// for text length
+string[] splitStringArrayAtWidth(string str, int pixelWidth)
+	{
+	import std.string : split;
+	ulong numCharactersWide = pixelWidth/charWidth;
+	string[] output;
+	string[] temp = str.split(" ");
+	
+	while(temp.length > 0)
+		{
+		string temp2 = temp[0] ~ " ";
+		temp = temp[1..$]; // take front
+		while(temp.length > 0 && temp2.length + temp[0].length <= numCharactersWide)
+			{
+			temp2 ~= temp[0] ~ " ";
+			temp = temp[1..$]; // take front
+			}
+		output ~= temp2;
+		}
+//	writeln("finished:\n", output);
+	return output;
+	}
 
 //2023
+void drawRoundedFilledRectangle(rect r, color c, float radius)
+	{
+	with(r)
+		al_draw_filled_rounded_rectangle(x, y, x + w, y + h, radius, radius, c);
+	}
 void drawFilledRectangle(rect r, color c)
 	{
 	with(r)

@@ -64,7 +64,7 @@ class world_t
 		
 		{
 		import datajack;
-		auto u = cast(unit)new runner(pair(50, 50));
+		auto u = cast(unit)new runner(pair(500, 500));
 		units ~= u;
 		}
 		
