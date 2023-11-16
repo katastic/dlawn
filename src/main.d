@@ -462,6 +462,10 @@ void execute()
 					g.mouse_x = event.mouse.x;
 					g.mouse_y = event.mouse.y;
 					g.mouse_in_window = true;
+					
+					// GUI dialog mouse movement notifications:
+					world.grid.eventHandleMouse(pair(mouse_x, mouse_y));
+					
 					break;
 					}
 
@@ -579,6 +583,9 @@ int main(string [] args)
 			{
 			case "test":
 				runConsoleTests();
+			break;
+			case "allegrotest":
+				runAllegroTests();
 			break;
 			case "testcache":
 				testCachedAA();

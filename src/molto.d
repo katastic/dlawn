@@ -314,13 +314,11 @@ struct ipair
 		i = val;
 		j = val;
 		}
-
 	}
 
 struct pair
 	{
 	float x=0, y=0;
-	
 	// what about the following scenarios:
 	// if(pair < 0)   		(both coordinates are higher/lower than 0)
 	// if(pair < pair)		(both coordinates are higher/lower than the second pair coords)
@@ -768,6 +766,15 @@ void drawSplitRectangle(pair ul, pair lr, float legSize, float thickness, COLOR 
 	al_draw_line(lr.x, lr.y, lr.x, lr.y - legSize, c, thickness); // vertical
 	}
 
+
+float charHeight=16;
+
+void drawTextArray(pair pos, COLOR c, string[] strings)
+	{
+	foreach(index, s; strings)
+		drawText(pos.x, pos.y + index*charHeight, c, "%s", s);
+	}
+
 /// Draw text using most common settings
 void drawText(A...)(float x, float y, COLOR c, string formatStr, A a)
 	{
@@ -794,7 +801,68 @@ int d(const ALLEGRO_FONT* f) => al_get_font_descent(f); /// Font Descent
 int w(ALLEGRO_BITMAP* b) => al_get_bitmap_width(b);/// Return BITMAP width
 int h(ALLEGRO_BITMAP* b) => al_get_bitmap_height(b);/// Return BITMAP height
 	
+
+int charWidth=9;
+
+string splitStringAtWidth(string str, int pixelWidth)
+	{
+	ulong numCharactersWide = pixelWidth/charWidth;
+	// simplest version is every X characters split.
+	// next version will try to preserve whole worlds
+	// next version will use true-type glyph aware widths (non-uniform widths to account for)
+	string output="";
+	
+	//writeln("input:\n", str);
+	while(str.length > 0)
+		{
+		if(numCharactersWide > str.length)numCharactersWide = str.length;
+		output ~= str[0..numCharactersWide] ~ "\n";
+	//	writeln("middle:\n", output);
+		str = str[numCharactersWide..$];		
+		}
+//	writeln("finished:\n", output);
+	return output;
+	}
+
+
+string[] splitStringArrayAtWidth(string str, int pixelWidth)
+	{
+	ulong numCharactersWide = pixelWidth/charWidth;
+	// simplest version is every X characters split.
+	// next version will try to preserve whole worlds
+	// next version will use true-type glyph aware widths (non-uniform widths to account for)
+	
+	// we could do a full .split on whitespace, and then just keep merging until we hit the line cap
+	// and keep taking from the buffer
+	string[] output;
+	
+	//writeln("input:\n", str);
+	while(str.length > 0)
+		{
+		if(numCharactersWide > str.length)numCharactersWide = str.length;
+		string temp = str[0..numCharactersWide];
+		if(temp[0] == ' ')temp = temp[1..$];
+		output ~= temp;
+	//	writeln("middle:\n", output);
+		str = str[numCharactersWide..$];		
+		}
+//	writeln("finished:\n", output);
+	return output;
+	}
+
 //2023
+void drawFilledRectangle(rect r, color c)
+	{
+	with(r)
+		al_draw_filled_rectangle(x, y, x + w, y + h, c);
+	}
+
+void drawRectangle(rect r, color c, float thickness)
+	{
+	with(r)
+		al_draw_rectangle(x, y, x + w, y + h, c, thickness);
+	}
+
 void drawBitmap(bitmap *b, pair pos, uint flags=0)
 	{
 	al_draw_bitmap(b, pos.x, pos.y, flags);

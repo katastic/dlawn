@@ -1,6 +1,10 @@
 
 // -- BUG: you can drop items OUTSIDE the grid!
 
+
+// do we want a seperate pair type for screenPos vs canvasPos that type-check fails if
+// you don't convert?
+
 // ISSUE: What if we drop a 2x2 ON ITSELF but on a NEW position?
 // Q:is there a simpler case we can brute force all these problems? 
 // I have a grid. Place on grid. Test for valid grid. Is not valid? Revert.
@@ -65,24 +69,59 @@ struct viewStack
 // - sort feature
 
 // we need an UNDO feature if the placement is invalid or cancelled. 
-
 class dragAndDropGrid
 	{
 	rect canvas; // x,y screen coords, then w/h 
 	draggableItem[] items;
 	int gridSize = 32;
 	ipair gridDim;
-	
-	this()
+
+	bool checkMouseInside(pair screenPos)
 		{
+		if(screenPos.x - canvas.x < 0 ||
+		   screenPos.y - canvas.y < 0 ||
+		   screenPos.x - canvas.x > gridDim.i*gridSize ||
+		   screenPos.y - canvas.y > gridDim.j*gridSize)return false;
+		return true;
+		}
+		
+	int charWidth = 9;
+	int charHeight = 16;
+
+	void drawMouseOverItemDescription(pair pos, draggableItem i){
+		drawFilledRectangle(
+			rect(pos, pair(200.0, cast(float)charHeight)), 
+			color(0,0,0,.50)); 
+		string[] strings = splitStringArrayAtWidth(i.description, 100);
+		drawTextArray(pos, white, strings);
+		}
+
+	bool isDrawingMouseOverlay = false;
+	draggableItem mouseOverlayItem = null;
+	pair mouseOverlayScreenPos;
+
+	void eventHandleMouse(pair screenPos){ /// every mouse movement we tell dialog to check if we're inside. Otherwise we could have some sort of dialog handler ONLY send events when inside. 
+		if(checkMouseInside(screenPos)){
+			auto r = findItemsGivenClick(screenPos);
+			if(r){
+				isDrawingMouseOverlay = true;
+				mouseOverlayItem = r;
+				mouseOverlayScreenPos = screenPos;
+				}else{
+				isDrawingMouseOverlay = false;
+				}
+			}
+		}
+	
+	this(){
 		gridDim = ipair(10, 4);
 		canvas = rect(pair(600.0, 200.0), getWidthHeightFromGridSize(gridDim));
 		
-		items ~= new draggableItem(ipair(0,0), ipair(1,3), this, bh["wrench"], "wrench");
-		items ~= new draggableItem(ipair(1,0), ipair(1,1), this, bh["ammo"], "ammo");
-		items ~= new draggableItem(ipair(2,0), ipair(1,1), this, bh["hypo"], "hypo");
-		items ~= new draggableItem(ipair(3,0), ipair(1,1), this, bh["disk"], "disk");
-		items ~= new draggableItem(ipair(4,0), ipair(2,2), this, bh["armor"], "armor");
+		items ~= new draggableItem(ipair(0,0), ipair(1,3), this, bh["wrench"], "wrench", "a useful tool to do wrenching jobs");
+		items ~= new draggableItem(ipair(1,0), ipair(1,1), this, bh["ammo"], "ammo", "Silver-tipped .32 JHP specially crafted for werewolves.");
+		items ~= new draggableItem(ipair(2,0), ipair(1,1), this, bh["hypo"], "hypo", "A medical hypo full of a strange concontion");
+		items ~= new draggableItem(ipair(3,0), ipair(1,1), this, bh["disk"], "disk", "A datadisk full of all your diary entries");
+		items ~= new draggableItem(ipair(4,0), ipair(2,2), this, bh["armor"], "armor", "Fiber-reinforced metal places wrapped in canvas.");
 		}
 	
 	bool areWeCarryingAnItem = false;
@@ -143,7 +182,7 @@ class dragAndDropGrid
 			{
 			writeln("2 PICKUP");
 			// check if we're touching a new item to pickup
-			auto result = checkForItemsGivenClick(screenPos);
+			auto result = findItemsGivenClick(screenPos);
 			if(result !is null)
 				{
 	//			result.eventActivate();
@@ -157,7 +196,7 @@ class dragAndDropGrid
 				// we gotta search all spots.
 				// AND, if we only have ONE replacement, we replace it.
 				// HOWEVER, if more than ONE we just reject the placement.
-			auto result = checkForItemsGivenClick(screenPos);
+			auto result = findItemsGivenClick(screenPos);
 			writeln("3 CARRYING");
 			if(result is null)// if no item is there, we can place it
 				{
@@ -187,7 +226,7 @@ class dragAndDropGrid
 						for(int j=0; j<=itemWereCarrying.bulkSize.j;j++)
 							{
 							writeln("i,j", i, ",", j);
-							auto t = checkForItemsGivenClick(pair(screenPos, i*gridSize, j*gridSize)); // logic bug: this should only ever equal one or zero unless we have overlaps
+							auto t = findItemsGivenClick(pair(screenPos, i*gridSize, j*gridSize)); // logic bug: this should only ever equal one or zero unless we have overlaps
 							if(t !is null && t !is itemWereCarrying) //if we find an item in a bulkslot that isn't us, increment val
 								val++;
 								
@@ -228,7 +267,7 @@ class dragAndDropGrid
 		return false;
 		}
 	
-	draggableItem checkForItemsGivenClick(pair hitCanvasPos)
+	draggableItem findItemsGivenClick(pair hitCanvasPos)
 		{
 		import helper : isWithin;
 
@@ -307,6 +346,8 @@ class dragAndDropGrid
 			{
 			i.draw(canvas, v);
 			}
+	
+		if(isDrawingMouseOverlay)drawMouseOverItemDescription(mouseOverlayScreenPos, mouseOverlayItem);
 		}
 	
 	}
@@ -376,13 +417,14 @@ class draggableItem
 		return p;
 		}
 
-	this(ipair _gridPosition, ipair _bulkSize, dragAndDropGrid _owner, bitmap* _b, string _name)
+	this(ipair _gridPosition, ipair _bulkSize, dragAndDropGrid _owner, bitmap* _b, string _name, string _description)
 		{
 		owner = _owner;
 		gridPosition = _gridPosition;
 		bulkSize = _bulkSize;
 		image = _b;
 		name = _name;
+		description = _description;
 		}
 		
 	void pickUp()
