@@ -793,6 +793,12 @@ void drawText(A...)(float x, float y, COLOR c, string formatStr, A a)
 	}
 
 /// Draw text using most common settings
+void drawText(A...)(pair pos, COLOR c, string formatStr, A a)
+	{
+	al_draw_text(g.activeFont, c, pos.x, pos.y, ALLEGRO_ALIGN_LEFT, format(formatStr, a).toStringz); 
+	}
+
+/// Draw text using most common settings
 void drawTextCenter(A...)(float x, float y, COLOR c, string formatStr, A a)
 	{
 	al_draw_text(g.activeFont, c, x, y, ALLEGRO_ALIGN_CENTER, format(formatStr, a).toStringz); 

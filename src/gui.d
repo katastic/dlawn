@@ -88,11 +88,26 @@ class dragAndDropGrid
 	int charWidth = 9;
 	int charHeight = 17;
 
+	void drawMouseOverItemName(pair pos, draggableItem i){
+		float r=4;
+		int textBoxWidth = 250;
+
+		drawRoundedFilledRectangle(
+			rect(pair(pos,-r,-r), pair(textBoxWidth+r*2, (cast(float)charHeight)+r*2)), 
+			color(.7,.7,7,.60), //white ish
+			r/2
+			);
+		
+		drawFilledRectangle(rect(pos, pair(textBoxWidth, cast(float)charHeight)), black); 
+		drawText(pos, white, i.name);
+		
+		}
+		
 	void drawMouseOverItemDescription(pair pos, draggableItem i){
+		float r=4;
 		int textBoxWidth = 250;
 		string[] strings = splitStringArrayAtWidth(i.description, textBoxWidth);
 		
-		float r=4;
 		drawRoundedFilledRectangle(
 			rect(pair(pos,-r,-r), pair(textBoxWidth+r*2, (cast(float)charHeight*strings.length)+r*2)), 
 			color(.7,.7,7,.60), //white ish
@@ -126,12 +141,12 @@ class dragAndDropGrid
 		gridDim = ipair(10, 4);
 		canvas = rect(pair(600.0, 200.0), getWidthHeightFromGridSize(gridDim));
 		
-		items ~= new draggableItem(ipair(0,0), ipair(1,3), this, bh["wrench"], "wrench", "a useful tool to do wrenching jobs");
-		items ~= new draggableItem(ipair(1,0), ipair(1,1), this, bh["ammo"], "ammo", "Silver-tipped .32 JHP specially crafted for werewolves.");
-		items ~= new draggableItem(ipair(2,0), ipair(1,1), this, bh["hypo"], "hypo", "A medical hypo full of a strange concontion");
-		items ~= new draggableItem(ipair(3,0), ipair(1,1), this, bh["disk"], "disk", "A data disk full of all your diary entries");
-		items ~= new draggableItem(ipair(4,0), ipair(2,2), this, bh["armor"], "armor", "Fiber-reinforced metal pieces wrapped in canvas.");
-		items ~= new draggableItem(ipair(6,0), ipair(1,2), this, bh["laserpistol"], "Apollo H4 Argon-Suspension Laser Pistol", "The Apollo H4 Argon-Suspension Laser Pistol is a weapon in System Shock 2, and is the most basic Energy Weapon. This weapon relies on refracted light to damage its target, while the energy bolt projectile shown in-game is fast and small.");
+		items ~= new draggableItem(ipair(0,0), ipair(1,3), this, bh["wrench"], "Wrench", "a useful tool to do wrenching jobs");
+		items ~= new draggableItem(ipair(1,0), ipair(1,1), this, bh["ammo"], "Ammo", "Silver-tipped .32 JHP specially crafted for werewolves.");
+		items ~= new draggableItem(ipair(2,0), ipair(1,1), this, bh["hypo"], "Hypo", "A medical hypo full of a strange concontion");
+		items ~= new draggableItem(ipair(3,0), ipair(1,1), this, bh["disk"], "Sisk", "A data disk full of all your diary entries");
+		items ~= new draggableItem(ipair(4,0), ipair(2,2), this, bh["armor"], "Armor", "Fiber-reinforced metal pieces wrapped in canvas.");
+		items ~= new draggableItem(ipair(6,0), ipair(1,2), this, bh["laserpistol"], "Laser Pistol", "The Apollo H4 Argon-Suspension Laser Pistol is a weapon in System Shock 2, and is the most basic Energy Weapon. This weapon relies on refracted light to damage its target, while the energy bolt projectile shown in-game is fast and small.");
 		}
 	
 	bool areWeCarryingAnItem = false;
@@ -359,7 +374,8 @@ class dragAndDropGrid
 	
 		if(isDrawingMouseOverlay)
 			{
-			drawMouseOverItemDescription(pair(mouseOverlayScreenPos, 24, 0), mouseOverlayItem);
+			drawMouseOverItemName(pair(mouseOverlayScreenPos, 48, 0), mouseOverlayItem);
+			drawMouseOverItemDescription(pair(mouseOverlayScreenPos, 48, 25), mouseOverlayItem);
 			}
 		}
 	
