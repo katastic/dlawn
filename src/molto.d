@@ -775,6 +775,17 @@ void drawTextArray(pair pos, COLOR c, string[] strings)
 		drawText(pos.x, pos.y + index*charHeight, c, "%s", s);
 	}
 
+void setActiveFont(FONT* theFont)
+	{
+	assert(theFont !is null);
+	activeFont = theFont;
+	}
+	
+void resetActiveFont()
+	{
+	activeFont = g.font1;
+	}
+
 /// Draw text using most common settings
 void drawText(A...)(float x, float y, COLOR c, string formatStr, A a)
 	{

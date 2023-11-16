@@ -201,7 +201,7 @@ viewport[2] viewports;
 void loadResources()
 	{
 	font1 = getFont("./data/DejaVuSans.ttf", 18);
-	activeFont = font1;
+	setActiveFont(font1);
 
 	bh = new bitmapHandler();
 	ah = new atlasHandler();
