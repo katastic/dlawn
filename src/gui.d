@@ -74,12 +74,10 @@ import viewportsmod;
 import std.string;
 import std.stdio;
 
-
 // how to handle drag and drop? 
 // icons? can also system shock 2 style inventory grid
 // - how do we handle PIXEL PERFECT (or bounding box) matching of an item vs mouse touching the background tile? (if wanted)
 // - sort feature
-
 // we need an UNDO feature if the placement is invalid or cancelled. 
 class dragAndDropGrid
 	{
@@ -561,8 +559,32 @@ class viewBox
 
 class element
 	{
-	pair pos;
-	idimen size;
+	irect dim; // i hate this name conflict with dimen/idimen
+	//pair pos;
+	//idimen size;
+	bool isInside(pair pos)
+		{
+		return true;
+		}
+
+	void eventOnClick(pair pos)
+		{
+		}
+
+	}
+	
+class windowElement : element
+	{
+	string title;
+	element[] elements;
+	
+	override void eventOnClick(pair pos)
+		{
+		foreach(e; elements)
+			{
+			if(e.isInside(pos))e.eventOnClick(pos);
+			}
+		}
 	}
 
 class button : element
