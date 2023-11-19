@@ -2,8 +2,9 @@ dlawn
 ================================================================================================
 
  - send logs to a seperate frame debugger either on localhost or another PC with bigger screen. filter options. sql?
-
-
+	- support hyperlinks to object index lookups/pointers
+		O2013.AttackedBy[O1000]
+			 [01000].Name "taco man steve"
 
 
 

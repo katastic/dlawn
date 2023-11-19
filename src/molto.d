@@ -766,7 +766,6 @@ void drawSplitRectangle(pair ul, pair lr, float legSize, float thickness, COLOR 
 	al_draw_line(lr.x, lr.y, lr.x, lr.y - legSize, c, thickness); // vertical
 	}
 
-
 float charHeight=16;
 
 void drawTextArray(pair pos, COLOR c, string[] strings)
@@ -803,6 +802,13 @@ void drawTextCenter(A...)(float x, float y, COLOR c, string formatStr, A a)
 	{
 	al_draw_text(g.activeFont, c, x, y, ALLEGRO_ALIGN_CENTER, format(formatStr, a).toStringz); 
 	}
+
+/// Draw text using most common settings
+void drawTextCenter(A...)(pair pos, COLOR c, string formatStr, A a)
+	{
+	with(pos)
+	al_draw_text(g.activeFont, c, x, y, ALLEGRO_ALIGN_CENTER, format(formatStr, a).toStringz); 
+	}
 	
 /// Draw text with help of textHelper auto-indenting
 void drawText2(A...)(float x, string formatStr, A a)
@@ -816,8 +822,7 @@ int a(const ALLEGRO_FONT* f) => al_get_font_ascent(f); /// Font Ascent
 int d(const ALLEGRO_FONT* f) => al_get_font_descent(f); /// Font Descent
 
 int w(ALLEGRO_BITMAP* b) => al_get_bitmap_width(b);/// Return BITMAP width
-int h(ALLEGRO_BITMAP* b) => al_get_bitmap_height(b);/// Return BITMAP height
-	
+int h(ALLEGRO_BITMAP* b) => al_get_bitmap_height(b);/// Return BITMAP height	
 
 int charWidth=9;
 

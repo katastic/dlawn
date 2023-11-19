@@ -1,6 +1,32 @@
+// todo feature: if we care. support/implement item rotation.
 
-// -- BUG: you can drop items OUTSIDE the grid!
+// what about character slot positions for items/weapons/armor?
+// system shock 2 simply extends the UI slots with certain grid slot being special
+// and the UI graphics basically hide that.
 
+/+
+	deus ex has the grid + hotbar with numbers showing over the item that its assigned to.
+	items STAY ON THE GRID
+	
+	diablo - items leave the grid and the drop locations are not NECESSARILY lined up with 
+	the grid. the weapon and armor slots ARE lined up. But the amulet and two ring slots are offset by half a slot
+	
+	might and magic 6
+		- huge grid per character. drag items ONTO CHARACTER portrart and they equip the person in a third person view (changing the sprite). However you can RETRIEVE items
+		by picking specific areas of the portrait. Think like a pixelgrid HTML lookup for 
+		what type to try and take from the character.
+		
+		there's also a secondary view with 6 rings, guantlet, and amulet. And wierdly enough
+		the grid sizes are BIGGER for the same items. Not only visually, they're actually spaced
+		out further. 
+		
+		neo-scavenger is much like this. drag onto a portrat
+		
+	space station 13
+		- much different. different parts of body, and they can open up
+		- some slots are specific, some are your hands for operating on things
+		- does any other game really do this? Where you use your hands to open bags?
++/
 
 // do we want a seperate pair type for screenPos vs canvasPos that type-check fails if
 // you don't convert?
@@ -11,6 +37,8 @@
 
 // For now, [HALF FIXED] if we drop it on itself anywhere, revert. Still need to handle
 // dropping on offset position.
+
+// [+] -- BUG: you can drop items OUTSIDE the grid!
 
 // minor BUG: if we do the "faded item to mark old position" when we replace it with a new item
 // the fade is still there superimposed with the replaced position.
@@ -46,22 +74,6 @@ import viewportsmod;
 import std.string;
 import std.stdio;
 
-void drawTitledWindow(pair pos, idimen size) //why is ths position AND idimen?
-	{
-	
-	}
-
-// do we want this kind of thing to do built-in clipping?
-// we only REALLY need an pair offset, and viewport. Each subsequent call adds their window position
-// and forwards that as the new offset. We're not doing rotations so unless we're doing clipping we
-// don't need any extra information. (linear/stateless transformation?)
-struct viewStack
-	{
-	pair x,y;
-	pair w,h;
-	int level; //draw callstack depth number 
-	viewport v;
-	}
 
 // how to handle drag and drop? 
 // icons? can also system shock 2 style inventory grid
@@ -71,17 +83,18 @@ struct viewStack
 // we need an UNDO feature if the placement is invalid or cancelled. 
 class dragAndDropGrid
 	{
-	rect canvas; // x,y screen coords, then w/h 
+	rect canvas; /// x,y screen coords, then w/h .. w/h are DERIVED from gridDim
 	draggableItem[] items;
-	int gridSize = 32;
-	ipair gridDim;
+	int gridSize = 32; /// in pixels
+//	ipair gridDim;  // 
+	int numHiddenColumns=3;
 
 	bool checkMouseInside(pair screenPos)
 		{
 		if(screenPos.x - canvas.x < 0 ||
 		   screenPos.y - canvas.y < 0 ||
-		   screenPos.x - canvas.x > gridDim.i*gridSize ||
-		   screenPos.y - canvas.y > gridDim.j*gridSize)return false;
+		   screenPos.x - canvas.x > canvas.w ||
+		   screenPos.y - canvas.y > canvas.h)return false;
 		return true;
 		}
 		
@@ -138,13 +151,13 @@ class dragAndDropGrid
 		}
 	
 	this(){
-		gridDim = ipair(10, 4);
-		canvas = rect(pair(600.0, 200.0), getWidthHeightFromGridSize(gridDim));
+//		gridDim = ipair(10, 4);
+		canvas = rect(pair(600.0, 200.0), pair(10*gridSize, 4*gridSize)); //getWidthHeightFromGridSize(gridDim));
 		
 		items ~= new draggableItem(ipair(0,0), ipair(1,3), this, bh["wrench"], "Wrench", "a useful tool to do wrenching jobs");
 		items ~= new draggableItem(ipair(1,0), ipair(1,1), this, bh["ammo"], "Ammo", "Silver-tipped .32 JHP specially crafted for werewolves.");
 		items ~= new draggableItem(ipair(2,0), ipair(1,1), this, bh["hypo"], "Hypo", "A medical hypo full of a strange concontion");
-		items ~= new draggableItem(ipair(3,0), ipair(1,1), this, bh["disk"], "Sisk", "A data disk full of all your diary entries");
+		items ~= new draggableItem(ipair(3,0), ipair(1,1), this, bh["disk"], "Disk", "A data disk full of all your diary entries");
 		items ~= new draggableItem(ipair(4,0), ipair(2,2), this, bh["armor"], "Armor", "Fiber-reinforced metal pieces wrapped in canvas.");
 		items ~= new draggableItem(ipair(6,0), ipair(1,2), this, bh["laserpistol"], "Laser Pistol", "The Apollo H4 Argon-Suspension Laser Pistol is a weapon in System Shock 2, and is the most basic Energy Weapon. This weapon relies on refracted light to damage its target, while the energy bolt projectile shown in-game is fast and small.");
 		}
@@ -162,12 +175,7 @@ class dragAndDropGrid
 		writeln("attemptPlaceAt ", screenPos);
 		if(canWePlaceAt(screenPos))
 			{
-//			writeln("1 ", screenPos, "    ", pair(canvas.x,canvas.y) );
-//			writeln("2 ", (screenPos-pair(canvas.x,canvas.y)));
-//			writeln("3 ", (screenPos-pair(canvas.x,canvas.y))/gridSize);
-//			writeln("4 ", ipair((screenPos-pair(canvas.x,canvas.y))/gridSize));
 			itemWereCarrying.gridPosition = screenToGrid(screenPos);
-//			writeln("the new gridposition is:", itemWereCarrying.gridPosition);
 			itemWereCarrying.isPickedUp = false;
 			areWeCarryingAnItem = false;
 			return true;
@@ -194,8 +202,8 @@ class dragAndDropGrid
 		{
 		if(screenPos.x - canvas.x < 0 ||
 		   screenPos.y - canvas.y < 0 ||
-		   screenPos.x - canvas.x > gridDim.i*gridSize ||
-		   screenPos.y - canvas.y > gridDim.j*gridSize)return false;
+		   screenPos.x - canvas.x > canvas.w ||
+		   screenPos.y - canvas.y > canvas.h)return false;
 		return true;
 		}
 
@@ -227,15 +235,6 @@ class dragAndDropGrid
 				{
 				writeln("4 EMPTY DROP");
 	//			result.eventActivate();
-		/*
-				if(itemWereCarrying.actionPlaceAtGrid(ipair(cast(int)(screenPos.x-canvas.x)/gridSize, cast(int)(screenPos.y-canvas.y)/gridSize))) // on true, we placed it (there's nothing in the way)
-					{
-					writeln("4");
-					areWeCarryingAnItem = false;  // how could this possibly fail???
-					}else{
-					writeln("5");
-					areWeCarryingAnItem = true;
-					}*/
 				attemptPlaceAt(screenPos);
 				return true;
 				}else {					
@@ -259,28 +258,6 @@ class dragAndDropGrid
 							}
 					if(val == 1)
 						{
-						/+ SWAP ITEM CODE
-						  - Fails if big item replaces small item (overlaps more items)
-						result.isPickedUp = false;
-						ipair tempPos = itemWereCarrying.gridPosition;
-						itemWereCarrying.actionPlaceAtGrid(
-							ipair(cast(int)(screenPos.x-canvas.x)/gridSize, 
-								cast(int)(screenPos.y-canvas.y)/gridSize));
-						result.gridPosition = tempPos;
-						itemWereCarrying = null; 
-						areWeCarryingAnItem = false;
-						+/
-						/+
-						result.isPickedUp = true;
-							
-						ipair tempPos = itemWereCarrying.gridPosition;
-						itemWereCarrying.actionPlaceAtGrid(
-							ipair(cast(int)(screenPos.x-canvas.x)/gridSize, 
-								cast(int)(screenPos.y-canvas.y)/gridSize));
-						itemWereCarrying = result;
-						result.gridPosition = tempPos;
-						+/
-				//		areWeCarryingAnItem = false;	
 						attemptSwapAt(screenPos, result);
 						}else{
 						writeln("REJECTED NUMBER OF ITEMS (error if==0):", val);
@@ -301,7 +278,6 @@ class dragAndDropGrid
 			writeln("searching:", it.name);
 			pair itemMousePosition = it.getMousePosition();
 //			writeln("hitCanvasPos ", hitCanvasPos, " vs ", "itemMousePosition ", itemMousePosition);
-			
 			if(
 				hitCanvasPos.isWithin(itemMousePosition, 
 					pair(itemMousePosition, 
@@ -321,20 +297,6 @@ class dragAndDropGrid
 		return pair(gridSize*grid.i,gridSize*grid.j);
 		}
 		
-//	int[16][128] gridLookupTable;  // each occupied tile
-		//dostuff()
-	// the idea is, for the grid, each cell contains the lookup index of the relevant item in the items[] list.
-	// if we find an empty place for our item (easy to search surrounding tiles on a mouse click), we just add the 
-	// number to the items[] list.
-	
-	// essential: cohesion between the two data structures. alternatively, don't violate the one-place principle and
-	// run some algorithm/search every click/sort/etc and only have either the grid, or (more likely) the items list.
-	//
-	// if using only the list:
-	// 	- draw inventory: simple. iterate through list and draw them, no ordering required.
-	//  - selecting item: mouse click test traverses all known items. fine for small lists
-	//  - moving item: "test click" on SEND mouse tile location, and any nearby ones given the shape of the desired item  
-	
 	void drawBackground()
 		{
 		with(canvas)
@@ -343,7 +305,7 @@ class dragAndDropGrid
 		
 	void drawGrid()
 		{
-		int w = cast(int)canvas.w/gridSize;
+		int w = cast(int)canvas.w/gridSize - numHiddenColumns;
 		int h = cast(int)canvas.h/gridSize;
 		for(int i = 0; i < w+1; i++)
 			{
@@ -352,6 +314,14 @@ class dragAndDropGrid
 						canvas.y, 
 						canvas.x + gridSize*(i), 
 						canvas.y + canvas.h, white, 1.0f);
+			}
+		for(int i = w; i < w+1+numHiddenColumns; i++)
+			{
+			al_draw_line(
+						canvas.x + gridSize*(i), 
+						canvas.y, 
+						canvas.x + gridSize*(i), 
+						canvas.y + canvas.h, green, 1.0f);
 			}
 		for(int j = 0; j < h+1; j++)
 			{
