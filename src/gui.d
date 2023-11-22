@@ -1,3 +1,8 @@
+
+// BUG: mouse-over description should be for the window not indivudal grids?
+// either way, it's not FORWARDING mouse leaving events so they're not always
+// removing the mouse-over description and sometimes we have multiple mouse-overs at the same time.
+
 // todo feature: if we care. support/implement item rotation.
 
 // what about character slot positions for items/weapons/armor?
@@ -83,7 +88,10 @@ class gridWindow
 	{
 	rect canvas;
 	dragAndDropGrid[] grids;
-	
+
+	bool areWeCarryingAnItem = false;
+	draggableItem itemWereCarrying = null;
+
 	bool draw(viewport v) // WARN: We have no z-ordering here
 		{
 		foreach(gr; grids)
@@ -127,20 +135,24 @@ class gridWindow
 		
 	this(pair pos)
 		{
-		dragAndDropGrid dg = new dragAndDropGrid(pair(pos, 0, 0), ipair(10,4));
+		dragAndDropGrid dg = new dragAndDropGrid(this, pair(pos, 0, 0), ipair(10,4));
 		grids ~= dg;
-		dragAndDropGrid dg2 = new dragAndDropGrid(pair(pos, 0, 130), ipair(4,4));
+		dragAndDropGrid dg2 = new dragAndDropGrid(this, pair(pos, 0, 130), ipair(4,4));
 		grids ~= dg2;
 		}
 	}
 
 class dragAndDropGrid
 	{
+	gridWindow owner;
 	rect canvas; /// x,y screen coords, then w/h .. w/h are DERIVED from gridDim
 	draggableItem[] items;
 	int gridSize = 32; /// in pixels
 //	ipair gridDim;  // 
 	int numHiddenColumns=3;
+	bool isDrawingMouseOverlay = false;
+	draggableItem mouseOverlayItem = null;
+	pair mouseOverlayScreenPos;
 
 	bool checkMouseInside(pair screenPos)
 		{
@@ -184,10 +196,6 @@ class dragAndDropGrid
 		drawTextArray(pos, white, strings);
 		}
 
-	bool isDrawingMouseOverlay = false;
-	draggableItem mouseOverlayItem = null;
-	pair mouseOverlayScreenPos;
-
 	void eventHandleMouse(pair screenPos){ /// every mouse movement we tell dialog to check if we're inside. Otherwise we could have some sort of dialog handler ONLY send events when inside. 
 		if(checkMouseInside(screenPos)){
 			auto r = findItemsGivenClick(screenPos);
@@ -203,7 +211,8 @@ class dragAndDropGrid
 			}
 		}
 	
-	this(pair pos, ipair gridDim){
+	this(gridWindow _owner,pair pos, ipair gridDim){
+		owner = _owner;
 //		gridDim = ipair(10, 4);
 		canvas = rect(pair(pos), pair(gridDim.i*gridSize, gridDim.j*gridSize)); //getWidthHeightFromGridSize(gridDim));
 		
@@ -211,12 +220,9 @@ class dragAndDropGrid
 		items ~= new draggableItem(ipair(1,0), ipair(1,1), this, bh["ammo"], "Ammo", "Silver-tipped .32 JHP specially crafted for werewolves.");
 		items ~= new draggableItem(ipair(2,0), ipair(1,1), this, bh["hypo"], "Hypo", "A medical hypo full of a strange concontion");
 		items ~= new draggableItem(ipair(3,0), ipair(1,1), this, bh["disk"], "Disk", "A data disk full of all your diary entries");
-		items ~= new draggableItem(ipair(4,0), ipair(2,2), this, bh["armor"], "Armor", "Fiber-reinforced metal pieces wrapped in canvas.");
-		items ~= new draggableItem(ipair(6,0), ipair(1,2), this, bh["laserpistol"], "Laser Pistol", "The Apollo H4 Argon-Suspension Laser Pistol is a weapon in System Shock 2, and is the most basic Energy Weapon. This weapon relies on refracted light to damage its target, while the energy bolt projectile shown in-game is fast and small.");
+		items ~= new draggableItem(ipair(1,1), ipair(2,2), this, bh["armor"], "Armor", "Fiber-reinforced metal pieces wrapped in canvas.");
+		items ~= new draggableItem(ipair(3,1), ipair(1,2), this, bh["laserpistol"], "Laser Pistol", "The Apollo H4 Argon-Suspension Laser Pistol is a weapon in System Shock 2, and is the most basic Energy Weapon. This weapon relies on refracted light to damage its target, while the energy bolt projectile shown in-game is fast and small.");
 		}
-	
-	bool areWeCarryingAnItem = false;
-	draggableItem itemWereCarrying = null;
 
 	ipair screenToGrid(pair screenPos)
 		{
@@ -228,9 +234,14 @@ class dragAndDropGrid
 		writeln("attemptPlaceAt ", screenPos);
 		if(canWePlaceAt(screenPos))
 			{
-			itemWereCarrying.gridPosition = screenToGrid(screenPos);
-			itemWereCarrying.isPickedUp = false;
-			areWeCarryingAnItem = false;
+			import std.algorithm.mutation : remove;
+			owner.itemWereCarrying.owner.items = owner.itemWereCarrying.owner.items.remove!(a => a == owner.itemWereCarrying); // remove us from old list
+			owner.itemWereCarrying.owner = this; // reset tracking variable
+			owner.itemWereCarrying.owner.items ~= owner.itemWereCarrying; // add us to new list
+
+			owner.itemWereCarrying.gridPosition = screenToGrid(screenPos);
+			owner.itemWereCarrying.isPickedUp = false;
+			owner.areWeCarryingAnItem = false;
 			return true;
 			}
 		return false;
@@ -241,11 +252,11 @@ class dragAndDropGrid
 		writeln("attemptSwapAt ", screenPos);
 		if(canWePlaceAt(screenPos))
 			{
-			itemWereCarrying.gridPosition = screenToGrid(screenPos);
-			itemWereCarrying.isPickedUp = false;
+			owner.itemWereCarrying.gridPosition = screenToGrid(screenPos);
+			owner.itemWereCarrying.isPickedUp = false;
 			
-			itemWereCarrying = result;
-			itemWereCarrying.isPickedUp = true;
+			owner.itemWereCarrying = result;
+			owner.itemWereCarrying.isPickedUp = true;
 			return true;
 			}
 		return false;
@@ -264,7 +275,7 @@ class dragAndDropGrid
 		{
 		writeln("eventClickAt(", screenPos, ")");
 
-		if(!areWeCarryingAnItem)
+		if(!owner.areWeCarryingAnItem)
 			{
 			writeln("2 PICKUP");
 			// check if we're touching a new item to pickup
@@ -273,8 +284,8 @@ class dragAndDropGrid
 				{
 	//			result.eventActivate();
 				result.actionPickUp();
-				itemWereCarrying = result;
-				areWeCarryingAnItem = true;
+				owner.itemWereCarrying = result;
+				owner.areWeCarryingAnItem = true;
 				return true;
 				}
 			}else{ // if we ARE carrying an item:  check if there's a spot clear at the point
@@ -292,19 +303,19 @@ class dragAndDropGrid
 				return true;
 				}else {					
 				writeln("5 ATTEMPT SWAP");
-				if(result == itemWereCarrying)
+				if(result == owner.itemWereCarrying)
 					{
-					itemWereCarrying.isPickedUp = false;
-					areWeCarryingAnItem = false;
+					owner.itemWereCarrying.isPickedUp = false;
+					owner.areWeCarryingAnItem = false;
 					// NOTE: This fails if we're trying to MOVE a 2x2 one space over (by clicking inside itself but not the 0x0 position)
 					}else{
 					int val=0;
-					for(int i=0; i<=itemWereCarrying.bulkSize.i;i++)
-						for(int j=0; j<=itemWereCarrying.bulkSize.j;j++)
+					for(int i=0; i<=owner.itemWereCarrying.bulkSize.i;i++)
+						for(int j=0; j<=owner.itemWereCarrying.bulkSize.j;j++)
 							{
 							writeln("i,j", i, ",", j);
 							auto t = findItemsGivenClick(pair(screenPos, i*gridSize, j*gridSize)); // logic bug: this should only ever equal one or zero unless we have overlaps
-							if(t !is null && t !is itemWereCarrying) //if we find an item in a bulkslot that isn't us, increment val
+							if(t !is null && t !is owner.itemWereCarrying) //if we find an item in a bulkslot that isn't us, increment val
 								val++;
 								
 							// does this FAIL if we drop an item on itself?
