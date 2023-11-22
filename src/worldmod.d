@@ -32,7 +32,8 @@ import gui;
 class world_t
 	{
 	
-	dragAndDropGrid grid;	
+//	dragAndDropGrid grid;	
+	gridWindow grids;
 			
 //	pixelMap map;
 	tileMap map2;
@@ -51,7 +52,8 @@ class world_t
 
 	this()
 		{
-		grid = new dragAndDropGrid();
+//		grid = new dragAndDropGrid;
+		grids = new gridWindow(pair(550, 150));
 			
 		players ~= new player(); //CHICKEN OR EGG.
 		players[0].myTeam = 0; // teams[0];
@@ -136,7 +138,7 @@ class world_t
 
 //		map.drawMinimap(pair(SCREEN_W-300,50));
 
-		grid.draw(v);
+		grids.draw(v);
 
 		testGraph.draw(v);
 		testGraph2.draw(v);

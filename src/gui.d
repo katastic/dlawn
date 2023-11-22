@@ -79,6 +79,61 @@ import std.stdio;
 // - how do we handle PIXEL PERFECT (or bounding box) matching of an item vs mouse touching the background tile? (if wanted)
 // - sort feature
 // we need an UNDO feature if the placement is invalid or cancelled. 
+class gridWindow
+	{
+	rect canvas;
+	dragAndDropGrid[] grids;
+	
+	bool draw(viewport v) // WARN: We have no z-ordering here
+		{
+		foreach(gr; grids)
+			{
+			gr.draw(v);
+			}
+		return true;
+		}
+
+	bool checkMouseInside(pair screenPos)
+		{
+		if(screenPos.x - canvas.x < 0 ||
+		   screenPos.y - canvas.y < 0 ||
+		   screenPos.x - canvas.x > canvas.w ||
+		   screenPos.y - canvas.y > canvas.h)return false;
+		return true;
+		}
+
+	// should rename onClick()
+	void onClick(pair pos) /// if any sub-elements, forward the event
+		{
+		foreach(gr; grids)
+			{
+			if(gr.checkMouseInside(pos))
+				{
+				gr.eventClickAt(pos);
+				}
+			}
+		}
+
+	void eventHandleMouse(pair pos) /// if any sub-elements, forward the event
+		{
+		foreach(gr; grids)
+			{
+			if(gr.checkMouseInside(pos))
+				{
+				gr.eventHandleMouse(pos);
+				}
+			}
+		}
+		
+	this(pair pos)
+		{
+		dragAndDropGrid dg = new dragAndDropGrid(pair(pos, 0, 0), ipair(10,4));
+		grids ~= dg;
+		dragAndDropGrid dg2 = new dragAndDropGrid(pair(pos, 0, 130), ipair(4,4));
+		grids ~= dg2;
+		}
+	}
+
 class dragAndDropGrid
 	{
 	rect canvas; /// x,y screen coords, then w/h .. w/h are DERIVED from gridDim
@@ -148,9 +203,9 @@ class dragAndDropGrid
 			}
 		}
 	
-	this(){
+	this(pair pos, ipair gridDim){
 //		gridDim = ipair(10, 4);
-		canvas = rect(pair(600.0, 200.0), pair(10*gridSize, 4*gridSize)); //getWidthHeightFromGridSize(gridDim));
+		canvas = rect(pair(pos), pair(gridDim.i*gridSize, gridDim.j*gridSize)); //getWidthHeightFromGridSize(gridDim));
 		
 		items ~= new draggableItem(ipair(0,0), ipair(1,3), this, bh["wrench"], "Wrench", "a useful tool to do wrenching jobs");
 		items ~= new draggableItem(ipair(1,0), ipair(1,1), this, bh["ammo"], "Ammo", "Silver-tipped .32 JHP specially crafted for werewolves.");
@@ -570,7 +625,6 @@ class element
 	void eventOnClick(pair pos)
 		{
 		}
-
 	}
 	
 class windowElement : element

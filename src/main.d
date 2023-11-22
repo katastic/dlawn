@@ -464,7 +464,7 @@ void execute()
 					g.mouse_in_window = true;
 					
 					// GUI dialog mouse movement notifications:
-					world.grid.eventHandleMouse(pair(mouse_x, mouse_y));
+					world.grids.eventHandleMouse(pair(mouse_x, mouse_y));
 					
 					break;
 					}
@@ -489,7 +489,7 @@ void execute()
 					
 					if(event.mouse.button == 1)
 						{
-						world.grid.eventClickAt(pair(mouse_x, mouse_y));
+						world.grids.onClick(pair(mouse_x, mouse_y));
 						}
 					if(event.mouse.button == 2)
 						{
