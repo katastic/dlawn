@@ -1,3 +1,8 @@
+/+
+	
+	system shock 2 weapon slot: if you have a 2x1 weapon (are there any?) it takes 3x1 slot centered.
+
++/
 
 // BUG: mouse-over description should be for the window not indivudal grids?
 // either way, it's not FORWARDING mouse leaving events so they're not always
@@ -137,8 +142,23 @@ class gridWindow
 		{
 		dragAndDropGrid dg = new dragAndDropGrid(this, pair(pos, 0, 0), ipair(10,4));
 		grids ~= dg;
-		dragAndDropGrid dg2 = new dragAndDropGrid(this, pair(pos, 0, 130), ipair(4,4));
+		dragAndDropGrid dg2 = new dragAndDropGrid(this, pair(pos, 0, 130), ipair(2,2));
 		grids ~= dg2;
+		dragAndDropGrid dg3 = new dragAndDropGrid(this, pair(pos, 330, 0), ipair(3,3));
+		grids ~= dg3;
+		
+		dg.items ~= new draggableItem(ipair(0,0), ipair(1,3), dg, bh["wrench"], "Wrench", "a useful tool to do wrenching jobs");
+		dg.items ~= new draggableItem(ipair(1,0), ipair(1,1), dg, bh["ammo"], "Ammo", "Silver-tipped .32 JHP specially crafted for werewolves.");
+		dg.items ~= new draggableItem(ipair(2,0), ipair(1,1), dg, bh["hypo"], "Hypo", "A medical hypo full of a strange concontion");
+		dg.items ~= new draggableItem(ipair(3,0), ipair(1,1), dg, bh["disk"], "Disk", "A data disk full of all your diary entries");
+
+
+		dg3.items ~= new draggableItem(ipair(0,0), ipair(1,3), dg3, bh["laserpistol"], "Laser Pistol", "The Apollo H4 Argon-Suspension Laser Pistol is a weapon in System Shock 2, and is the most basic Energy Weapon. This weapon relies on refracted light to damage its target, while the energy bolt projectile shown in-game is fast and small.");
+		dg3.items ~= new draggableItem(ipair(1,2), ipair(1,1), dg3, bh["implant1"], "Implant", "a useful implant");
+		dg3.items ~= new draggableItem(ipair(2,2), ipair(1,1), dg3, bh["implant2"], "Implant2", "a useful implant2");
+		dg3.items ~= new draggableItem(ipair(1,0), ipair(2,2), dg3, bh["armor"], "Armor", "Fiber-reinforced metal pieces wrapped in canvas.");
+
+		
 		}
 	}
 
@@ -215,13 +235,6 @@ class dragAndDropGrid
 		owner = _owner;
 //		gridDim = ipair(10, 4);
 		canvas = rect(pair(pos), pair(gridDim.i*gridSize, gridDim.j*gridSize)); //getWidthHeightFromGridSize(gridDim));
-		
-		items ~= new draggableItem(ipair(0,0), ipair(1,3), this, bh["wrench"], "Wrench", "a useful tool to do wrenching jobs");
-		items ~= new draggableItem(ipair(1,0), ipair(1,1), this, bh["ammo"], "Ammo", "Silver-tipped .32 JHP specially crafted for werewolves.");
-		items ~= new draggableItem(ipair(2,0), ipair(1,1), this, bh["hypo"], "Hypo", "A medical hypo full of a strange concontion");
-		items ~= new draggableItem(ipair(3,0), ipair(1,1), this, bh["disk"], "Disk", "A data disk full of all your diary entries");
-		items ~= new draggableItem(ipair(1,1), ipair(2,2), this, bh["armor"], "Armor", "Fiber-reinforced metal pieces wrapped in canvas.");
-		items ~= new draggableItem(ipair(3,1), ipair(1,2), this, bh["laserpistol"], "Laser Pistol", "The Apollo H4 Argon-Suspension Laser Pistol is a weapon in System Shock 2, and is the most basic Energy Weapon. This weapon relies on refracted light to damage its target, while the energy bolt projectile shown in-game is fast and small.");
 		}
 
 	ipair screenToGrid(pair screenPos)
@@ -236,6 +249,8 @@ class dragAndDropGrid
 			{
 			import std.algorithm.mutation : remove;
 			owner.itemWereCarrying.owner.items = owner.itemWereCarrying.owner.items.remove!(a => a == owner.itemWereCarrying); // remove us from old list
+			// FYI this is O(n) removal. It detects multiple and will not terminate early on first match.
+			
 			owner.itemWereCarrying.owner = this; // reset tracking variable
 			owner.itemWereCarrying.owner.items ~= owner.itemWereCarrying; // add us to new list
 

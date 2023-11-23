@@ -15,6 +15,8 @@
 			["disk","./data/disk.png"],
 			["armor","./data/armor.png"],
 			["laserpistol","./data/laserpistol.png"],
+			["implant1","./data/implant1.png"],
+			["implant2","./data/implant2.png"],
 
 			["carrot","./data/carrot.png"],
 
