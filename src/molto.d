@@ -912,13 +912,17 @@ string[] splitStringArrayAtWidth3(string str, int pixelWidth)
 		{
 		tempStr ~= consumedStr[0];
 		consumedStr = consumedStr[1..$];
+//		writeln(numConsumed, "|", consumedStr, "|", tempStr);
 		numConsumed++;
 		if(al_get_text_width(activeFont, tempStr.toStringz()) > pixelWidth) // TODO: we have to be ONE TAG LESS so we have to be able to REVERSE one action
 			{
 			output ~= tempStr;
 			tempStr = "";
+//			writeln(output);
 			} // TODO #2: do the whole word boundary split
 		}
+	output ~= tempStr;
+//	writeln(output);
 
 	return output;
 	}
