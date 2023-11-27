@@ -899,6 +899,30 @@ string[] splitStringArrayAtWidth(string str, int pixelWidth)
 	return output;
 	}
 
+string[] splitStringArrayAtWidth3(string str, int pixelWidth)
+	{
+	// IMPLIED VARIABLE: activeFont
+	import std.string : split;
+
+	string tempStr;
+	string consumedStr = str;
+	string[] output;
+	int numConsumed = 0;
+	while(numConsumed <= str.length && consumedStr.length > 0)
+		{
+		tempStr ~= consumedStr[0];
+		consumedStr = consumedStr[1..$];
+		numConsumed++;
+		if(al_get_text_width(activeFont, tempStr.toStringz()) > pixelWidth) // TODO: we have to be ONE TAG LESS so we have to be able to REVERSE one action
+			{
+			output ~= tempStr;
+			tempStr = "";
+			} // TODO #2: do the whole word boundary split
+		}
+
+	return output;
+	}
+
 //2023
 void drawRoundedFilledRectangle(rect r, color c, float radius)
 	{

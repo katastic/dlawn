@@ -1,6 +1,7 @@
 /+
 	
-	system shock 2 weapon slot: if you have a 2x1 weapon (are there any?) it takes 3x1 slot centered.
+	system shock 2 weapon slot: if you have a 2x1 weapon (are there any?) it should take a full 3x1 slot but be centered.
+		looks like during dev they made all weapons 3x1 but some were 2x1.
 
 +/
 
@@ -198,13 +199,12 @@ class dragAndDropGrid
 		
 		drawFilledRectangle(rect(pos, pair(textBoxWidth, cast(float)charHeight)), black); 
 		drawText(pos, white, i.name);
-		
 		}
 		
 	void drawMouseOverItemDescription(pair pos, draggableItem i){
 		float r=4;
 		int textBoxWidth = 250;
-		string[] strings = splitStringArrayAtWidth(i.description, textBoxWidth);
+		string[] strings = splitStringArrayAtWidth3(i.description, textBoxWidth);
 		
 		drawRoundedFilledRectangle(
 			rect(pair(pos,-r,-r), pair(textBoxWidth+r*2, (cast(float)charHeight*strings.length)+r*2)), 

@@ -43,7 +43,7 @@ struct fileScanEntry
 // another problem. what are we using for an TILE INDEX?
 // otherwise, we cannot TRANSFORM tiles easily if they're all hash lookups
 // also that may be slower.
-class atlasHandler2 
+class atlasHandler2  : atlasHandlerI 
 	{
 	fileScanEntry[][string] filesData;
 	bitmap*[string] sources; // if we load a source / parent bitmap we have to clean it up later! 
@@ -51,6 +51,16 @@ class atlasHandler2
 	irect[] sourcesMeta;
 	bitmap*[string] bmps;
 	tileInfo[string] info;
+
+	bool hasResource(string name)
+		{
+		foreach(b; bmps)
+			{
+			if(name !in bmps)return false; 
+			}
+		return true;
+		}
+
 
 	this(string filepath)
 		{
@@ -179,11 +189,25 @@ struct tileInfo
 	bool isPassable;
 	}
 
-class atlasHandler
+interface atlasHandlerI
+	{
+	bool hasResource(string name);
+	}
+
+class atlasHandler : atlasHandlerI
 	{
 	bitmap* atlasbmp;
 	bitmap*[256] bmps;
 	tileInfo[256] info;
+	
+	bool hasResource(string name)
+		{
+		foreach(b; bmps)
+			{
+				// is this class even used??
+			}
+		return true;
+		}
 	
 	void loadMeta(string filepath="./data/atlas.json")
 		{
