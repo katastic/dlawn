@@ -7,7 +7,13 @@ struct event
 
 class eventManager
 	{
-	event[] events;
+	event[] eventsQueue; // could use a static array of MAX_EVENTS
+	
+	void add(event e)
+		{
+		eventsQueue ~= e; // is it simply FIFO?
+		}
+	
 	void onTick()
 		{
 		handleEvents();
@@ -15,9 +21,10 @@ class eventManager
 		
 	void handleEvents()
 		{
-		foreach(e; events)
+		foreach(e; eventsQueue)
 			{
-	//		e.toSomeShit();
+			e.toSomeShit();
 			}
+		eventsQueue = [];
 		}
 	}

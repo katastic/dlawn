@@ -179,7 +179,7 @@ struct rect
 	{
 	float x,y,w,h; //alternative, a pair and dim, and/or write applicable conversion functions
 	// rect is WAY easier than a pair+dim or some tuple strangeness.
-	
+		
 	this(pair a, pair b)
 		{
 		x = a.x;
@@ -322,6 +322,12 @@ struct pair
 	// what about the following scenarios:
 	// if(pair < 0)   		(both coordinates are higher/lower than 0)
 	// if(pair < pair)		(both coordinates are higher/lower than the second pair coords)
+	
+	this(rect r) // can we instead do  pair.chop(rect) so it's obvious we're chopping data
+		{
+		x = r.x;
+		y = r.y;
+		}
 	
 	int opCmp(ref const int s)//https://forum.dlang.org/thread/zljczqndhxifttonlmtl@forum.dlang.org
 		{//https://dlang.org/spec/operatoroverloading.html#compare

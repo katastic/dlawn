@@ -17,6 +17,8 @@ https://medium.com/mirum-budapest/introduction-to-data-oriented-programming-85b5
 	For example, let’s say you have 3D entities in your project. These entities can move in the virtual world. There are corresponding components that store data like position, heading, and speed. And there is a system that drives the related calculations.
 +/
 
+import molto;
+
 struct entity
 	{
 	ulong indentifier;

@@ -102,9 +102,20 @@ class gridWindow
 
 	bool areWeCarryingAnItem = false;
 	draggableItem itemWereCarrying = null;
+	
+	float titleBarSpace = 24;
+	string title;
+	
+	void drawTitleBar()
+		{
+		drawRectangle(rect(pair(canvas.x, canvas.y), pair(canvas.w, titleBarSpace)), white, 1);
+		drawText(pair(canvas), white, title);
+		}
 
 	bool draw(viewport v) // WARN: We have no z-ordering here
 		{
+		drawFilledRectangle(canvas, color(0,0,0,.25)); 
+		drawTitleBar();
 		foreach(gr; grids)
 			{
 			gr.draw(v);
@@ -148,11 +159,17 @@ class gridWindow
 		
 	this(pair pos)
 		{
-		dragAndDropGrid dg = new dragAndDropGrid(this, pair(pos, 0, 0), ipair(10,4));
+		title = "Inventory";
+		canvas.x = pos.x;
+		canvas.y = pos.y;	
+		canvas.w = 450;
+		canvas.h = 200;
+			
+		dragAndDropGrid dg = new dragAndDropGrid(this, pair(pos, 0, 0 + titleBarSpace+1), ipair(10,4));
 		grids ~= dg;
-		dragAndDropGrid dg2 = new dragAndDropGrid(this, pair(pos, 0, 130), ipair(2,2));
+		dragAndDropGrid dg2 = new dragAndDropGrid(this, pair(pos, 0, 130 + titleBarSpace+1), ipair(2,2));
 		grids ~= dg2;
-		dragAndDropGrid dg3 = new dragAndDropGrid(this, pair(pos, 330, 0), ipair(3,3));
+		dragAndDropGrid dg3 = new dragAndDropGrid(this, pair(pos, 330, 0 + titleBarSpace+1), ipair(3,3));
 		grids ~= dg3;
 		
 		dg.items ~= new draggableItem(ipair(0,0), ipair(1,3), dg, bh["wrench"], "Wrench", "a useful tool to do wrenching jobs");
