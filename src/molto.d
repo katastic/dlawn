@@ -144,12 +144,22 @@ COLOR blue   = COLOR(0,0,1,1);
 COLOR yellow = COLOR(1,1,0,1);
 COLOR orange = COLOR(1,0.65,0,1);
 
+color grey(float val) /// get a grey with rgb=val
+	{
+	return color(val, val, val, 1);
+	}
+
+color alpha(color c, float a) /// apply alpha to a color (for convenience with red, green, yellow, etc labels above)
+	{
+	return color(c.r, c.g, c.b, a);
+	}
+
 alias KEY_UP = ALLEGRO_KEY_UP; // should we do these? By time we write them out we've already done more work than just writing them.
 alias KEY_DOWN = ALLEGRO_KEY_DOWN; // i'll leave them coded as an open question for later
 alias KEY_LEFT = ALLEGRO_KEY_LEFT; 
 alias KEY_RIGHT = ALLEGRO_KEY_RIGHT; 
 
-struct triplet{float x,y,z;} // or trip.  or pair3?
+struct triplet{float x,y,z;} 
 
 // pairs, trios, etc code
 // ----------------------------------------------------------------
@@ -179,6 +189,14 @@ struct rect
 	{
 	float x,y,w,h; //alternative, a pair and dim, and/or write applicable conversion functions
 	// rect is WAY easier than a pair+dim or some tuple strangeness.
+	
+	this(float x_, float y_, float w_, float h_)
+		{
+		x = x_;
+		y = y_;
+		w = w_;
+		h = h_;
+		}
 		
 	this(pair a, pair b)
 		{
@@ -316,6 +334,11 @@ struct ipair
 		}
 	}
 
+pair chop(rect r) /// returns just x,y and throws away w,h
+	{
+	return pair(r.x,r.y);
+	}
+
 struct pair
 	{
 	float x=0, y=0;
@@ -323,11 +346,6 @@ struct pair
 	// if(pair < 0)   		(both coordinates are higher/lower than 0)
 	// if(pair < pair)		(both coordinates are higher/lower than the second pair coords)
 	
-	this(rect r) // can we instead do  pair.chop(rect) so it's obvious we're chopping data
-		{
-		x = r.x;
-		y = r.y;
-		}
 	
 	int opCmp(ref const int s)//https://forum.dlang.org/thread/zljczqndhxifttonlmtl@forum.dlang.org
 		{//https://dlang.org/spec/operatoroverloading.html#compare

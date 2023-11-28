@@ -79,8 +79,8 @@ class world_t
 
 		//structures ~= new structure(700, 400, bh["fountain"]);
 		
-		testGraph  = new intrinsicGraph!float("Draw (ms) ", g.stats.nsDraw , 100, 200, COLOR(1,0,0,1), 1_000_000);
-		testGraph2 = new intrinsicGraph!float("Logic (ms)", g.stats.msLogic, 100, 320, COLOR(1,0,0,1), 1_000_000);
+		testGraph  = new intrinsicGraph!float("Draw (ms) ", g.stats.nsDraw , 100, 150, COLOR(1,0,0,1), 1_000_000);
+		testGraph2 = new intrinsicGraph!float("Logic (ms)", g.stats.msLogic, 100, 260, COLOR(1,0,0,1), 1_000_000);
 				
 		viewports[0] = new viewport(0, 0, 1366, 768, 0, 0);
 		assert(units[0] !is null);

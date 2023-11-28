@@ -103,12 +103,13 @@ class gridWindow
 	bool areWeCarryingAnItem = false;
 	draggableItem itemWereCarrying = null;
 	
+	// todo: move into separate gui element. encapsulate mouseClick, mouseOver, etc for universal use
 	float titleBarSpace = 24;
 	string title;
 	
 	void drawTitleBar()
 		{
-		drawRectangle(rect(pair(canvas.x, canvas.y), pair(canvas.w, titleBarSpace)), white, 1);
+		drawRectangle(rect(canvas.x, canvas.y, canvas.w, titleBarSpace), white, 1);
 		drawText(pair(canvas), white, title);
 		}
 
@@ -132,9 +133,24 @@ class gridWindow
 		return true;
 		}
 
+	void onClickTitleBar()
+		{
+		// do something;
+		canvas.x-=10;
+		}
+
 	// should rename onClick()
 	void onClick(pair pos) /// if any sub-elements, forward the event
 		{
+		// this is screenpos right? we really need subelements to
+		// use relative coordinates and not handle mouse scans themselves.
+		// worst case, send event with RELATIVE mouse position to sub-elements down the chain.
+		if(pos.x >= canvas.x && pos.x <= canvas.x + canvas.w &&
+		   pos.y >= canvas.y && pos.y <= canvas.y + titleBarSpace)
+			{
+			onClickTitleBar();
+			}
+			
 		foreach(gr; grids)
 			{
 			if(gr.checkMouseInside(pos))
@@ -161,7 +177,7 @@ class gridWindow
 		{
 		title = "Inventory";
 		canvas.x = pos.x;
-		canvas.y = pos.y;	
+		canvas.y = pos.y;
 		canvas.w = 450;
 		canvas.h = 200;
 			
@@ -214,7 +230,7 @@ class dragAndDropGrid
 
 		drawRoundedFilledRectangle(
 			rect(pair(pos,-r,-r), pair(textBoxWidth+r*2, (cast(float)charHeight)+r*2)), 
-			color(.7,.7,7,.60), //white ish
+			grey(.7).alpha(.60), 
 			r/2
 			);
 		
@@ -229,7 +245,7 @@ class dragAndDropGrid
 		
 		drawRoundedFilledRectangle(
 			rect(pair(pos,-r,-r), pair(textBoxWidth+r*2, (cast(float)charHeight*strings.length)+r*2)), 
-			color(.7,.7,7,.60), //white ish
+			grey(.7).alpha(.60), //white ish
 			r/2
 			);
 		
@@ -418,15 +434,15 @@ class dragAndDropGrid
 						canvas.x + gridSize*(i), 
 						canvas.y, 
 						canvas.x + gridSize*(i), 
-						canvas.y + canvas.h, white, 1.0f);
+						canvas.y + canvas.h, white.alpha(.75), 1.0f);
 			}
-		for(int i = w; i < w+1+numHiddenColumns; i++)
+		for(int i = w; i < w+1+numHiddenColumns; i++) // special columns
 			{
 			al_draw_line(
 						canvas.x + gridSize*(i), 
 						canvas.y, 
 						canvas.x + gridSize*(i), 
-						canvas.y + canvas.h, green, 1.0f);
+						canvas.y + canvas.h, green.alpha(.75), 1.0f);
 			}
 		for(int j = 0; j < h+1; j++)
 			{
@@ -434,7 +450,7 @@ class dragAndDropGrid
 						canvas.x             ,
 						canvas.y + gridSize*(j), 
 						canvas.x + canvas.w, 
-						canvas.y + gridSize*(j), white, 1.0f);
+						canvas.y + gridSize*(j), white.alpha(.75), 1.0f);
 			}
 		}
 	
