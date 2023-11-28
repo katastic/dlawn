@@ -1,3 +1,8 @@
+/+
+	note we can have multiple "worlds" for different scenes, levels, etc
+	and stream them in as needed. We will at some point need to be able to
+	transfer objects from one to another for scene changes.
++/
 import allegro5.allegro;
 import allegro5.allegro_primitives;
 import allegro5.allegro_image;

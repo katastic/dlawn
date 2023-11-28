@@ -4,6 +4,11 @@
 		looks like during dev they made all weapons 3x1 but some were 2x1.
 
 +/
+/+
+
+	BUG: mouse-over is drawn with datagrid so if multiple grids they overwrite each other. mouse-over needs a separate draw function in the drawstack.
+
++/
 
 // BUG: mouse-over description should be for the window not indivudal grids?
 // either way, it's not FORWARDING mouse leaving events so they're not always
@@ -134,7 +139,9 @@ class gridWindow
 			{
 			if(gr.checkMouseInside(pos))
 				{
-				gr.eventHandleMouse(pos);
+				gr.eventHandleMouseMovement(pos);
+				}else{
+				gr.eventMouseOutside(); // notify mouse is outside for cleanup functions
 				}
 			}
 		}
@@ -153,13 +160,10 @@ class gridWindow
 		dg.items ~= new draggableItem(ipair(2,0), ipair(1,1), dg, bh["hypo"], "Hypo", "A medical hypo full of a strange concontion");
 		dg.items ~= new draggableItem(ipair(3,0), ipair(1,1), dg, bh["disk"], "Disk", "A data disk full of all your diary entries");
 
-
 		dg3.items ~= new draggableItem(ipair(0,0), ipair(1,3), dg3, bh["laserpistol"], "Laser Pistol", "The Apollo H4 Argon-Suspension Laser Pistol is a weapon in System Shock 2, and is the most basic Energy Weapon. This weapon relies on refracted light to damage its target, while the energy bolt projectile shown in-game is fast and small.");
 		dg3.items ~= new draggableItem(ipair(1,2), ipair(1,1), dg3, bh["implant1"], "Implant", "a useful implant");
 		dg3.items ~= new draggableItem(ipair(2,2), ipair(1,1), dg3, bh["implant2"], "Implant2", "a useful implant2");
 		dg3.items ~= new draggableItem(ipair(1,0), ipair(2,2), dg3, bh["armor"], "Armor", "Fiber-reinforced metal pieces wrapped in canvas.");
-
-		
 		}
 	}
 
@@ -216,7 +220,7 @@ class dragAndDropGrid
 		drawTextArray(pos, white, strings);
 		}
 
-	void eventHandleMouse(pair screenPos){ /// every mouse movement we tell dialog to check if we're inside. Otherwise we could have some sort of dialog handler ONLY send events when inside. 
+	void eventHandleMouseMovement(pair screenPos){ /// every mouse movement we tell dialog to check if we're inside. Otherwise we could have some sort of dialog handler ONLY send events when inside. 
 		if(checkMouseInside(screenPos)){
 			auto r = findItemsGivenClick(screenPos);
 			if(r){
@@ -284,6 +288,11 @@ class dragAndDropGrid
 		   screenPos.x - canvas.x > canvas.w ||
 		   screenPos.y - canvas.y > canvas.h)return false;
 		return true;
+		}
+
+	void eventMouseOutside()
+		{
+		isDrawingMouseOverlay = false;
 		}
 
 	bool eventClickAt(pair screenPos)

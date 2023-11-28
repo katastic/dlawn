@@ -1,13 +1,11 @@
+
 /+
 	routines for tracking units of time and trigging events based on time or frames
 	
 	---> don't we need a coded event system for this?
 
 +/
-struct event
-	{
-	void function() toSomeShit; // or delegate,etc
-	}
+import eventmod;
 
 class timerHandler /// th
 	{
