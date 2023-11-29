@@ -181,11 +181,11 @@ class gridWindow
 		canvas.w = 450;
 		canvas.h = 200;
 			
-		dragAndDropGrid dg = new dragAndDropGrid(this, pair(pos, 0, 0 + titleBarSpace+1), ipair(10,4));
+		dragAndDropGrid dg = new dragAndDropGrid(this, pair(0, 0 + titleBarSpace+1), ipair(10,4));
 		grids ~= dg;
-		dragAndDropGrid dg2 = new dragAndDropGrid(this, pair(pos, 0, 130 + titleBarSpace+1), ipair(2,2));
+		dragAndDropGrid dg2 = new dragAndDropGrid(this, pair(0, 130 + titleBarSpace+1), ipair(2,2));
 		grids ~= dg2;
-		dragAndDropGrid dg3 = new dragAndDropGrid(this, pair(pos, 330, 0 + titleBarSpace+1), ipair(3,3));
+		dragAndDropGrid dg3 = new dragAndDropGrid(this, pair(330, 0 + titleBarSpace+1), ipair(3,3));
 		grids ~= dg3;
 		
 		dg.items ~= new draggableItem(ipair(0,0), ipair(1,3), dg, bh["wrench"], "Wrench", "a useful tool to do wrenching jobs");
@@ -418,49 +418,53 @@ class dragAndDropGrid
 		return pair(gridSize*grid.i,gridSize*grid.j);
 		}
 		
-	void drawBackground()
+	void drawBackground(pair offsetPos)
 		{
 		with(canvas)
-			al_draw_filled_rectangle(x, y, x + w, y + h, color(.2,.2,.2,.5));
+			{
+			rect offsetCanvas = rect(x + offsetPos.x, y + offsetPos.y, w, h); // write helper function?
+			drawFilledRectangle(offsetCanvas, grey(.2).alpha(.8));
+			}
 		}
 		
-	void drawGrid()
+	void drawGrid(pair offsetPos)
 		{
 		int w = cast(int)canvas.w/gridSize - numHiddenColumns;
 		int h = cast(int)canvas.h/gridSize;
 		for(int i = 0; i < w+1; i++)
 			{
 			al_draw_line(
-						canvas.x + gridSize*(i), 
-						canvas.y, 
-						canvas.x + gridSize*(i), 
-						canvas.y + canvas.h, white.alpha(.75), 1.0f);
+						offsetPos.x + canvas.x + gridSize*(i), 
+						offsetPos.y + canvas.y, 
+						offsetPos.x + canvas.x + gridSize*(i), 
+						offsetPos.y + canvas.y + canvas.h, white.alpha(.75), 1.0f);
 			}
 		for(int i = w; i < w+1+numHiddenColumns; i++) // special columns
 			{
 			al_draw_line(
-						canvas.x + gridSize*(i), 
-						canvas.y, 
-						canvas.x + gridSize*(i), 
-						canvas.y + canvas.h, green.alpha(.75), 1.0f);
+						offsetPos.x + canvas.x + gridSize*(i), 
+						offsetPos.y + canvas.y, 
+						offsetPos.x + canvas.x + gridSize*(i), 
+						offsetPos.y + canvas.y + canvas.h, green.alpha(.75), 1.0f);
 			}
 		for(int j = 0; j < h+1; j++)
 			{
 			al_draw_line(
-						canvas.x             ,
-						canvas.y + gridSize*(j), 
-						canvas.x + canvas.w, 
-						canvas.y + gridSize*(j), white.alpha(.75), 1.0f);
+						offsetPos.x + canvas.x             ,
+						offsetPos.y + canvas.y + gridSize*(j), 
+						offsetPos.x + canvas.x + canvas.w, 
+						offsetPos.y + canvas.y + gridSize*(j), white.alpha(.75), 1.0f);
 			}
 		}
 	
 	void draw(viewport v)
 		{
-		drawBackground();
-		drawGrid();
+		auto offsetPos = chop(owner.canvas);
+		drawBackground(offsetPos);
+		drawGrid(offsetPos);
 		foreach(i; items)
 			{
-			i.draw(canvas, v);
+			i.draw(canvas, v, offsetPos);
 			}
 	
 		if(isDrawingMouseOverlay)
@@ -597,13 +601,13 @@ class draggableItem
 	void dropItemIntoWorld(){}
 	void removeMeFromList(){}
 
-	void draw(rect canvas, viewport v)
+	void draw(rect canvas, viewport v, pair offsetPos)
 		{
 		if(!isPickedUp)
 			{
 			drawBitmap(image, 
-				pair(v.x + canvas.x + gridPosition.i*owner.gridSize, 
-					 v.y + canvas.y + gridPosition.j*owner.gridSize), hasBeenActivated);
+				pair(offsetPos.x + v.x + canvas.x + gridPosition.i*owner.gridSize, 
+					 offsetPos.y + v.y + canvas.y + gridPosition.j*owner.gridSize), hasBeenActivated);
 			}
 		else
 			{
@@ -613,7 +617,7 @@ class draggableItem
 				pair(v.x + canvas.x + gridPosition.i*owner.gridSize, 
 					 v.y + canvas.y + gridPosition.j*owner.gridSize), hasBeenActivated);
 +/
-			// draw following mouse
+			// draw following mouse (note: using absolute screen coordinates)
 			drawBitmap(image, 
 				pair(mouse_x, mouse_y), hasBeenActivated);
 			}
