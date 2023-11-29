@@ -175,7 +175,7 @@ class gridWindow
 		
 	this(pair pos)
 		{
-		title = "Inventory";
+		title = "INVENTORY";
 		canvas.x = pos.x;
 		canvas.y = pos.y;
 		canvas.w = 450;
@@ -422,7 +422,7 @@ class dragAndDropGrid
 		{
 		with(canvas)
 			{
-			rect offsetCanvas = rect(x + offsetPos.x, y + offsetPos.y, w, h); // write helper function?
+			rect offsetCanvas = rect(pair(chop(canvas), offsetPos), w, h); // write helper function?
 			drawFilledRectangle(offsetCanvas, grey(.2).alpha(.8));
 			}
 		}

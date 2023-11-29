@@ -197,6 +197,16 @@ struct rect
 		w = w_;
 		h = h_;
 		}
+
+
+	this(pair a, float w_, float h_)
+		{
+		x = a.x;
+		y = a.y;
+		w = w_;
+		h = h_;
+		}
+
 		
 	this(pair a, pair b)
 		{
@@ -344,8 +354,7 @@ struct pair
 	float x=0, y=0;
 	// what about the following scenarios:
 	// if(pair < 0)   		(both coordinates are higher/lower than 0)
-	// if(pair < pair)		(both coordinates are higher/lower than the second pair coords)
-	
+	// if(pair < pair)		(both coordinates are higher/lower than the second pair coords) ???
 	
 	int opCmp(ref const int s)//https://forum.dlang.org/thread/zljczqndhxifttonlmtl@forum.dlang.org
 		{//https://dlang.org/spec/operatoroverloading.html#compare
@@ -435,30 +444,6 @@ struct pair
 			
 		}
 	
-	/+
-	//https://dlang.org/spec/operatoroverloading.html
-    // this ~ rhs
-	T opBinary(string op)(T rhs)		// add two pairs
-		{
-		static if (op == "+") 
-			{
-			pragma(msg, "hello");
-			return pair(this, rhs.x, rhs.y);
-			}
-//		else static if (op == "-") return data - rhs.data;
-		else static assert(0, "Operator "~op~" not implemented");
-		}	
-	
-	// http://ddili.org/ders/d.en/operator_overloading.html
-    auto opOpAssign(string op)(pair p) 
-		if(op =="+=" || op == "-=")
-		{
-			pragma(msg, "hello2");
-        //mixin("ptr"~op~"i;");
-//        ptr += p;
-		return this; 
-		}
-	+/
 	this(T)(T t) //give it any object that has fields x and y
 		{
 		x = t.x;
@@ -469,6 +454,12 @@ struct pair
 		{
 		x = t.x + offsetX;
 		y = t.y + offsetY;
+		}
+
+	this(pair val, pair offset) // does this really need a constructor? We're constructing a temporary object to return one.
+		{
+		x = val.x + offset.x;
+		y = val.y + offset.y;
 		}
 	
 	this(int _x, int _y)
