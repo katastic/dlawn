@@ -90,6 +90,37 @@ import viewportsmod;
 import std.string;
 import std.stdio;
 
+// do we stack rectangles too since we have a viewport? Do we clip each rectangle always or just sometimes?
+struct coordStack // do we store end result, or combine them all every time?
+	{ // fastest would be end result, and subtract it each time.
+	coord currentCoord; //cached end result
+	coord[] coords;
+	
+	void push(coord c)
+		{
+		currentCoord.x += c.x;
+		currentCoord.y += c.y;
+		coords ~= c;
+		}
+	
+	coord get()
+		{
+		return currentCoord;
+		}
+	
+	void pop()
+		{
+		currentCoord.x -= coords[$-1].x;
+		currentCoord.y -= coords[$-1].y;
+		coords = coords[0..$-2];
+		}
+	}
+
+struct coord
+	{
+	float x, y;
+	}
+
 // how to handle drag and drop? 
 // icons? can also system shock 2 style inventory grid
 // - how do we handle PIXEL PERFECT (or bounding box) matching of an item vs mouse touching the background tile? (if wanted)
@@ -115,7 +146,7 @@ class gridWindow
 
 	bool draw(viewport v) // WARN: We have no z-ordering here
 		{
-		drawFilledRectangle(canvas, color(0,0,0,.25)); 
+		drawFilledRectangle(canvas, black.alpha(.25)); 
 		drawTitleBar();
 		foreach(gr; grids)
 			{
@@ -203,10 +234,9 @@ class gridWindow
 class dragAndDropGrid
 	{
 	gridWindow owner;
-	rect canvas; /// x,y screen coords, then w/h .. w/h are DERIVED from gridDim
+	rect canvas; /// x,y screen coords, then w/h .. w/h are DERIVED from gridDim. this WILL BE RELATIVE coords when I finish changing it
 	draggableItem[] items;
 	int gridSize = 32; /// in pixels
-//	ipair gridDim;  // 
 	int numHiddenColumns=3;
 	bool isDrawingMouseOverlay = false;
 	draggableItem mouseOverlayItem = null;
@@ -227,30 +257,34 @@ class dragAndDropGrid
 	void drawMouseOverItemName(pair pos, draggableItem i){
 		float r=4;
 		int textBoxWidth = 250;
+		pair offset = owner.canvas.chop();
 
 		drawRoundedFilledRectangle(
-			rect(pair(pos,-r,-r), pair(textBoxWidth+r*2, (cast(float)charHeight)+r*2)), 
+			rect(
+				pair(pos,-r+offset.x,-r+offset.y), 
+				pair(textBoxWidth+r*2, (cast(float)charHeight)+r*2)), 
 			grey(.7).alpha(.60), 
 			r/2
 			);
 		
-		drawFilledRectangle(rect(pos, pair(textBoxWidth, cast(float)charHeight)), black); 
-		drawText(pos, white, i.name);
+		drawFilledRectangle(rect(pair(pos, offset), pair(textBoxWidth, cast(float)charHeight)), black); 
+		drawText(pair(pos, offset), white, i.name);
 		}
 		
 	void drawMouseOverItemDescription(pair pos, draggableItem i){
 		float r=4;
 		int textBoxWidth = 250;
 		string[] strings = splitStringArrayAtWidth3(i.description, textBoxWidth);
+		pair offset = owner.canvas.chop();
 		
 		drawRoundedFilledRectangle(
-			rect(pair(pos,-r,-r), pair(textBoxWidth+r*2, (cast(float)charHeight*strings.length)+r*2)), 
+			rect(pair(pos,-r+offset.x,-r+offset.y), pair(textBoxWidth+r*2, (cast(float)charHeight*strings.length)+r*2)), 
 			grey(.7).alpha(.60), //white ish
 			r/2
 			);
 		
-		drawFilledRectangle(rect(pos, pair(textBoxWidth, cast(float)charHeight*strings.length)), black); 
-		drawTextArray(pos, white, strings);
+		drawFilledRectangle(rect(pair(pos, offset), pair(textBoxWidth, cast(float)charHeight*strings.length)), black); 
+		drawTextArray(pair(pos, offset), white, strings);
 		}
 
 	void eventHandleMouseMovement(pair screenPos){ /// every mouse movement we tell dialog to check if we're inside. Otherwise we could have some sort of dialog handler ONLY send events when inside. 
@@ -649,7 +683,7 @@ class viewBox
 		
 	void drawDialog()
 		{
-		al_draw_filled_rectangle(pos.x, pos.y, pos.x + size.w, pos.y + size.h, color(1,0,0,1));
+		al_draw_filled_rectangle(pos.x, pos.y, pos.x + size.w, pos.y + size.h, red);
 		}
 	
 	void onDraw(viewport v)

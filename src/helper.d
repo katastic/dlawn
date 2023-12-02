@@ -168,7 +168,6 @@ float distanceTo(T, U)(T t, U u)
 		return sqrt((u.x - t.pos.x)^^2 + (u.y - t.pos.y)^^2);
 	assert(false, "fuck");
 	} // TODO: Confirm this works for all permutations as intended.
-
 	
 float distance(float x, float y)
 	{

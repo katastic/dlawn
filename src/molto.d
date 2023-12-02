@@ -77,8 +77,7 @@
 		 
 		 We **COULD** also use this tagging system to automatically "bunch" 
 		 up related child objects for statistics. Anything marked @ship
-		 is counted as a ship, and such.
-		 
+		 is counted as a ship, and such.		 
 		 
 	- YOU CAN USE A FUNCTION AS AN ATTRIBUTE? COME ON, PEOPLE.
 +/
@@ -198,7 +197,6 @@ struct rect
 		h = h_;
 		}
 
-
 	this(pair a, float w_, float h_)
 		{
 		x = a.x;
@@ -206,7 +204,6 @@ struct rect
 		w = w_;
 		h = h_;
 		}
-
 		
 	this(pair a, pair b)
 		{
@@ -346,7 +343,7 @@ struct ipair
 
 pair chop(rect r) /// returns just x,y and throws away w,h
 	{
-	return pair(r.x,r.y);
+	return pair(r.x, r.y);
 	}
 
 struct pair

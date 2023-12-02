@@ -252,7 +252,6 @@ class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 			pos += vel;
 //			writeln("Meteor: ", pos, " ", vel);
 			
-			
 			foreach(o; g.world.units)
 				{
 				if(isInsideRadius(pos, o.pos, 20))
@@ -917,8 +916,7 @@ class baseObject
 		float cy = pos.y + v.y - v.oy;
 		if(cx < 0 || cx > SCREEN_W || cy < 0 || cy > SCREEN_H)return false; //built-in clipping
 		//drawShield(pair(x, y), v, bmp.w, 5, COLOR(0,0,1,1), shieldHP/SHIELD_MAX);
-		super.draw(v);
-		
+		super.draw(v);		
 		
 		if(name != "")
 			{

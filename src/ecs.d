@@ -3,12 +3,9 @@
 
 do we care?
 
-
-
 https://www.simplilearn.com/entity-component-system-introductory-guide-article
 
 https://austinmorlan.com/posts/entity_component_system/ <---
-
 
 https://medium.com/mirum-budapest/introduction-to-data-oriented-programming-85b51b99572d
 
@@ -24,7 +21,6 @@ struct entity
 	ulong indentifier;
 	}
 	
-	
 struct transform // component, each has a unique id
 	{
 	pair pos;
@@ -34,5 +30,3 @@ struct shape // component, each has a unique id
 	{
 	color c;
 	}
-
-

@@ -6,15 +6,6 @@
 	map work
 		--> one thing in favor of NOT JSON is how easy it is to corrupt JSON by forgetting to repeat a comma.
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 		- object loading (kinda game specific)
 			- objectID [from a table we add], x, y, health, 
 			
@@ -61,7 +52,6 @@
 		[[loading from map]]
 			each entry# in file, look up # in objectMappingIDTable, and then
 			create an object of that type, and start setting values for each column
-			
 			
 		---> if we do JSON/YAML/etc
 	
@@ -122,7 +112,6 @@ objects:
 
 TOML		(more or less INI format. more for config files but still consider)
 	https://code.dlang.org/packages/toml
-	
 	
 	https://toml.io/en/
 	
@@ -491,7 +480,6 @@ class pixelMap : mapBase
 		(see below) with the shaders could also apply. Make water, or gold 
 		treasure, shimmer.
 	
-	
 		NOTE: If we do parallax layers (for foreground or background)
 		they should ideally be non-physical/non-interacting layers because
 		they have to be a DIFFERENT SIZE than the rest. 
@@ -766,8 +754,7 @@ class isometricFlatMap : mapBase
 		{
 		// we need to cycle through possible slanted values on our screen, and lookup each one
 		// and draw them. So that we're back-of-screen order first.
-		// however, how do we decide a width and height?
-		
+		// however, how do we decide a width and height?	
 		
 		pair minValue = pair(999,999);
 		pair maxValue = pair(-999,-999);

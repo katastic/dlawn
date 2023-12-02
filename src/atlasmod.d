@@ -61,7 +61,6 @@ class atlasHandler2  : atlasHandlerI
 		return true;
 		}
 
-
 	this(string filepath)
 		{
 		load(filepath);

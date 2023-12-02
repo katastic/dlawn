@@ -253,8 +253,7 @@ struct timeout
 	void delegate () callbackFunction;
 	} // there is ONE issue, if we NEED a CLOCK TIME, and 
 	// the GAME LOGIC RATES stutter for some reason then the CLOCK times will be delayed.
-	// if we NEED clock times to be exact, we need a framerate agnostic method (ala Allegro timers)
-	
+	// if we NEED clock times to be exact, we need a framerate agnostic method (ala Allegro timers)	
 	
 // -- ISSUE: How do we handle/clean a dead timeout? 
 // If it's an EVENT timer we fire the event.
