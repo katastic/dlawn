@@ -110,6 +110,14 @@ void wrapRadRef(T)(ref T angle)
 	angle = fmod(angle, 2.0*PI);
 	}
 
+
+
+float flip(float a) // we could make angles their own typedef
+	{
+	return (a + degToRad(180)).wrapCircle;
+	}
+
+
 /// angleTo:		angleTo (This FROM That)
 ///
 /// Get angle to anything that has an x and y coordinate fields
@@ -117,7 +125,6 @@ void wrapRadRef(T)(ref T angle)
 ///  	Verses :	float angle = atan2(y - g.world.units[0].y, x - g.world.units[0].x);
 ///
 ///		2.0 version allows anything with a .pos as well in either argument
-
 float angleTo(T, U)(T t, U u) /// from This (t) to That (u)
 	{
 	static if(__traits(compiles, u.x - t.x))		// xy only
@@ -319,6 +326,37 @@ T capBoth(T)(T val, T min, T max)
 		}
 	return val;
 	}	
+
+/// For angles. If val is above max, subtract max until it is below max
+void wrapHigh(T)(ref T val, T max){
+	while(val > max)val -= max;
+	}
+/// For angles. If val is below min, add min until it is above min
+void wrapLow(T)(ref T val, T min){
+	while(val < min)val += min;
+	} // BUT WHAT IF MIN IS ZERO!?!?! and does MAX even make sense?!
+	
+/// For angles. Keep within range
+void wrapBoth(T)(ref T val, T min, T max){
+	while(val > max)val -= max;
+	while(val < min)val += min;
+	}
+
+/// For angles. Keep within range. Method chaining(?) version.
+T wrapBoth(T)(T val, T min, T max){
+	while(val > max)val -= max;
+	while(val < min)val += min;
+	return val;
+	}
+
+/// For angles. Keep within range. Method chaining(?) version.
+/// if we had an angle class we could just name it .wrap or have it automatically wrap every time its set 
+T wrapCircle(T)(T val){
+	T pi2 = degToRad(360);
+	while(val < -pi2)val += pi2;
+	while(val >  pi2)val -= pi2;
+	return val;
+	}
 
 // can't remember the best name for this. How about clampToMax? <-----
 void clampHigh(T)(ref T val, T max)
