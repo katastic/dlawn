@@ -110,13 +110,10 @@ void wrapRadRef(T)(ref T angle)
 	angle = fmod(angle, 2.0*PI);
 	}
 
-
-
 float flip(float a) // we could make angles their own typedef
 	{
 	return (a + degToRad(180)).wrapCircle;
 	}
-
 
 /// angleTo:		angleTo (This FROM That)
 ///

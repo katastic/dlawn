@@ -1,14 +1,37 @@
 dlawn
 ================================================================================================
 
+ - drawLine and drawText are slow. Since they're mostly used in dialogs do the following:
+	- system for detecting text changes (dirtybit) and render to a texture. draw calls only draw the
+		buffer bitmap directly.
+	- the drawline background could just be a bitmap anyway in the final product.
+
+
+	- if we do angle class, are we going to have a bunch of slow conversions to/from sin/cos functions?
+		should we typedef instead?
+			https://dlang.org/library/std/typecons/typedef.html
+
+ - frame separation. actions affect the NEXT frame. Keep a collection of frames. However, what about Write after Write hazards? 
+	
+	A kills B so it's dead in B'
+	C uses B (not B') but it should already be dead
+	
+	- frame replay system, as well as spectating/logging from a network device. (Vibe.d? other simpler network lib?)
+	
+	- typedef or whatever angle to be it's own type so you can flip and rollOver/WrapAround the coordinates inside 360.
+		internally we could use some sort of fixed point thing so it autowraps around, but then we'll have to 
+		constantly convert to and from it.
+		
+	- user interface drag-and-drop. need timers / events
+
  - send logs to a seperate frame debugger either on localhost or another PC with bigger screen. filter options. sql?
 	- support hyperlinks to object index lookups/pointers
 		O2013.AttackedBy[O1000]
 			 [01000].Name "taco man steve"
 
-
-
-
+	- 3d lighting on 2d surfaces / bump mapping
+	
+	- AI stuff. bug skittering AI.
 
 
 

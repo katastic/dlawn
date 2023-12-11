@@ -122,6 +122,27 @@ import std.stdio;
 import std.format : format;
 import std.string : toStringz;
 
+struct angle
+	{
+	float a;
+	alias a this;
+	
+	void opAssign(T)(T f)
+		{
+		a = wrapRad(f);
+		}
+		
+	void wrapRad(T)(ref T angle)
+		{
+		return angle = fmod(angle, 2.0*PI);
+		}
+
+	float flip(float a) // we could make angles their own typedef
+		{
+		return (a + degToRad(180)).wrapRad;
+		}
+	}
+
 // ALLEGRO symbols
 // -----------------------------------------------------------------
 

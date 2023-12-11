@@ -128,6 +128,9 @@ struct coord
 // we need an UNDO feature if the placement is invalid or cancelled. 
 class gridWindow
 	{
+	bool isDirty=false; //TODO <--------
+	bitmap cacheBitmap; // <----------
+	
 	rect canvas;
 	dragAndDropGrid[] grids;
 
