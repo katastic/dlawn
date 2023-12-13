@@ -191,7 +191,7 @@ class intrinsicGraph(T)
 		if(tempMax == tempMin)tempMax++;
 		scaleFactor = h/(tempMax + abs(tempMin)); //fixme for negatives. i think the width is right but it's still "offset" above the datum then.
 //		al_draw_scaled_line_segment(pair(this), dataBuffer.data, scaleFactor, color, 1.0f);
-		al_draw_scaled_indexed_line_segment(pair(this), dataBuffer.data, scaleFactor, color, 1.0f, dataBuffer.index, blue);
+		al_draw_scaled_indexed_segment(pair(this), dataBuffer.data, scaleFactor, color, 1.0f, dataBuffer.index, blue);
 
 		al_draw_text(g.font1, white, x, y, 0, name.toStringz);
 		al_draw_text(g.font1, white, x + w - 32, y, 0, format("%s",min/scaling).toStringz);

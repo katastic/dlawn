@@ -1249,7 +1249,7 @@ void al_draw_scaled_line_segment(T)(pair xycoord, T[] y, float yScale, COLOR col
 	}
 
 /// al_draw_line_segment 1D
-void al_draw_scaled_indexed_line_segment(T)(pair xycoord, T[] y, float yScale, COLOR color, float thickness, int index, COLOR indexColor)
+void al_draw_scaled_indexed_line_segment(T)(pair xycoord, T[] y, float yScale, COLOR c1, float thickness, int index, COLOR indexColor)
 	{
 	assert(y.length > 1);
 
@@ -1269,8 +1269,34 @@ void al_draw_scaled_indexed_line_segment(T)(pair xycoord, T[] y, float yScale, C
 				xycoord.y + y[i]*yScale, 
 				xycoord.x + i-1, 
 				xycoord.y + y[i-1]*yScale, 
-				color, thickness);
+				c1, thickness);
 			}
 		}
 	}
+
+
+
+
+void al_draw_scaled_indexed_segment(T)(pair xycoord, T[] y, float yScale, COLOR c1, float thickness, int index, COLOR indexColor)
+	{
+	assert(y.length > 1);
+
+	for(int i = 1; i < y.length; i++) // note i = 1
+		{
+		if(i == index)
+			{
+			al_draw_pixel(
+				xycoord.x + i, 
+				xycoord.y + y[i]*yScale, 
+				indexColor);
+			}else{
+			al_draw_pixel(
+				xycoord.x + i, 
+				xycoord.y + y[i]*yScale, 
+				c1);
+			}
+		}
+	}
+
+
 
