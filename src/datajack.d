@@ -150,10 +150,12 @@ class flatWalkerStyle : movementStyle2
 		}
 	}
 
+import aimod;
 class unit : baseObject /// Physics operating generic object
 	{
 	movementStyle2 	moveStyle; 
 	anim 			myAnim;
+	aiType 			ai;
 	int direction; // facing direction
 	float maxHp;
 	float hp;

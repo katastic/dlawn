@@ -3,6 +3,7 @@ import std.math, std.random;
 
 class aiType
 	{
+	void onTick(){}
 	}
 
 class finiteStateMachine
@@ -29,9 +30,28 @@ enum BUG_STATES
 	IDLE, SCARED, SKITTER
 	}
 
+import datajack;
+import guns; // FIX ME LATER
+
+class bug : unit
+	{
+//	gunType gun;
+	this(pair _pos)
+		{
+	//	gun = gunType();		
+		super(_pos, new flatWalkerStyle(cast(unit)this));
+		ai = new bugAi(this);
+		}
+		
+	override void onTick()
+		{
+		ai.onTick();
+		}
+	}
+
 class bugAi : aiType
 	{	
-	pair pos;
+	unit myOwner;
 	BUG_STATES state;
 	
 	immutable float agitationThresholdC = 100; // end with C for constant instead of FULLCAPSFORACONST?
@@ -43,13 +63,19 @@ class bugAi : aiType
 	float fleeAngle = 0; // opposite of what we're fleeing from
 	float currentAngle = 0;
 	float runSpeedC = 1;
+
+	
+	this(unit owner)
+		{
+		myOwner = owner;
+		}
 	
 	void triggerAudioCue(pair triggerPos, float volume)
 		{
-		agitation += distanceTo(pos, triggerPos)/1000;
+		agitation += distanceTo(myOwner.pos, triggerPos)/1000;
 		if(agitation > agitationThresholdC)
 			{
-			fleeAngle = angleTo(pos, triggerPos).flip;
+			fleeAngle = angleTo(myOwner.pos, triggerPos).flip;
 			triggerScared();
 			}
 		}
@@ -70,8 +96,8 @@ class bugAi : aiType
 			{
 			if(currentAngle < fleeAngle)currentAngle+=rotationSpeedC;
 			if(currentAngle > fleeAngle)currentAngle-=rotationSpeedC;
-			pos.x += cos(currentAngle)*runSpeedC;
-			pos.y += sin(currentAngle)*runSpeedC;
+			myOwner.pos.x += cos(currentAngle)*runSpeedC;
+			myOwner.pos.y += sin(currentAngle)*runSpeedC;
 			}
 		
 		run();
@@ -85,8 +111,8 @@ class bugAi : aiType
 		void skitter()
 			{
 			if(percent(3))currentAngle += uniform(-.1, 1);
-			pos.x += cos(currentAngle)*skitterSpeedC;
-			pos.y += sin(currentAngle)*skitterSpeedC;
+			myOwner.pos.x += cos(currentAngle)*skitterSpeedC;
+			myOwner.pos.y += sin(currentAngle)*skitterSpeedC;
 			}
 		
 		skitter();
@@ -94,8 +120,7 @@ class bugAi : aiType
 		}
 
 	// do we want to CHECK for event changes inside each state, or before checking the switch?
-	
-	void onTick()
+	override void onTick()
 		{			
 		with(BUG_STATES)
 		switch(state)

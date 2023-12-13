@@ -1,6 +1,13 @@
 dlawn
 ================================================================================================
 
+ - is there a way to do temporary bitmap targets that auto go back:
+	 
+		with(target(myNewTarget))
+			{
+			drawToNewBitmap();
+			} // auto removes afterward
+
  - drawLine and drawText are slow. Since they're mostly used in dialogs do the following:
 	- system for detecting text changes (dirtybit) and render to a texture. draw calls only draw the
 		buffer bitmap directly.

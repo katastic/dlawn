@@ -69,11 +69,16 @@ class world_t
 		
 		oh = new objectHandler("./data/maps/objectmap.toml"); //NYI
 		
+		import datajack, aimod;
 		{
-		import datajack;
 		auto u = cast(unit)new runner(pair(500, 500));
 		units ~= u;
 		}
+		for(int i = 0; i < 100; i++)
+			{
+			auto u = cast(unit)new bug(pair(uniform(0,1000), uniform(0,1000)));
+			units ~= u;
+			}
 		
 		con.log("'ello love 2023");
 
