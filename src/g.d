@@ -182,10 +182,13 @@ ALLEGRO_TIMER* 			fps_timer;
 ALLEGRO_TIMER* 			screencap_timer;
 
 FONT* 	font1;
+FONT* 	font8;
+FONT* 	font12;
+FONT* 	font16;
 FONT* 	activeFont;
 
 int SCREEN_W = 1300;
-int SCREEN_H = 768;
+int SCREEN_H = 400;
 enum DIR { UP, DOWN, LEFT, RIGHT, UPLEFT, UPRIGHT, DOWNRIGHT, DOWNLEFT, NONE=0};
 
 intrinsicGraph!float testGraph;
@@ -201,6 +204,9 @@ viewport[2] viewports;
 void loadResources()
 	{
 	font1 = getFont("./data/DejaVuSans.ttf", 18);
+	font8 = getFont("./data/DejaVuSans.ttf", 8);
+	font12 = getFont("./data/DejaVuSans.ttf", 12);
+	font16 = getFont("./data/DejaVuSans.ttf", 16);
 	setActiveFont(font1);
 
 	bh = new bitmapHandler();

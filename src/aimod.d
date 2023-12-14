@@ -3,6 +3,7 @@ import std.math, std.random;
 
 class aiType
 	{
+	message[] messages;
 	void onTick(){}
 	}
 
@@ -32,7 +33,7 @@ enum BUG_STATES
 
 import datajack;
 import guns; // FIX ME LATER
-
+import g;
 class bug : unit
 	{
 //	gunType gun;
@@ -41,6 +42,7 @@ class bug : unit
 	//	gun = gunType();		
 		super(_pos, new flatWalkerStyle(cast(unit)this));
 		ai = new bugAi(this);
+		bmp = bh["beetle"];
 		}
 		
 	override void onTick()
@@ -49,30 +51,43 @@ class bug : unit
 		}
 	}
 
+struct message
+	{
+	bool isSoundEvent;
+	bool isVisualEvent;
+	pair pos;
+	}
+
 class bugAi : aiType
 	{	
 	unit myOwner;
 	BUG_STATES state;
 	
+
 	immutable float agitationThresholdC = 100; // end with C for constant instead of FULLCAPSFORACONST?
-	immutable float rotationSpeedC = degToRad(5);
+	immutable float rotationSpeedC = degToRad(10);
 	immutable float skitterSpeedC = 0.25;
 	immutable float agitationDecayRateC = 1;
+	immutable float runSpeedC = 1;
 
 	float agitation = 0;
 	float fleeAngle = 0; // opposite of what we're fleeing from
 	float currentAngle = 0;
-	float runSpeedC = 1;
 
-	
 	this(unit owner)
 		{
 		myOwner = owner;
+		assert(myOwner !is null);
 		}
 	
 	void triggerAudioCue(pair triggerPos, float volume)
 		{
-		agitation += distanceTo(myOwner.pos, triggerPos)/1000;
+		import std.stdio;
+		auto d = distanceTo(myOwner.pos, triggerPos);
+		float t=0;
+		if(d < 1000)t += 1000 - d; // if within circle, ramp danger
+		agitation += t/10;
+		writeln("distanceTo:", distanceTo(myOwner.pos, triggerPos));
 		if(agitation > agitationThresholdC)
 			{
 			fleeAngle = angleTo(myOwner.pos, triggerPos).flip;
@@ -119,19 +134,45 @@ class bugAi : aiType
 		if(percent(3))state = BUG_STATES.IDLE;
 		}
 
+	void processEvents()
+		{
+		while(messages.length > 1)
+			{
+			auto msg = messages[$-1];
+			if(msg.isSoundEvent)
+				{
+				triggerAudioCue(msg.pos, 100);
+				}
+			messages = messages[0..$-1];
+			}
+		}
+
 	// do we want to CHECK for event changes inside each state, or before checking the switch?
 	override void onTick()
-		{			
+		{
+		super.onTick();
+		import std.format;
+		processEvents();
+		
+		myOwner.debugString = ""; // this should have been working BEFORE.
+		// instead of a SUPERCHAIN, we can start an overhead() handler at the
+		// start of an onTick.
+		// in order to make it OPT-OUT, we could force someone to get the OWNER CONTEXT
+		// by requesting it, which automatically calls super.onTick()
+			
 		with(BUG_STATES)
 		switch(state)
 			{
 			case IDLE:
+					myOwner.debugString ~= format("IDLE %3.2f", agitation);
 					onStateIdle();
 				break;
 			case SCARED:
+					myOwner.debugString ~= format("SCARED %3.2f", agitation);
 					onStateScared();
 				break;
 			case SKITTER:
+					myOwner.debugString ~= format("SKITTER %3.2f", agitation);
 					onStateSkitter();
 				break;
 			default:

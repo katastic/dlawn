@@ -155,6 +155,7 @@ alias FONT = ALLEGRO_FONT;
 alias color = ALLEGRO_COLOR;
 alias sample = ALLEGRO_SAMPLE;
 alias bitmap = ALLEGRO_BITMAP;
+alias font = ALLEGRO_FONT;
 	
 COLOR white  = COLOR(1,1,1,1);
 COLOR black  = COLOR(0,0,0,1);
@@ -816,6 +817,31 @@ void setActiveFont(FONT* theFont)
 void resetActiveFont()
 	{
 	activeFont = g.font1;
+	fontStack = [];
+	fontStack ~= g.font1;
+	}
+	
+font*[] fontStack; /// contains any fonts ABOVE default original font
+
+void pushFont(font* newFont){
+	fontStack ~= activeFont;
+	activeFont = newFont;
+	}
+
+void popFont(){ // pop any ADDITIONAL fonts after original font. Calling at original font asserts because you pop/push'd wrong and will likely have other hidden errors.
+	import std.range : popBack;
+	if(fontStack.length > 0)
+		{
+		fontStack.popBack;
+		if(fontStack.length > 0)
+			{
+			activeFont = fontStack[$-1];
+			}else{
+			activeFont = g.font1;
+			}
+		}
+	else
+		assert("You popped past the original font. Somewhere in your code you have unbalanced push/pops which will cause hidden problems!");
 	}
 
 /// Draw text using most common settings
@@ -1273,9 +1299,6 @@ void al_draw_scaled_indexed_line_segment(T)(pair xycoord, T[] y, float yScale, C
 			}
 		}
 	}
-
-
-
 
 void al_draw_scaled_indexed_segment(T)(pair xycoord, T[] y, float yScale, COLOR c1, float thickness, int index, COLOR indexColor)
 	{

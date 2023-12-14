@@ -171,6 +171,11 @@ class unit : baseObject /// Physics operating generic object
 		moveStyle = _moveStyle;
 		super(_pos, pair(0,0), bh["grass"]);
 		}
+		
+	override void onTick()
+		{
+		super.onTick();
+		}
 	}
 	
 class cleanerDroid : unit

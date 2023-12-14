@@ -1,6 +1,12 @@
 dlawn
 ================================================================================================
 
+ - how do we want multiple fonts? Right now it's an implied font but the problem there is, we HAVE to remember to 
+ current push/pop fonts! We could do a pushFont.drawText().popFont;
+
+ - tankRotate (or better name). rotate the closest direction toward the goal. (counter-clockwise vs clockwise)
+	as 350 degrees and goal = 0 deg, move 10 up toward 360, not down 350.
+
  - is there a way to do temporary bitmap targets that auto go back:
 	 
 		with(target(myNewTarget))

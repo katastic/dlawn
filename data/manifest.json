@@ -9,6 +9,8 @@
 			["bigasteroid","./data/bigasteroid.png"],
 			["explosion","./data/explosion.png"],
 			
+			["beetle","./data/beetle.png"],
+			
 			["wrench","./data/wrench.png"],
 			["ammo","./data/ammo.png"],
 			["hypo","./data/hypo.png"],

@@ -833,8 +833,24 @@ class baseObject
 				pos.x + v.x - v.ox, 
 				pos.y + v.y - v.oy, 
 				angle, ALLEGRO_FLIP_HORIZONTAL & ALLEGRO_FLIP_VERTICAL);
+
+			if(debugString != "")
+				{
+				pair p = pair(pos.x + v.x - v.ox, pos.y + v.y - v.oy);
+				pushFont(g.font12);
+					drawText(p, white, debugString);
+				popFont();
+				}
+
 			return true;
 			}
+		
+		
+		if(isDebugging) // do we ALWAYS draw debugstring regardless of this?
+			{
+				// and this is more like like vectors etc
+			}
+
 
 		// DEBUG. show partially clipped:
 		/+
@@ -859,6 +875,8 @@ class baseObject
 	void onTick()
 		{
 		// THOU. SHALT. NOT. PUT. PHYSICS. IN BASE. baseObject.
+		// but HOUSE KEEPING STUFF, WE DO. Because this will be called by child units first
+		debugString = "";
 		}
 	}	
 

@@ -71,12 +71,12 @@ class world_t
 		
 		import datajack, aimod;
 		{
-		auto u = cast(unit)new runner(pair(500, 500));
+		auto u = cast(unit)new runner(pair(730, 420));
 		units ~= u;
 		}
-		for(int i = 0; i < 100; i++)
+		for(int i = 0; i < 1; i++)
 			{
-			auto u = cast(unit)new bug(pair(uniform(0,1000), uniform(0,1000)));
+			auto u = cast(unit)new bug(pair(uniform(1,1000), uniform(1,1000)));
 			units ~= u;
 			}
 		
@@ -181,6 +181,17 @@ class world_t
 		if(key_a_down)p.actionLeft();
 		if(key_d_down)p.actionRight();
 		
+		if(key_m_down)
+			{
+			import aimod;
+			for(int i = 1; i<units.length;i++)
+				{
+				message m;
+				m.isSoundEvent=true;
+				m.pos = pair(viewports[0].ox + mouse_x, viewports[0].oy + mouse_y);
+				units[i].ai.messages ~= m;
+				}
+			}
 /+
 		if(key_i_down)viewports[0].oy += 2;
 		if(key_k_down)viewports[0].oy -= 2;
