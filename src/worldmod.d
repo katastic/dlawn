@@ -74,7 +74,7 @@ class world_t
 		auto u = cast(unit)new runner(pair(730, 420));
 		units ~= u;
 		}
-		for(int i = 0; i < 1; i++)
+		for(int i = 0; i < 100; i++)
 			{
 			auto u = cast(unit)new bug(pair(uniform(1,1000), uniform(1,1000)));
 			units ~= u;

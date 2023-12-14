@@ -62,7 +62,6 @@ class bugAi : aiType
 	{	
 	unit myOwner;
 	BUG_STATES state;
-	
 
 	immutable float agitationThresholdC = 100; // end with C for constant instead of FULLCAPSFORACONST?
 	immutable float rotationSpeedC = degToRad(10);
@@ -118,7 +117,7 @@ class bugAi : aiType
 		run();
 		if(agitation > 0)agitation -= agitationDecayRateC;
 		else
-			state = BUG_STATES.IDLE;
+			{ agitation = 0; state = BUG_STATES.IDLE; }
 		}
 
 	void onStateSkitter()

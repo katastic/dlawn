@@ -845,12 +845,10 @@ class baseObject
 			return true;
 			}
 		
-		
 		if(isDebugging) // do we ALWAYS draw debugstring regardless of this?
 			{
 				// and this is more like like vectors etc
 			}
-
 
 		// DEBUG. show partially clipped:
 		/+

@@ -1320,6 +1320,3 @@ void al_draw_scaled_indexed_segment(T)(pair xycoord, T[] y, float yScale, COLOR 
 			}
 		}
 	}
-
-
-
