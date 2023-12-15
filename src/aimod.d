@@ -58,6 +58,20 @@ struct message
 	pair pos;
 	}
 
+// TODO: Confirm this works. looks like it favors one direction
+float angleToward(float currentAngle, float destAngle, float angleChange)
+	{
+	float distance1 = (currentAngle + destAngle).wrapRad;
+	float distance2 = (currentAngle - destAngle).wrapRad;
+
+	if(distance1 < distance2)
+		return (currentAngle + angleChange).wrapRad;
+	else
+		return (currentAngle - angleChange).wrapRad;
+	
+	return 0;
+	}
+
 class bugAi : aiType
 	{	
 	unit myOwner;
@@ -66,8 +80,8 @@ class bugAi : aiType
 	immutable float agitationThresholdC = 100; // end with C for constant instead of FULLCAPSFORACONST?
 	immutable float rotationSpeedC = degToRad(10);
 	immutable float skitterSpeedC = 0.25;
-	immutable float agitationDecayRateC = 1;
-	immutable float runSpeedC = 1;
+	immutable float agitationDecayRateC = 2;
+	immutable float runSpeedC = 2;
 
 	float agitation = 0;
 	float fleeAngle = 0; // opposite of what we're fleeing from
@@ -108,8 +122,9 @@ class bugAi : aiType
 		{
 		void run()
 			{
-			if(currentAngle < fleeAngle)currentAngle+=rotationSpeedC;
-			if(currentAngle > fleeAngle)currentAngle-=rotationSpeedC;
+//			if(currentAngle < fleeAngle)currentAngle+=rotationSpeedC;
+//			if(currentAngle > fleeAngle)currentAngle-=rotationSpeedC;
+			currentAngle = angleToward(currentAngle,fleeAngle,rotationSpeedC);
 			myOwner.pos.x += cos(currentAngle)*runSpeedC;
 			myOwner.pos.y += sin(currentAngle)*runSpeedC;
 			}

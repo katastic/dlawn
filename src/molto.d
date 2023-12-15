@@ -134,8 +134,13 @@ struct angle
 		
 	void wrapRad(T)(ref T angle)
 		{
-		return angle = fmod(angle, 2.0*PI);
+		angle = fmod(angle, 2.0*PI);
+		if(angle < 0)angle += 2.0*PI;
+		return angle;
 		}
+/+
+https://stackoverflow.com/questions/11498169/dealing-with-angle-wrap-in-c-code
++/
 
 	float flip(float a) // we could make angles their own typedef
 		{
