@@ -368,15 +368,15 @@ class meteor : baseObject
 
 	void spawnSmoke()
 		{
-		float cvx = cos(angle)*0;
-		float cvy = sin(angle)*0;
+		float cvx = cos(ang)*0;
+		float cvy = sin(ang)*0;
 		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100);
 		}
 
 	void spawnExplosion()
 		{
-		float cvx = cos(angle)*0;
-		float cvy = sin(angle)*0;
+		float cvx = cos(ang)*0;
+		float cvy = sin(ang)*0;
 		auto p = particle(pos.x, pos.y, 0, 0, 0, 100, bh["explosion"]);
 //		p.isGrowing = true;
 		g.world.particles ~= p;
@@ -749,8 +749,8 @@ class dude : baseObject /// this is the new Unit class until we rename them, old
 	
 	void spawnSmoke(float offsetx, float offsety)
 		{
-		float cvx = cos(angle)*0;
-		float cvy = sin(angle)*0;
+		float cvx = cos(ang)*0;
+		float cvy = sin(ang)*0;
 		g.world.particles ~= particle(pos.x + offsetx, pos.y + offsety, vel.x + cvx, vel.y + cvy, 0, 100);
 		}
 	
@@ -805,7 +805,7 @@ class baseObject
 	pair pos; 	/// baseObjects are centered at X/Y (not top-left) so we can easily follow other baseObjects.
 	pair vel;
 	float w=0, h=0;   /// width, height 
-	float angle=0;	/// pointing angle 
+	float ang=0;	/// pointing angle 
 	float hp=100;
 	string debugString="";
 	bool flipHorizontal=false;
@@ -832,7 +832,7 @@ class baseObject
 			al_draw_center_rotated_bitmap(bmp, 
 				pos.x + v.x - v.ox, 
 				pos.y + v.y - v.oy, 
-				angle, ALLEGRO_FLIP_HORIZONTAL & ALLEGRO_FLIP_VERTICAL);
+				ang, ALLEGRO_FLIP_HORIZONTAL & ALLEGRO_FLIP_VERTICAL);
 
 			if(debugString != "")
 				{

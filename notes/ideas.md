@@ -1,6 +1,21 @@
 dlawn
 ================================================================================================
 
+ - simple games: Biplane Bonaza. Skii Free or Die Hard. WW2 JRPG.
+		
+		note: lets just shit these out. Take small games, and just churn it out on autopilot
+		and THEN worry about ideal stuff/revolutionizing/etc.
+
+
+
+// TODO: FIX ME
+float angleToward(float currentAngle, float destAngle, float angleChange)
+
+
+ - we never finished con.log did we
+
+ - splitStringArrayAtWidth3 etc needs fixed
+
  - how do we want multiple fonts? Right now it's an implied font but the problem there is, we HAVE to remember to 
  current push/pop fonts! We could do a pushFont.drawText().popFont;
 

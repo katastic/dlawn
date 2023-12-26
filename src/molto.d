@@ -822,25 +822,29 @@ void setActiveFont(FONT* theFont)
 void resetActiveFont()
 	{
 	activeFont = g.font1;
-	fontStack = [];
-	fontStack ~= g.font1;
+//	fontStack = [];
+	fontStack[fontStackLength] = g.font1;
 	}
 	
-font*[] fontStack; /// contains any fonts ABOVE default original font
+int fontStackLength = 0;
+font*[16] fontStack; /// contains any fonts ABOVE default original font
+// THIS HAS MANY ALLOCATIONS we could just use a static array of MAX_FONT_STACK and we can assert if you go past that.
 
 void pushFont(font* newFont){
-	fontStack ~= activeFont;
+	fontStack[fontStackLength] = activeFont;
 	activeFont = newFont;
+	fontStackLength++;
 	}
 
 void popFont(){ // pop any ADDITIONAL fonts after original font. Calling at original font asserts because you pop/push'd wrong and will likely have other hidden errors.
 	import std.range : popBack;
-	if(fontStack.length > 0)
+	if(fontStackLength > 0)
 		{
-		fontStack.popBack;
-		if(fontStack.length > 0)
+//		fontStack.popBack;
+		fontStackLength--;
+		if(fontStackLength > 0)
 			{
-			activeFont = fontStack[$-1];
+			activeFont = fontStack[fontStackLength-1];
 			}else{
 			activeFont = g.font1;
 			}
@@ -1026,7 +1030,11 @@ void drawBitmap(bitmap *b, vpair pos, uint flags=0) /// draw bitmap with implied
 		pos.r + IMPLIED_VIEWPORT.x - IMPLIED_VIEWPORT.ox, 
 		pos.s + IMPLIED_VIEWPORT.y - IMPLIED_VIEWPORT.oy,
 		flags);
-	}
+	} // TODO. Rename this shit. Implied viewports shoudl have anotehr name.
+	// like drawBitmapImp
+	// or just pass the fucking viewport.
+	// it also takes a vpair so it could be subtle taking the wrong one
+	// maybe not. the vpair is essential for telling the signatures apart.
 
 /// Same as al_draw_bitmap but center the sprite
 /// we can also chop off the last item.
@@ -1079,7 +1087,7 @@ void al_draw_center_rotated_tinted_bitmap(BITMAP* bmp, COLOR tint, float x, floa
 */
 //ALLEGRO_BITMAP* target, 
 
-void al_target2(ALLEGRO_BITMAP* target, scope void delegate() func)
+void al_target2(ALLEGRO_BITMAP* target, scope void delegate() func) // why scope?
 	{
 	al_set_target_bitmap(target);
 	func();
@@ -1090,22 +1098,10 @@ import std.stdio;
 void test2()
 	{
 	ALLEGRO_BITMAP* bmp;
-	al_target2(bmp, { al_draw_pixel(5, 5, ALLEGRO_COLOR(1,1,1,1)); });
-	}
-
-struct al_target()
-	{
-	this(ALLEGRO_BITMAP* target)
-		{
-		al_set_target(target);
-		}
-		
-		//wheres the middle???
-		
-	~this()
-		{
-		al_reset_target();
-		}
+	al_target2(bmp, 
+		{ 
+		al_draw_pixel(5, 5, white); 
+		}); // slightly confusing to an outsider why we have curley and parethessis, though lambads are fairly common knowledge now
 	}
 
 /// Print variablename = value
@@ -1114,8 +1110,9 @@ struct al_target()
 void writeval(T)(string x, T y) 
 	{
 	writeln(x, " = ", y);
-	}
+	} // is this junk code?
 
+// TODO consider renaming these to loadFont, loadBitmap since we're already camelCase now instead of underscores
 /// Load a font and verify we succeeded or cause an out-of-band error to occur.
 FONT* getFont(string path, int size)
 	{
@@ -1131,6 +1128,7 @@ ALLEGRO_BITMAP* getBitmap(string path)
 	import std.string : toStringz;
 	ALLEGRO_BITMAP* bmp = al_load_bitmap(toStringz(path));
 	assert(bmp != null, format("ERROR: Failed to load bitmap [%s]!", path));
+	assert( (al_get_bitmap_flags(bmp) & ALLEGRO_MEMORY_BITMAP) == 0, "Allegro was naughty and tried to make a MEMORY bitmap"); 
 	return bmp;
 	}
 

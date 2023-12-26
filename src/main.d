@@ -114,9 +114,9 @@ bool initialize()
 			ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION, ALLEGRO_RELEASE_NUMBER);
 		}
 	
-static if (false) // MULTISAMPLING. Not sure if helpful.
+static if (true) // MULTISAMPLING. Not sure if helpful.
 	{
-	with (ALLEGRO_DISPLAY_OPTIONS)
+	with (ALLEGRO_DISPLAY_OPTIONS) // https://www.allegro.cc/manual/5/al_set_new_display_option
 		{
 		al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);
 		al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_REQUIRE);
@@ -149,6 +149,12 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 	import console : logger;
 	con = new logger();
 				
+	extraLogsAfterAllegro();
+	
+	al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP); // this should be the default...
+		 // https://www.allegro.cc/manual/5/al_set_new_bitmap_flags
+		 // mipmapping? premultiplied alpha?
+				
 	// load animations/etc
 	// --------------------------------------------------------
 	g.loadResources();
@@ -170,25 +176,32 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 	al_start_timer(fps_timer);
 	al_start_timer(screencap_timer);
 	
-	shader = al_create_shader(ALLEGRO_SHADER_PLATFORM.ALLEGRO_SHADER_AUTO);
-	const char* psource = r"./data/shaders/ex_shader_pixel.glsl";
-	const char* vsource = r"./data/shaders/ex_shader_vertex.glsl";
-	assert(shader);
-	
-	if(!al_attach_shader_source_file(shader, ALLEGRO_SHADER_TYPE.ALLEGRO_VERTEX_SHADER, vsource)){writefln("%s", to!string(al_get_shader_log(shader))); assert(false);}
-	if(!al_attach_shader_source_file(shader, ALLEGRO_SHADER_TYPE.ALLEGRO_PIXEL_SHADER, psource)){writefln("%s", to!string(al_get_shader_log(shader))); assert(false);}
-	if(!al_build_shader(shader))
-		{
-		writefln("%s", to!string(al_get_shader_log(shader)));
-		assert(false);
-		}
+	// should this throw an exception since this error can occur by user damage and not just [design error]
+	bool buildShader(ref ALLEGRO_SHADER *sh, string pixelShaderPath, string vertexShaderPath)
+		{		
+		sh = al_create_shader(ALLEGRO_SHADER_PLATFORM.ALLEGRO_SHADER_AUTO);
+		assert(sh);
 		
+		if(!al_attach_shader_source_file(shader, ALLEGRO_SHADER_TYPE.ALLEGRO_VERTEX_SHADER, vertexShaderPath.toStringz)){writefln("%s", to!string(al_get_shader_log(sh))); assert(false, "FAILED TO BUILD VSHADER");}
+		if(!al_attach_shader_source_file(shader, ALLEGRO_SHADER_TYPE.ALLEGRO_PIXEL_SHADER, pixelShaderPath.toStringz)){writefln("%s", to!string(al_get_shader_log(sh))); assert(false, "FAILED TO BUILD PSHADER");}
+		if(!al_build_shader(sh)){
+			writefln("%s", to!string(al_get_shader_log(sh)));
+			assert(false, "FAILED TO BUILD SHADER");
+			}
+		return true;
+		}
+	
+	string psource = r"./data/shaders/ex_shader_pixel.glsl";
+	string vsource = r"./data/shaders/ex_shader_vertex.glsl";
+	buildShader(shader, psource, vsource);
+	
 	return 0;
 	}
 	
 void shutdown() 
 	{
 	stats.list();
+	writeln("total frames passed ", g.stats.totalFramesPassed);
 //	con.compress();
 	al_destroy_shader(shader);
 	}
@@ -551,6 +564,12 @@ void setupFloatingPoint()
 	// we could disable this on [release] mode if necessary for performance
 	}
 
+void extraLogsAfterAllegro()
+	{
+// see https://www.allegro.cc/manual/5/al_set_new_display_option
+	writefln("Max texture size reported: %d", al_get_display_option(al_display, ALLEGRO_DISPLAY_OPTIONS.ALLEGRO_MAX_BITMAP_SIZE));
+	}
+
 //=============================================================================
 int main(string [] args)
 	{
@@ -579,10 +598,14 @@ int main(string [] args)
 
 	if(testModeArg != "")
 		{
-		switch(testModeArg)
+		import aimod : test__angleToward;
+		switch(testModeArg.toLower)
 			{
 			case "test":
 				runConsoleTests();
+			break;
+			case "testangle":
+				test__angleToward();
 			break;
 			case "allegrotest":
 				runAllegroTests();

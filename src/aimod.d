@@ -59,17 +59,31 @@ struct message
 	}
 
 // TODO: Confirm this works. looks like it favors one direction
+void test__angleToward()
+	{
+	import std.stdio;
+	writeln(angleToward(340.degToRad,   0.degToRad, 20.degToRad).radToDeg);
+	writeln(angleToward(340.degToRad, 310.degToRad, 20.degToRad).radToDeg);
+	writeln(angleToward(340.degToRad,  40.degToRad, 20.degToRad).radToDeg);
+	}
+
+// TODO: FIX ME
 float angleToward(float currentAngle, float destAngle, float angleChange)
 	{
-	float distance1 = (currentAngle + destAngle).wrapRad;
-	float distance2 = (currentAngle - destAngle).wrapRad;
-
-	if(distance1 < distance2)
-		return (currentAngle + angleChange).wrapRad;
-	else
-		return (currentAngle - angleChange).wrapRad;
+	import std.stdio : writefln;
+	writefln("ca:%3.2f da:%3.2f change:%3.2f", currentAngle.radToDeg, destAngle.radToDeg, angleChange.radToDeg); 
+	float result=0;
 	
-	return 0;
+	if(destAngle > currentAngle) // we need to move forward
+		{
+		result = destAngle + currentAngle;
+		}
+	if(destAngle < currentAngle) // we need to move backwards across zero
+		{
+		result = destAngle - currentAngle;
+		}
+
+	return result.wrapRad;
 	}
 
 class bugAi : aiType
@@ -177,16 +191,16 @@ class bugAi : aiType
 		with(BUG_STATES)
 		switch(state)
 			{
-			case IDLE:
-					myOwner.debugString ~= format("IDLE %3.2f", agitation);
+			case IDLE: // if we append, we can add messages however we're also slamming tons of string allocaitons. it might be better to have a debug[STRINGS_MAX] array
+					myOwner.debugString = format("IDLE %3.2f", agitation);
 					onStateIdle();
 				break;
 			case SCARED:
-					myOwner.debugString ~= format("SCARED %3.2f", agitation);
+					myOwner.debugString = format("SCARED %3.2f", agitation);
 					onStateScared();
 				break;
 			case SKITTER:
-					myOwner.debugString ~= format("SKITTER %3.2f", agitation);
+					myOwner.debugString = format("SKITTER %3.2f", agitation);
 					onStateSkitter();
 				break;
 			default:

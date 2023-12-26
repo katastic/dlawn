@@ -1,3 +1,98 @@
+import molto : angle;
+
+// THIS IS ww2 OR OTHERWISE now because why make a datajack game.
+// though that won't really have any kind of physics stuff that I usually do and enjoy
+// maybe that'll be unique enough.
+// maybe we can make WW2JRPG have a top down view instead of JRPG where you can pick targets and use terrain
+
+// otherwise, Biplane Bonanza, or SkiiFreed or Death Hard
+
+// WW2RPG
+// ==========================================================================
+// we should do more components. so if they have a health component, anyone can.
+enum TANK_LOCATION
+	{
+	TL_UpperGlacius,
+	TL_LowerGlacius,
+	TL_Back,
+	TL_UpperSide,
+	TL_LowerSide,
+	TL_TurretMantlet,
+	TL_TurretFront,
+	TL_TurretBack,
+	TL_TurretSide,
+	TL_LeftTrack,
+	TL_RightTrack,
+	}
+
+enum SHELL_TYPE
+	{
+	HE, HESH, AP, APCR, APCBR, HVAP, HEVT
+	}
+
+struct shellType
+	{
+	float pen;
+	float decayFactor; // or pen at each range
+	float explosiveMass;
+	float fuseDistance;
+	SHELL_TYPE type;
+	}
+
+class tankType : unit
+	{ // when we hit armor, does it damage the armor? Or just pen and do HP damage
+	ipair gridPos;
+	float hitpoints;
+	float hitpointsMax;
+	
+	float[TANK_LOCATION] armor;
+	
+	this()
+		{	
+		super(pair(0,0), new flatWalkerStyle(this));
+		}
+	
+	void moveToGrid(ipair gridLocation)
+		{
+		// if map says its clear, lets move
+		// or request the map move us. a toss up
+		gridPos = gridLocation;
+		}
+	
+	void actionMakeAttackOn(tankType enemy)
+		{
+		}
+		
+	void eventTakeHit(tankType from, shellType shell, float range, TANK_LOCATION loc)
+		{
+		
+		}
+		
+	void onTurn()
+		{
+		// do shit
+		}
+	}
+
+// Biplane Bonanza
+// ==========================================================================
+class biplane : unit
+	{
+	pair velocity;
+//	angle ang;
+	
+	this()
+		{	
+		super(pair(0,0), new flatWalkerStyle(this));
+		}
+	
+	bool isLandingGearDown;
+	void actionLandingGear(){}
+	void actionFireGun(){}
+	void actionButtGunner(){}
+	void actionDropBomb(){}
+	}
+
 // datajack 2020 alpha footage has various sneaking chatting
 // https://www.youtube.com/watch?v=N9kcwtBtgoI
 // "I'm still figuring it out but I think there will be strategic elements. You might be able to use information you find to talk around, items like fake IDs, maybe real IDs you pull off a dead guard, and the overall skill check / choices will be subject to some other constraints."

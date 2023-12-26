@@ -504,7 +504,7 @@ struct statistics_t
 	StopWatch swLogic;
 	StopWatch swDraw;
 	StopWatch swLogging;
-	float msLogic=0;
+	float nsLogic=0;
 	float nsDraw=0;
 	float nsLogging=0; //needed?
 	

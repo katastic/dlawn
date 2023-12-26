@@ -74,7 +74,7 @@ class world_t
 		auto u = cast(unit)new runner(pair(730, 420));
 		units ~= u;
 		}
-		for(int i = 0; i < 100; i++)
+		for(int i = 0; i < 2; i++)
 			{
 			auto u = cast(unit)new bug(pair(uniform(1,1000), uniform(1,1000)));
 			units ~= u;
@@ -85,7 +85,7 @@ class world_t
 		//structures ~= new structure(700, 400, bh["fountain"]);
 		
 		testGraph  = new intrinsicGraph!float("Draw (ms) ", g.stats.nsDraw , 100, 150, COLOR(1,0,0,1), 1_000_000);
-		testGraph2 = new intrinsicGraph!float("Logic (ms)", g.stats.msLogic, 100, 260, COLOR(1,0,0,1), 1_000_000);
+		testGraph2 = new intrinsicGraph!float("Logic (ms)", g.stats.nsLogic, 100, 260, COLOR(1,0,0,1), 1_000_000);
 				
 		viewports[0] = new viewport(0, 0, 1366, 768, 0, 0);
 		assert(units[0] !is null);
@@ -134,7 +134,13 @@ class world_t
 		timeIndex++;
 		if(timeIndex > 256)timeIndex = 0;
 		al_use_shader(shader);
-		al_set_shader_float("timeIndex", timeIndex);
+		
+		void setShaderFloat(const char* name, float value)
+			{
+			assert(al_set_shader_float(name, value) == 0);
+			}
+		
+//		al_set_shader_float("timeIndex", timeIndex);
 			map2.onDraw(viewports[0]);
 		al_use_shader(null);
 		//map3d.onDraw(viewports[0]);
@@ -213,7 +219,7 @@ class world_t
 		prune(items);
 		
 		stats.swLogic.stop();
-		stats.msLogic = stats.swLogic.peek.total!"msecs";
+		stats.nsLogic = stats.swLogic.peek.total!"nsecs";
 		stats.swLogic.reset();
 		}
 		

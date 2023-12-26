@@ -17,7 +17,7 @@ void main()
 	tmp.g *= tint.g;
 	tmp.b *= tint.b;
 
-	if(gl_FragCoord.x == 100.0) 
+	if(gl_FragCoord.x == 10.0) 
 		{
 		tmp.r *= 0.0;
 		tmp.g *= 0.0;
