@@ -575,7 +575,7 @@ class tileMap : mapBase
 			}
 		}
 		
-	void drawCircle(pair pos, int r, ubyte val)
+	void drawCircle(pair pos, int r, ubyte mapIndexVal)
 		{
 		import std.math : sqrt;
 		for(int i = -r+1; i < r; i++)
@@ -585,7 +585,7 @@ class tileMap : mapBase
 				{
 				int ci = cast(uint)pos.x/TILE_W + i;
 				int cj = cast(uint)pos.y/TILE_W + j;
-				set(ipair(ci,cj), val); 
+				set(ipair(ci,cj), mapIndexVal); 
 			//	writeln(ci, " ", cj, " - ", sqrt(cast(float)i^^2 + cast(float)j^^2), " < ", r);
 				}
 			}

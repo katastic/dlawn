@@ -439,17 +439,17 @@ void execute()
 						g.world.units[0].actionFire();
 						key_e_down = false;
 						}
-					/+
+					
 					if(g.key_q_down)//handleMouseAt(g.mouse_x, g.mouse_y, g.viewports[0]);
 						{
 						writeln("q is down");
 						viewport v = viewports[0];
-						auto p = g.world.units[0].pos;
+						auto p = g.world.objects[0].pos;
 						int w = 20;
 						int h = 20;
 						g.world.map2.drawCircle(p, 4, 0);
 						g.key_q_down = false;
-						}+/
+						}
 					break;
 					}
 					
