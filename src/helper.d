@@ -284,7 +284,7 @@ bool flipCoin() => cast(bool)uniform!"[]"(0,1); //return a 0 or 1 result
 				2.provide a fitting climax or conclusion to.
 +/
 
-// do these need to be REF parameters?
+// TODO: Wtf is this name??? and why not REF parameter? This was a bug till LDC caught I wasn't using return value!
 T capReset(T)(T val, T max, T resetValue=0) /// If val > max, val = resetValue=0
 	{
 	return (val <= max) ? val : resetValue;

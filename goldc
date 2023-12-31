@@ -5,7 +5,11 @@
 
 #ldc2 -w -release -ofmain main.d helper.d -L-L/usr/local/lib/ -L-L. $@
 #ldc2 -w -d-debug -ofmain main.d helper.d objects.d viewport.d g.d gui.d -L-L/usr/local/lib/ -L-L. $@
-ldc2 -wi -d-debug -g --gc -stats -ofmain `ls ./src/*.d` -L-L/usr/local/lib/ -L-L./lib/ $@ --preview=shortenedMethods
+ldc2 -wi -d-debug -fsanitize=address -fsanitize-memory-track-origins=0 -fsanitize-blacklist=asanblacklist.txt --frame-pointer=all  -g --gc -stats -ofmain `ls ./src/*.d`  `ls ./toml/src/toml/*.d` -L-L/usr/local/lib/ -L-L./lib/ $@ --preview=shortenedMethods
+
+# https://stackoverflow.com/questions/48833176/get-location-of-libasan-from-gcc-clang
+# `gcc -print-file-name=libasan.so`
+# -disable-fp-elim doesn't work
 
 
 #  --checkaction=context

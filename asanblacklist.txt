@@ -1,0 +1,14 @@
+# Ignore exactly this function (the names are mangled)
+fun:__interceptor_strcmp
+fun:_D4core8internal6string__T7dstrcmpZQjFNaNbNiNeMxAaMxQeZi
+fun:_asan_stack_free_5
+fun:_asan_stack_free_6
+fun:free
+fun:strcmp
+fun:strdup
+fun:_interceptor_free
+fun:_interceptor_strdup
+# Ignore MyFooBar(void) if it is in C++:
+fun:_Z8MyFooBarv
+# Ignore all function containing MyFooBar
+fun:*MyFooBar*

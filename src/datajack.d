@@ -33,10 +33,17 @@ enum SHELL_TYPE
 struct shellType
 	{
 	float pen;
-	float decayFactor; // or pen at each range
+	float decayFactor; // or pen at each range table
 	float explosiveMass;
-	float fuseDistance;
+	float fuseDistance; /// minimum
 	SHELL_TYPE type;
+	bool isIncendiary;
+	bool isExplosive;
+	bool isTracer;
+	bool isArmorPiercing;
+	bool isBallisticCapped;
+	bool isHESH;
+	bool isHEAT;
 	}
 
 class tankType : unit
@@ -185,7 +192,7 @@ class animationHandler
 		with(anims[name])
 			{
 			assert(direction < numDirections);
-			capReset(currentFrame, numFramesTotal()-1, 0); 
+			currentFrame = capReset(currentFrame, numFramesTotal()-1, 0); 
 			return frames[currentFrame];
 			}
 		}
@@ -206,7 +213,40 @@ class movementStyle2
 		myObject = _myObject;
 		}
 	
-	void onTick() = 0;
+	void onTick(){}; // why can't this be = 0; instead of requiring override???
+	}
+
+class planeStyle : movementStyle2
+	{
+	// "I want to move up/down/left/right"
+	bool tryToMove(pair posDifference) // not used?
+		{
+		// "Yes"
+		//return true
+		
+		alias p = posDifference; // set animation direction.
+		if		(p.x < 0 && p.y < 0){ myObject.direction = 0; }
+		else if	(p.x > 0 && p.y < 0){ myObject.direction = 1; }
+		else if	(p.x < 0 && p.y > 0){ myObject.direction = 2; }
+		else if	(p.x > 0 && p.y > 0){ myObject.direction = 3; }
+		myObject.pos += posDifference;
+		
+		return true;
+		// "No"
+		//notifyCollisions(); // we hit some stuff
+	//	return false; 
+		}
+	
+	this(unit _myObject)
+		{
+		super(_myObject);
+		}
+		
+	override void onTick()
+		{
+		with(myObject)
+			pos += vel;
+		}
 	}
 
 // class flatWalkerStyle(T) : movementStyle2(T)
@@ -215,6 +255,9 @@ class movementStyle2
 	
 class flatWalkerStyle : movementStyle2
 	{
+	bool isGrounded=0;
+	bool isJumping=0;
+		
 	// "I want to move up/down/left/right"
 	bool tryToMove(pair posDifference)
 		{
@@ -239,9 +282,19 @@ class flatWalkerStyle : movementStyle2
 		super(_myObject);
 		}
 		
-	void onTick()
+	override void onTick()
 		{
-		
+		with(myObject)
+			{
+			if(world.map2.isValidMovement(pair(pos, vel)))
+				{
+				vel.y += 0.05;
+				pos += vel;
+				}else{
+				pos -= vel;
+				vel.y = 0;
+				}
+			}
 		}
 	}
 
@@ -269,6 +322,7 @@ class unit : baseObject /// Physics operating generic object
 		
 	override void onTick()
 		{
+		if(moveStyle !is null)moveStyle.onTick();
 		super.onTick();
 		}
 	}

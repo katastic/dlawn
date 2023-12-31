@@ -47,7 +47,7 @@ class world_t
 	player[] players;
 	team[] teams;
 				
-	//dude[] objects; // other stuff
+	dude[] objects; // other stuff
 	unit[] units;
 	item[] items;
  	structure[] structures; // should all structures be owned by a planet? are there 'free floating' structures we'd have? an asteroid structure that's just a structure?
@@ -74,6 +74,10 @@ class world_t
 		auto u = cast(unit)new runner(pair(730, 420));
 		units ~= u;
 		}
+		{
+		auto d = new dude(pair(730, 420));
+		objects ~= d;
+		}
 		for(int i = 0; i < 2; i++)
 			{
 			auto u = cast(unit)new bug(pair(uniform(1,1000), uniform(1,1000)));
@@ -89,7 +93,9 @@ class world_t
 				
 		viewports[0] = new viewport(0, 0, 1366, 768, 0, 0);
 		assert(units[0] !is null);
-		viewports[0].attach(&units[0]);
+		assert(objects[0] !is null);
+//		viewports[0].attach(&units[0]);
+		viewports[0].attach(&objects[0]);
 		setViewport2(viewports[0]);
 
 		stats.swLogic = StopWatch(AutoStart.no);
@@ -148,7 +154,7 @@ class world_t
 		drawStat4(bullets	, "bullets");
 		drawStat4(particles	, "particles");
 		drawStat4(units		, "units");
-	//	drawStat4(objects	, "dudes");
+		drawStat4(objects	, "dudes");
 		drawStat4(structures, "structures");
 		drawStat4(items		, "items");		
 
@@ -179,7 +185,7 @@ class world_t
 			{
 			}
 
-		auto p = units[0];
+		auto p = objects[0];
 		
 		// Note these are LEVEL triggers, not EDGE triggers! They will continue to fire as long as the key is down.
 		if(key_w_down)p.actionUp();
@@ -208,14 +214,14 @@ class world_t
 		tick(particles);
 		tick(bullets);
 		tick(units);
-//		tick(objects);
+		tick(objects);
 		tick(items);
 		th.onTick();
 			
 		prune(units);
 		prune(particles);
 		prune(bullets);
-//		prune(objects);
+		prune(objects);
 		prune(items);
 		
 		stats.swLogic.stop();

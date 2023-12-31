@@ -29,6 +29,8 @@ import atlasmod;
 
 import datajack; // gamemodule
 
+int SCREEN_W = 1300;
+int SCREEN_H = 600;
 const int TILE_W = 32;
 const int TILE_H = 32; // beware some stuff assumed TILE_W=TILE_H so they just used TILE_W everywhere.
 const int MAP_W = 256;
@@ -187,8 +189,6 @@ FONT* 	font12;
 FONT* 	font16;
 FONT* 	activeFont;
 
-int SCREEN_W = 1300;
-int SCREEN_H = 400;
 enum DIR { UP, DOWN, LEFT, RIGHT, UPLEFT, UPRIGHT, DOWNRIGHT, DOWNLEFT, NONE=0};
 
 intrinsicGraph!float testGraph;

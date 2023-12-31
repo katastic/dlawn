@@ -1,0 +1,362 @@
+args length = 1
+[0] ./main
+The Allegro version (5.2.0.0)
+Max texture size reported: 16384
+z:isotile01.png q:[{"isotile01":[0,0,128,64,1,0]}]
+	i:0 j:{"isotile01":[0,0,128,64,1,0]}
+tilename: isotile01
+		object l:[isotile01] m:[0,0,128,64,1,0]
+			val n:0 o:0
+			val n:1 o:0
+			val n:2 o:128
+			val n:3 o:64
+			val n:4 o:1
+			val n:5 o:0
+x: 0
+y: 0
+w: 128
+h: 64
+isPassable: true
+isotile01.png=fileScanEntry("isotile01", 0, 0, 128, 64, true, false)
+z:isowall01.png q:[{"isowall01":[0,0,64,128,1,0]}]
+	i:0 j:{"isowall01":[0,0,64,128,1,0]}
+tilename: isowall01
+		object l:[isowall01] m:[0,0,64,128,1,0]
+			val n:0 o:0
+			val n:1 o:0
+			val n:2 o:64
+			val n:3 o:128
+			val n:4 o:1
+			val n:5 o:0
+x: 0
+y: 0
+w: 64
+h: 128
+isPassable: true
+isowall01.png=fileScanEntry("isowall01", 0, 0, 64, 128, true, false)
+z:isotile04.png q:[{"isotile04":[0,0,128,64,1,0]}]
+	i:0 j:{"isotile04":[0,0,128,64,1,0]}
+tilename: isotile04
+		object l:[isotile04] m:[0,0,128,64,1,0]
+			val n:0 o:0
+			val n:1 o:0
+			val n:2 o:128
+			val n:3 o:64
+			val n:4 o:1
+			val n:5 o:0
+x: 0
+y: 0
+w: 128
+h: 64
+isPassable: true
+isotile04.png=fileScanEntry("isotile04", 0, 0, 128, 64, true, false)
+z:isotile02.png q:[{"isotile02":[0,0,128,64,1,0]}]
+	i:0 j:{"isotile02":[0,0,128,64,1,0]}
+tilename: isotile02
+		object l:[isotile02] m:[0,0,128,64,1,0]
+			val n:0 o:0
+			val n:1 o:0
+			val n:2 o:128
+			val n:3 o:64
+			val n:4 o:1
+			val n:5 o:0
+x: 0
+y: 0
+w: 128
+h: 64
+isPassable: true
+isotile02.png=fileScanEntry("isotile02", 0, 0, 128, 64, true, false)
+z:atlas2.png q:[{"grass2":[0,0,32,32,1,0]},{"sand2":[32,0,32,32,0,0]},{"brick2":[64,0,32,32,0,0]},{"wood2":[96,0,32,32,0,0]},{"reinforcedwall2":[128,0,32,32,0,0]},{"lava2":[0,32,32,32,0,0]},{"water2":[0,64,32,32,0,0]}]
+	i:0 j:{"grass2":[0,0,32,32,1,0]}
+tilename: grass2
+		object l:[grass2] m:[0,0,32,32,1,0]
+			val n:0 o:0
+			val n:1 o:0
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:1
+			val n:5 o:0
+x: 0
+y: 0
+w: 32
+h: 32
+isPassable: true
+atlas2.png=fileScanEntry("grass2", 0, 0, 32, 32, true, false)
+	i:1 j:{"sand2":[32,0,32,32,0,0]}
+tilename: sand2
+		object l:[sand2] m:[32,0,32,32,0,0]
+			val n:0 o:32
+			val n:1 o:0
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:0
+			val n:5 o:0
+x: 32
+y: 0
+w: 32
+h: 32
+isPassable: false
+atlas2.png=fileScanEntry("sand2", 32, 0, 32, 32, false, false)
+	i:2 j:{"brick2":[64,0,32,32,0,0]}
+tilename: brick2
+		object l:[brick2] m:[64,0,32,32,0,0]
+			val n:0 o:64
+			val n:1 o:0
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:0
+			val n:5 o:0
+x: 64
+y: 0
+w: 32
+h: 32
+isPassable: false
+atlas2.png=fileScanEntry("brick2", 64, 0, 32, 32, false, false)
+	i:3 j:{"wood2":[96,0,32,32,0,0]}
+tilename: wood2
+		object l:[wood2] m:[96,0,32,32,0,0]
+			val n:0 o:96
+			val n:1 o:0
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:0
+			val n:5 o:0
+x: 96
+y: 0
+w: 32
+h: 32
+isPassable: false
+atlas2.png=fileScanEntry("wood2", 96, 0, 32, 32, false, false)
+	i:4 j:{"reinforcedwall2":[128,0,32,32,0,0]}
+tilename: reinforcedwall2
+		object l:[reinforcedwall2] m:[128,0,32,32,0,0]
+			val n:0 o:128
+			val n:1 o:0
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:0
+			val n:5 o:0
+x: 128
+y: 0
+w: 32
+h: 32
+isPassable: false
+atlas2.png=fileScanEntry("reinforcedwall2", 128, 0, 32, 32, false, false)
+	i:5 j:{"lava2":[0,32,32,32,0,0]}
+tilename: lava2
+		object l:[lava2] m:[0,32,32,32,0,0]
+			val n:0 o:0
+			val n:1 o:32
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:0
+			val n:5 o:0
+x: 0
+y: 32
+w: 32
+h: 32
+isPassable: false
+atlas2.png=fileScanEntry("lava2", 0, 32, 32, 32, false, false)
+	i:6 j:{"water2":[0,64,32,32,0,0]}
+tilename: water2
+		object l:[water2] m:[0,64,32,32,0,0]
+			val n:0 o:0
+			val n:1 o:64
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:0
+			val n:5 o:0
+x: 0
+y: 64
+w: 32
+h: 32
+isPassable: false
+atlas2.png=fileScanEntry("water2", 0, 64, 32, 32, false, false)
+z:atlas.png q:[{"grass":[0,0,32,32,1,0]},{"sand":[32,0,32,32,0,0]},{"brick":[64,0,32,32,0,0]},{"wood":[96,0,32,32,0,0]},{"reinforcedwall":[128,0,32,32,0,0]},{"lava":[0,32,32,32,0,0]},{"water":[0,64,32,32,0,0]}]
+	i:0 j:{"grass":[0,0,32,32,1,0]}
+tilename: grass
+		object l:[grass] m:[0,0,32,32,1,0]
+			val n:0 o:0
+			val n:1 o:0
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:1
+			val n:5 o:0
+x: 0
+y: 0
+w: 32
+h: 32
+isPassable: true
+atlas.png=fileScanEntry("grass", 0, 0, 32, 32, true, false)
+	i:1 j:{"sand":[32,0,32,32,0,0]}
+tilename: sand
+		object l:[sand] m:[32,0,32,32,0,0]
+			val n:0 o:32
+			val n:1 o:0
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:0
+			val n:5 o:0
+x: 32
+y: 0
+w: 32
+h: 32
+isPassable: false
+atlas.png=fileScanEntry("sand", 32, 0, 32, 32, false, false)
+	i:2 j:{"brick":[64,0,32,32,0,0]}
+tilename: brick
+		object l:[brick] m:[64,0,32,32,0,0]
+			val n:0 o:64
+			val n:1 o:0
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:0
+			val n:5 o:0
+x: 64
+y: 0
+w: 32
+h: 32
+isPassable: false
+atlas.png=fileScanEntry("brick", 64, 0, 32, 32, false, false)
+	i:3 j:{"wood":[96,0,32,32,0,0]}
+tilename: wood
+		object l:[wood] m:[96,0,32,32,0,0]
+			val n:0 o:96
+			val n:1 o:0
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:0
+			val n:5 o:0
+x: 96
+y: 0
+w: 32
+h: 32
+isPassable: false
+atlas.png=fileScanEntry("wood", 96, 0, 32, 32, false, false)
+	i:4 j:{"reinforcedwall":[128,0,32,32,0,0]}
+tilename: reinforcedwall
+		object l:[reinforcedwall] m:[128,0,32,32,0,0]
+			val n:0 o:128
+			val n:1 o:0
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:0
+			val n:5 o:0
+x: 128
+y: 0
+w: 32
+h: 32
+isPassable: false
+atlas.png=fileScanEntry("reinforcedwall", 128, 0, 32, 32, false, false)
+	i:5 j:{"lava":[0,32,32,32,0,0]}
+tilename: lava
+		object l:[lava] m:[0,32,32,32,0,0]
+			val n:0 o:0
+			val n:1 o:32
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:0
+			val n:5 o:0
+x: 0
+y: 32
+w: 32
+h: 32
+isPassable: false
+atlas.png=fileScanEntry("lava", 0, 32, 32, 32, false, false)
+	i:6 j:{"water":[0,64,32,32,0,0]}
+tilename: water
+		object l:[water] m:[0,64,32,32,0,0]
+			val n:0 o:0
+			val n:1 o:64
+			val n:2 o:32
+			val n:3 o:32
+			val n:4 o:0
+			val n:5 o:0
+x: 0
+y: 64
+w: 32
+h: 32
+isPassable: false
+atlas.png=fileScanEntry("water", 0, 64, 32, 32, false, false)
+z:isotile05.png q:[{"isotile05":[0,0,128,64,1,0]}]
+	i:0 j:{"isotile05":[0,0,128,64,1,0]}
+tilename: isotile05
+		object l:[isotile05] m:[0,0,128,64,1,0]
+			val n:0 o:0
+			val n:1 o:0
+			val n:2 o:128
+			val n:3 o:64
+			val n:4 o:1
+			val n:5 o:0
+x: 0
+y: 0
+w: 128
+h: 64
+isPassable: true
+isotile05.png=fileScanEntry("isotile05", 0, 0, 128, 64, true, false)
+z:isotile03.png q:[{"isotile03":[0,0,128,64,1,0]}]
+	i:0 j:{"isotile03":[0,0,128,64,1,0]}
+tilename: isotile03
+		object l:[isotile03] m:[0,0,128,64,1,0]
+			val n:0 o:0
+			val n:1 o:0
+			val n:2 o:128
+			val n:3 o:64
+			val n:4 o:1
+			val n:5 o:0
+x: 0
+y: 0
+w: 128
+h: 64
+isPassable: true
+isotile03.png=fileScanEntry("isotile03", 0, 0, 128, 64, true, false)
+isotile01.png = 
+	0,fileScanEntry("isotile01", 0, 0, 128, 64, true, false)
+isowall01.png = 
+	0,fileScanEntry("isowall01", 0, 0, 64, 128, true, false)
+isotile04.png = 
+	0,fileScanEntry("isotile04", 0, 0, 128, 64, true, false)
+isotile02.png = 
+	0,fileScanEntry("isotile02", 0, 0, 128, 64, true, false)
+atlas2.png = 
+	0,fileScanEntry("grass2", 0, 0, 32, 32, true, false)
+	1,fileScanEntry("sand2", 32, 0, 32, 32, false, false)
+	2,fileScanEntry("brick2", 64, 0, 32, 32, false, false)
+	3,fileScanEntry("wood2", 96, 0, 32, 32, false, false)
+	4,fileScanEntry("reinforcedwall2", 128, 0, 32, 32, false, false)
+	5,fileScanEntry("lava2", 0, 32, 32, 32, false, false)
+	6,fileScanEntry("water2", 0, 64, 32, 32, false, false)
+atlas.png = 
+	0,fileScanEntry("grass", 0, 0, 32, 32, true, false)
+	1,fileScanEntry("sand", 32, 0, 32, 32, false, false)
+	2,fileScanEntry("brick", 64, 0, 32, 32, false, false)
+	3,fileScanEntry("wood", 96, 0, 32, 32, false, false)
+	4,fileScanEntry("reinforcedwall", 128, 0, 32, 32, false, false)
+	5,fileScanEntry("lava", 0, 32, 32, 32, false, false)
+	6,fileScanEntry("water", 0, 64, 32, 32, false, false)
+isotile05.png = 
+	0,fileScanEntry("isotile05", 0, 0, 128, 64, true, false)
+isotile03.png = 
+	0,fileScanEntry("isotile03", 0, 0, 128, 64, true, false)
+["lava":const(tileInfo)(false), "grass":const(tileInfo)(true), "water2":const(tileInfo)(false), "isotile01":const(tileInfo)(true), "sand2":const(tileInfo)(false), "reinforcedwall":const(tileInfo)(false), "isotile04":const(tileInfo)(tru[[38;2;138;123;82m0[39m.[38;2;138;123;82m000[39m[38;2;67;79;84ms[39m][[38;2;138;123;82m0[39m][[[38;2;67;79;84mtest[39m]][[38;2;67;79;84mLoading[39m [38;2;67;79;84matlasMetadata[39m [38;2;114;142;0mat[39m [.[38;2;114;142;0m/[39m[38;2;114;142;0mdata[39m[38;2;114;142;0m/[39m[38;2;67;79;84matlasManifest[39m.[38;2;67;79;84mjson[39m]]
+[[38;2;138;123;82m0[39m.[38;2;138;123;82m000[39m[38;2;67;79;84ms[39m][[38;2;138;123;82m0[39m][[[38;2;67;79;84mtest[39m]][[38;2;67;79;84mattempting[39m [38;2;114;142;0mto[39m [38;2;67;79;84mloading[39m [38;2;67;79;84matlas[39m([38;2;67;79;84ms[39m) [38;2;67;79;84mbased[39m [38;2;114;142;0mon[39m [38;2;67;79;84mmanifest[39m]
+[[38;2;138;123;82m0[39m.[38;2;138;123;82m000[39m[38;2;67;79;84ms[39m][[38;2;138;123;82m0[39m][[[38;2;67;79;84mtest[39m]][[38;2;67;79;84mLoading[39m [38;2;67;79;84matlas[39m [38;2;114;142;0mat[39m [.[38;2;114;142;0m/[39m[38;2;114;142;0mdata[39m[38;2;114;142;0m/[39m[38;2;67;79;84matlas[39m.[38;2;67;79;84mpng[39m]]
+[[38;2;138;123;82m0[39m.[38;2;138;123;82m000[39m[38;2;67;79;84ms[39m][[38;2;138;123;82m0[39m][[[38;2;67;79;84mtest[39m]][[38;2;67;79;84mLoading[39m [38;2;67;79;84matlasMetadata[39m [38;2;114;142;0mat[39m [.[38;2;114;142;0m/[39m[38;2;114;142;0mdata[39m[38;2;114;142;0m/[39m[38;2;67;79;84matlas[39m.[38;2;67;79;84mjson[39m]]
+[[38;2;138;123;82m0[39m.[38;2;138;123;82m000[39m[38;2;67;79;84ms[39m][[38;2;138;123;82m0[39m][[[38;2;67;79;84mtest[39m]][[38;2;166;23;23m'[39m[38;2;67;79;84mello[39m [38;2;67;79;84mlove[39m [38;2;138;123;82m2023[39m]
+e), "lava2":const(tileInfo)(false), "wood2":const(tileInfo)(false), "isotile05":const(tileInfo)(true), "isowall01":const(tileInfo)(true), "isotile02":const(tileInfo)(true), "reinforcedwall2":const(tileInfo)(false), "sand":const(tileInfo)(false), "wood":const(tileInfo)(false), "brick":const(tileInfo)(false), "water":const(tileInfo)(false), "isotile03":const(tileInfo)(true), "brick2":const(tileInfo)(false), "grass2":const(tileInfo)(true)]
+{ type = "player", y = 30, mapnote = "this guy fucks.", x = 25 }
+{ type = "player", y = 30, x = 26 }
+{ type = "player", y = 30, x = 27 }
+{ type = "player", y = 30, x = 28 }
+list of stats keys
+ - particles statValue(0, 0)
+ - meteors statValue(0, 0)
+ - tiles statValue(588, 0)
+ - units statValue(2, 1)
+ - bullets statValue(0, 0)
+ - structures statValue(0, 0)
+ - dudes statValue(0, 0)
+total frames passed 77
+[log] total stats.nsLogging time 0s
+[log] total log entries 5
+[log] Closing stream.

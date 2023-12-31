@@ -146,9 +146,10 @@ class pygmentize// : prettyPrinter
 		
 	~this()
 		{
-		writeln("total stats.nsLogging time ", stats.nsLogging/1000/1000, "s");
-		writeln("total log entries ", stats.numberLogEntries);
-		if(hasStreamStarted)pipes.stdin.close();
+		writeln("[log] total stats.nsLogging time ", stats.nsLogging/1000/1000, "s");
+		writeln("[log] total log entries ", stats.numberLogEntries);
+		if(hasStreamStarted){		writeln("[log] Closing stream.");
+ pipes.stdin.close();}
 		}
 	}
 /+

@@ -9,8 +9,10 @@ class viewport
 //	unit attachedUnit;
 
 	bool isAttached=false;
+	bool isDudeAttached=false; //FIXME
 	bool isConfinedToMap=false;
 	unit* attachedObject;
+	dude* attachedDude;//FIXME
 	
 	bool seekFormula(pair position, pair goal, pair velocity)
 		{
@@ -25,6 +27,13 @@ class viewport
 		{
 		isAttached = true;
 		attachedObject = o;
+		}
+
+		
+	void attach(dude* o) //FIXME
+		{
+		isDudeAttached = true;
+		attachedDude = o;
 		}
 
 	/// Screen coordinates
@@ -81,11 +90,17 @@ class viewport
 	//			if(ox + w > g.world.map2.size.w*TILE_W)clampHigh(ox, g.world.map2.size.w*TILE_W - w); // fixme?
 	//			if(oy + h > g.world.map2.size.h*TILE_W)clampHigh(oy, g.world.map2.size.h*TILE_W - h);
 				}
-/+ fixme
-			if(ox < ao.pos.x - w/2)ox-=((ao.pos.x - w/2) - ox)/2;
-			if(ox > ao.pos.x - w/2)ox+=((ao.pos.x - w/2) - ox)/2;
-			if(oy < h/2 - ao.pos.y)oy+=4;
-			if(oy > h/2 - ao.pos.y)oy-=4;+/
+			}
+		if(isDudeAttached)
+			{
+			dude* ao = attachedDude;
+			ox = (attachedDude.pos.x - w/2);
+			oy = (attachedDude.pos.y - h/2);
+			if(isConfinedToMap)
+				{
+				clampLow(ox, 0);
+				clampLow(oy, 0);
+				}
 			}
 		}
 	}
