@@ -125,10 +125,12 @@ static if (true) // MULTISAMPLING. Not sure if helpful.
 
 	//see https://www.allegro.cc/manual/5/al_set_new_display_flags
 	int display_flags = 0;
-	al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE | display_flags);
+	al_set_new_display_flags(ALLEGRO_OPENGL_3_0 | ALLEGRO_PROGRAMMABLE_PIPELINE | display_flags);
 
 	al_display 	= al_create_display(g.SCREEN_W, g.SCREEN_H);
 	queue		= al_create_event_queue();
+	with(ALLEGRO_DISPLAY_OPTIONS)
+		writeln("OpenGL version reported: ", al_get_display_option(al_display, ALLEGRO_OPENGL_MAJOR_VERSION), ".", al_get_display_option(al_display, ALLEGRO_OPENGL_MINOR_VERSION));
 
 	if (!al_install_keyboard())      assert(0, "al_install_keyboard failed!");
 	if (!al_install_mouse())         assert(0, "al_install_mouse failed!");

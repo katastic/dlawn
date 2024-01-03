@@ -194,8 +194,9 @@ class intrinsicGraph(T)
 		al_draw_scaled_indexed_segment(pair(this), dataBuffer.data, scaleFactor, color, 1.0f, dataBuffer.index, blue);
 
 		al_draw_text(g.font1, white, x, y, 0, name.toStringz);
-		al_draw_text(g.font1, white, x + w - 32, y, 0, format("%s",min/scaling).toStringz);
-		al_draw_text(g.font1, white, x + w - 32, y+h-g.font1.h, 0, format("%s",max/scaling).toStringz);
+		al_draw_text(g.font1, white, x + w - 32, y				, 0, format("%s",max/scaling).toStringz);
+		al_draw_text(g.font1, white, x + w - 32, y+h-g.font1.h	, 0, format("%s",min/scaling).toStringz);
+		
 		al_draw_text(g.font1, white, x     + 32, y+h-g.font1.h, 0, format("%s",dataBuffer.data[dataBuffer.index]/scaling).toStringz);
 		}
 		

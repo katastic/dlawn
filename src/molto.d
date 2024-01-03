@@ -6,6 +6,96 @@
 	by Chris Katko
 +/
 
+struct staticString
+	{
+	import core.stdc.stdlib;
+	import core.stdc.string;
+	char* str;
+
+	this(int length)
+		{ //https://stackoverflow.com/questions/41830461/allocating-string-with-malloc
+		int n = length;
+		str = cast(char*) malloc((n+1)*char.sizeof);
+		}
+		
+	void opAssign(const char* _str)
+		{
+		// https://dlang.org/library/core/stdc/string/strcpy.html
+		// how do we get length from _str?
+		strcpy(str, _str);
+
+		// does D easily support C++ strings? Would those be easier? 
+		}
+	}
+
+struct staticString2
+	{
+	import core.stdc.stdlib;
+	import core.stdc.string;
+	char[] str;
+	size_t currentLength=-1;
+	size_t maxLength=-1;
+
+	this(int length)
+		{ //https://stackoverflow.com/questions/41830461/allocating-string-with-malloc
+		str = new char[length];
+		currentLength = 0;
+		maxLength = length;
+		}
+		
+	void append(string newStr){
+		if(currentLength + newStr.length <= maxLength){
+			foreach(size_t i, char c; newStr){
+				str[currentLength-1 + i] = c;
+				}
+			currentLength += newStr.length;
+			}
+		}
+		
+	void append(char[] newStr){
+		if(currentLength + newStr.length <= maxLength){
+			foreach(size_t i, char c; newStr){
+				str[currentLength-1 + i] = c;
+				}
+			currentLength += newStr.length;
+			}
+		}
+
+	void append(const char* newStr){
+		if(currentLength + strlen(newStr) <= maxLength){
+			for(size_t i=0; i < strlen(newStr); i++){
+				char c = newStr[i];
+				str[currentLength-1 + i] = c;
+				}
+			currentLength += strlen(newStr);
+			}
+		}
+			
+	void opAssign(string newStr)
+		{
+		if(newStr.length <= maxLength){
+			foreach(size_t i, char c; newStr){
+				str[i] = c;
+				}
+			currentLength = newStr.length;
+			}
+		}
+
+	void opAssign(char[] newStr)
+		{
+		if(newStr.length <= maxLength){
+			foreach(size_t i, char c; newStr){
+				str[i] = c;
+				}
+			currentLength = newStr.length;
+			}
+		}
+	}
+	
+struct typedStaticString(T) // compiler checked? allocated once.
+	{
+	}
+
 /+
 	Notes on unit system (pair, apair, vpair, ipair, ...)
 		- we could use the [attribute] system here and combine them into a single

@@ -47,7 +47,7 @@ class world_t
 	player[] players;
 	team[] teams;
 				
-	dude[] objects; // other stuff
+	baseObject[] objects; // other stuff
 	unit[] units;
 	item[] items;
  	structure[] structures; // should all structures be owned by a planet? are there 'free floating' structures we'd have? an asteroid structure that's just a structure?
@@ -72,10 +72,17 @@ class world_t
 		import datajack, aimod;
 		{
 		auto u = cast(unit)new runner(pair(730, 420));
+		u.isDebugging = true;
 		units ~= u;
 		}
 		{
-		auto d = new dude(pair(730, 420));
+		auto d = cast(baseObject)new dude(pair(730, 420));
+		d.isDebugging = true;
+		objects ~= d;
+		}
+		for(int i=0; i<10;i++)
+		{
+		auto d = cast(baseObject)new bigMeteor(pair(uniform(1,1000), uniform(1,100)));
 		objects ~= d;
 		}
 		for(int i = 0; i < 2; i++)
@@ -137,7 +144,7 @@ class world_t
 			}
 		import main:timeIndex;
 //		map.onDraw(viewports[0]);
-		timeIndex++;
+		timeIndex+=4;
 		if(timeIndex > 256)timeIndex = 0;
 		al_use_shader(shader);
 		
@@ -146,7 +153,7 @@ class world_t
 			assert(al_set_shader_float(name, value) == 0);
 			}
 		
-//		al_set_shader_float("timeIndex", timeIndex);
+		al_set_shader_float("timeIndex", timeIndex);
 			map2.onDraw(viewports[0]);
 		al_use_shader(null);
 		//map3d.onDraw(viewports[0]);

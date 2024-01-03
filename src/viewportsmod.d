@@ -12,7 +12,7 @@ class viewport
 	bool isDudeAttached=false; //FIXME
 	bool isConfinedToMap=false;
 	unit* attachedObject;
-	dude* attachedDude;//FIXME
+	baseObject* attachedDude;//FIXME
 	
 	bool seekFormula(pair position, pair goal, pair velocity)
 		{
@@ -29,8 +29,7 @@ class viewport
 		attachedObject = o;
 		}
 
-		
-	void attach(dude* o) //FIXME
+	void attach(baseObject* o) //FIXME
 		{
 		isDudeAttached = true;
 		attachedDude = o;
@@ -93,7 +92,7 @@ class viewport
 			}
 		if(isDudeAttached)
 			{
-			dude* ao = attachedDude;
+			baseObject* ao = attachedDude;
 			ox = (attachedDude.pos.x - w/2);
 			oy = (attachedDude.pos.y - h/2);
 			if(isConfinedToMap)

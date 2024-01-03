@@ -322,19 +322,19 @@ class bigMeteor : meteor
 		with(this)
 		{
 			{
-			auto m = new meteor(pos, vel);
+			auto m = new splinterMeteor(pos, pair(2, -3));
 			m.isSpawn = true;
-		//	g.world.meteors ~= new meteor(pos, vel);
+			g.world.objects ~= m;
 			}
 			{
-			auto m = new meteor(pos, vel);
+			auto m = new splinterMeteor(pos, pair(0, -3));
 			m.isSpawn = true;
-		//	g.world.meteors ~= new meteor(pos, vel);
+			g.world.objects ~= m;
 			}
 			{
-			auto m = new meteor(pos, vel);
+			auto m = new splinterMeteor(pos, pair(-2, -3));
 			m.isSpawn = true;
-		//	g.world.meteors ~= new meteor(pos, vel);
+			g.world.objects ~= m;
 			}
 		}
 		spawnExplosion();
@@ -425,6 +425,87 @@ class meteor : baseObject
 		}
 	}
 	
+class splinterMeteor : baseObject
+	{
+	gravityStyle!splinterMeteor moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
+
+	this(pair _pos)
+		{
+		import std.random : uniform;
+		vel = pair(-3 + uniform!"[]"(-1,1), 3);
+		super(_pos, vel, bh["asteroid"]);
+		moveStyle = new gravityStyle!splinterMeteor(this);
+		flipHorizontal = cast(bool)uniform!"[]"(0, 1);
+		flipVertical = cast(bool)uniform!"[]"(0, 1);
+		}
+
+	this(pair _pos, pair _vel, bool _isSpawn=true)
+		{
+		import std.random : uniform;
+		this(_pos);
+		vel = pair(_vel.x + uniform!"[]"(-1,1), _vel.y);
+		isSpawn = _isSpawn;
+		}
+
+	void spawnSmoke()
+		{
+		float cvx = cos(ang)*0;
+		float cvy = sin(ang)*0;
+		g.world.particles ~= particle(pos.x, pos.y, vel.x + cvx, vel.y + cvy, 0, 100);
+		}
+
+	void spawnExplosion()
+		{
+		float cvx = cos(ang)*0;
+		float cvy = sin(ang)*0;
+		auto p = particle(pos.x, pos.y, 0, 0, 0, 100, bh["explosion"]);
+//		p.isGrowing = true;
+		g.world.particles ~= p;
+		}
+		
+	final void respawn()
+		{
+		import std.random : uniform;
+		pos.x = uniform(0, g.world.map2.w*TILE_W-20);
+		pos.y = 0;
+		vel.x = uniform(-3, 3);
+		}
+
+	void onObjectCollision(baseObject by)
+		{
+//		isDead = true;
+		con.log("onObjectCollision at %s".format(pos));
+		spawnSmoke();
+		respawn();
+		by.onHit(this, 1);
+		}
+
+	void onMapCollision(DIR hitDirection)
+		{
+		ipair p;
+		p.i = cast(int)pos.x/TILE_W;
+		p.j = cast(int)pos.y/TILE_W;
+		with(p)
+		with(g.world.map2)
+		if(isInsideMap(p))
+			{
+			if(data[p.i][p.j] > 0)data[p.i][p.j]--;
+			}
+		spawnExplosion();
+//			spawnSmoke();
+		//isDead = true;
+		if(!isSpawn)
+			respawn();
+		else
+			isDead = true;
+		}
+	
+	override void onTick()
+		{
+		if(moveStyle)moveStyle.onTick();
+		}
+	}
+
 /+
 	we could do a component system for this movement to make it more "engine acceptable"?
 		We could ALSO have sub-versions of these components [see variations in notes below]

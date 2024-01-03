@@ -1,6 +1,14 @@
 dlawn
 ================================================================================================
 
+ - dlawn
+	- when big meteor hits ground, it explodes into small meteors but they're affected by gravity and arc.
+	- need to port old meteor objects to movingStyle2
+	- when tiles are deleted, we could have a fade out animation (whether generic or the same texture of the original tile) to smooth out deletions. alternatively have little dirt particles explode
+	- BUFFERED maxLength strings for debug output without allocations
+		basically static strings / static arrays.
+
+
  - simple games: Biplane Bonaza. Skii Free or Die Hard. WW2 JRPG.
 		
 		note: lets just shit these out. Take small games, and just churn it out on autopilot
