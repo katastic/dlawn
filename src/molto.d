@@ -465,7 +465,7 @@ pair chop(rect r) /// returns just x,y and throws away w,h
 
 struct pair
 	{
-	float x=0, y=0;
+	float x, y;
 	// what about the following scenarios:
 	// if(pair < 0)   		(both coordinates are higher/lower than 0)
 	// if(pair < pair)		(both coordinates are higher/lower than the second pair coords) ???
@@ -478,32 +478,32 @@ struct pair
 		} // HOWEVER, if we're doing that we're not going to get a TYPE ERROR if someone accidentally compares a pair to an int
 	
 	// this ~ rhs
-    pair opBinary(string op : "+")(pair rhs)
+    pair opBinary(string op : "+")(immutable pair rhs)
 		{
         return pair(x + rhs.x, y + rhs.y);
 		}
-    pair opBinary(string op : "-")(pair rhs)
+    pair opBinary(string op : "-")(immutable pair rhs)
 		{
         return pair(x - rhs.x, y - rhs.y);
 		}
-    pair opBinary(string op : "*")(int rhs)
+    pair opBinary(string op : "*")(immutable int rhs)
 		{
         return pair(x * rhs, y * rhs);
 		}
-    pair opBinary(string op : "*")(float rhs)
+    pair opBinary(string op : "*")(immutable float rhs)
 		{
         return pair(x * rhs, y * rhs);
 		}
-    pair opBinary(string op : "/")(int rhs)
+    pair opBinary(string op : "/")(immutable int rhs)
 		{
         return pair(x / rhs, y / rhs);
 		}
-    pair opBinary(string op : "/")(float rhs)
+    pair opBinary(string op : "/")(immutable float rhs)
 		{
         return pair(x / rhs, y / rhs);
 		}
 		
-	bool opEquals(const int val) const @safe nothrow pure // what about float/double scenarios?
+	bool opEquals(immutable ref int val) const @safe nothrow pure // what about float/double scenarios?
 		{
 		assert(val == 0, "Did you really mean to check a pair to something other than 0 == 0,0? This should only be for velocity pairs = 0");
 		if(x == val && y == val)
@@ -522,7 +522,7 @@ struct pair
 		// https://forum.dlang.org/post/iavcspvqttccocezmqeb@forum.dlang.org
 		} 
 	
-	void opAssign(int val)
+	void opAssign(immutable int val)
 		{
 		assert(val == 0, "Did you really mean to set a pair to something other than 0,0? This is an unlikely case.");
 		x = cast(float)val;

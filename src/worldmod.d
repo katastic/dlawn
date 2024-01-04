@@ -80,7 +80,7 @@ class world_t
 		d.isDebugging = true;
 		objects ~= d;
 		}
-		for(int i=0; i<10;i++)
+		for(int i=0; i<3000;i++)
 		{
 		auto d = cast(baseObject)new bigMeteor(pair(uniform(1,1000), uniform(1,100)));
 		objects ~= d;

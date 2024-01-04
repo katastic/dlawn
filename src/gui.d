@@ -313,7 +313,7 @@ class dragAndDropGrid
 
 	ipair screenToGrid(pair screenPos)
 		{
-		return ipair((screenPos-pair(canvas.x,canvas.y))/gridSize);
+		return ipair((screenPos - canvas.chop)/gridSize);
 		}
 
 	bool attemptPlaceAt(pair screenPos)

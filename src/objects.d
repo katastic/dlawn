@@ -393,7 +393,7 @@ class meteor : baseObject
 	void onObjectCollision(baseObject by)
 		{
 //		isDead = true;
-		con.log("onObjectCollision at %s".format(pos));
+//		con.log("onObjectCollision at %s".format(pos));
 		spawnSmoke();
 		respawn();
 		by.onHit(this, 1);
@@ -474,7 +474,7 @@ class splinterMeteor : baseObject
 	void onObjectCollision(baseObject by)
 		{
 //		isDead = true;
-		con.log("onObjectCollision at %s".format(pos));
+		//con.log("onObjectCollision at %s".format(pos));
 		spawnSmoke();
 		respawn();
 		by.onHit(this, 1);

@@ -1,6 +1,25 @@
 dlawn
 ================================================================================================
 
+memory pools speed comparison:
+	http://wyw.dcweb.cn/static_mem_pool.htm
+	
+		https://code.dlang.org/packages/mempooled/0.2.0
+		https://code.dlang.org/packages/memutils
+
+	Do STATIC POOLS work with composition??????
+		just a pointer to functions, as long as the compositions do not carry any additional memory?
+			but do we want that restriction?
+
+	http://www.mario-konrad.ch/blog/programming/cpp-memory_pool.html
+
+if we're using malloc etc apparently we can use
+	core.memory : pureMalloc, pureCalloc, pureFree etc
+	https://dlang.org/library/core/memory.html
+	
+there's also C++ allocators
+	https://dlang.org/library/core/stdcpp/allocator.html
+
  - dlawn
 	- when big meteor hits ground, it explodes into small meteors but they're affected by gravity and arc.
 	- need to port old meteor objects to movingStyle2

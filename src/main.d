@@ -85,7 +85,7 @@ enum keys_label // not used?
 	}
 	+/	
 float [12]tints = [
-      1.0, 0.0, 1.0,
+      1.0, 0.5, 1.0,
       0.0, 4.0, 1.0,
       1.0, 0.0, 4.0,
       4.0, 4.0, 1.0
@@ -572,6 +572,82 @@ void extraLogsAfterAllegro()
 	writefln("Max texture size reported: %d", al_get_display_option(al_display, ALLEGRO_DISPLAY_OPTIONS.ALLEGRO_MAX_BITMAP_SIZE));
 	}
 
+void testMemoryPool()
+	{
+	memoryPool!pair mp;
+	
+	writeln(mp.getall(), " free:", mp.howManyFree);
+	for(int i = 0; i < 3; i++)mp.add(pair(i,i));
+	writeln(mp.getall(), " free:", mp.howManyFree);
+	mp.remove(1);
+	writeln(mp.getall(), " free:", mp.howManyFree);
+	mp.add(pair(5,0));
+	writeln(mp.getall(), " free:", mp.howManyFree);
+	mp.add(pair(6,0));
+	writeln(mp.getall(), " free:", mp.howManyFree);
+	mp.add(pair(7,0));
+	writeln(mp.getall(), " free:", mp.howManyFree);
+	mp.remove(3);
+	writeln(mp.getall(), " free:", mp.howManyFree);
+	mp.add(pair(8,0));
+	writeln(mp.getall(), " free:", mp.howManyFree);
+	mp.clearAll;
+	writeln(mp.getall(), " free:", mp.howManyFree);
+	}
+
+struct memoryPool(T)
+	{
+	immutable size_t size=5;
+	T[size] data;
+	bool[size] isUsed;
+	size_t totalFree=size; // do we want/need this? Someone can request how much is left.
+	
+	void add(T value) // worst O(n)
+		{
+		size_t i = 0;
+		while(isUsed[i] == true)
+			{
+			i++;
+			assert(i<size, "Tried to add to a full static pool! This is a design failure.");
+			}
+		data[i] = value;
+		isUsed[i] = true;
+		totalFree--;
+		writeln("inserting ", data[i], " into slot: ", i);
+		}
+	
+	T get(size_t index)
+		{
+		return data[index];
+		}
+
+	T[size] getall()
+		{
+		return data;
+		}
+	
+	size_t howManyFree()
+		{
+		return totalFree;
+		}
+	
+	void remove(size_t index) // O(1)
+		{
+		assert(index<size, "index went passed the pool!");
+		assert(isUsed[index] == true, "tried to delete an already deleted index. Confirm code correctness.");
+		isUsed[index] = false;
+		data[index] = T.init;
+		totalFree++;
+		writeln("removed object at index ", index);
+		} // we COULD reset data back to NaN or .init or whatever for debugging. But otherwise it should not matter.
+	
+	void clearAll()
+		{
+		for(int i = 0; i < size; i++){isUsed[i] = false; data[i] = T.init;}
+		totalFree=size;
+		}
+	}
+
 //=============================================================================
 int main(string [] args)
 	{
@@ -614,6 +690,9 @@ int main(string [] args)
 			break;
 			case "testcache":
 				testCachedAA();
+			break;
+			case "testmemorypool":
+				testMemoryPool();
 			break;
 
 			case "testfail1": // works with gdb break _d_assert

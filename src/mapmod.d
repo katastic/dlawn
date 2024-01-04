@@ -555,9 +555,9 @@ class pixelMap : mapBase
 /// Tile map
 class tileMap : mapBase
 	{
-	float w=256, h=256;
-	idimen size=idimen(256,256);
-	uint[256][256] data;
+	immutable uint w=256, h=256;
+	idimen size=idimen(w,h);
+	uint[w][h] data;
 		
 	void drawRectangle(irect r, ubyte val)
 		{

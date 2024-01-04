@@ -1,4 +1,4 @@
-#version 150 // for gl_FragCoord
+#version 150 // for gl_FragCoord   https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -22,12 +22,20 @@ void main()
 //	if(mod(al_pos.x,8.0) == 0.0) 
 			//mod(timeIndex,2.0)
 	
+	vec2 light =vec2(700,250);
+	float d = sqrt(pow(light.x - gl_FragCoord.x,2) + pow(light.y - gl_FragCoord.y,2))/1000;
+	if(d > 1.0)d = 1.0;
+	
 //	if(mod(gl_FragCoord.x, 32.0) < 1)
 	if(any(greaterThan(tmp.rgb, vec3(.9))))
 		{
-		tmp.r = tmp.r + sin(timeIndex/256.0*2.0*3.1415926);
-		tmp.g = tmp.g + sin(timeIndex/256.0*2.0*3.1415926);
-		tmp.b = tmp.b + sin(timeIndex/256.0*2.0*3.1415926);
+		tmp.r = tmp.r + sin(timeIndex/256.0*2.0*3.1415926)*(1.0-d);
+		tmp.g = tmp.g + sin(timeIndex/256.0*2.0*3.1415926)*(1.0-d);
+		tmp.b = tmp.b + sin(timeIndex/256.0*2.0*3.1415926)*(1.0-d);
+/*		tmp.r = tmp.r + sin(timeIndex/256.0*2.0*3.1415926)*(1.0-d);
+		tmp.g = tmp.g + sin(timeIndex/256.0*2.0*3.1415926)*(1.0-d);
+		tmp.b = tmp.b + sin(timeIndex/256.0*2.0*3.1415926)*(1.0-d);
+*/
 		}
 
 	gl_FragColor = tmp;
