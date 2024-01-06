@@ -47,7 +47,9 @@ class world_t
 	player[] players;
 	team[] teams;
 				
-	baseObject[] objects; // other stuff
+	import main : memoryPool;
+	baseObject[] objects; // other stuff TODO
+	//memoryPool!baseObject objects; // other stuff
 	unit[] units;
 	item[] items;
  	structure[] structures; // should all structures be owned by a planet? are there 'free floating' structures we'd have? an asteroid structure that's just a structure?
@@ -80,7 +82,7 @@ class world_t
 		d.isDebugging = true;
 		objects ~= d;
 		}
-		for(int i=0; i<3000;i++)
+		for(int i=0; i<300;i++)
 		{
 		auto d = cast(baseObject)new bigMeteor(pair(uniform(1,1000), uniform(1,100)));
 		objects ~= d;

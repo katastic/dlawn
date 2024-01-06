@@ -576,34 +576,58 @@ void testMemoryPool()
 	{
 	memoryPool!pair mp;
 	
-	writeln(mp.getall(), " free:", mp.howManyFree);
+	writeln("\t\t\t\t\t", mp.getall(), " free:", mp.howManyFree);
 	for(int i = 0; i < 3; i++)mp.add(pair(i,i));
-	writeln(mp.getall(), " free:", mp.howManyFree);
+	writeln("\t\t\t\t\t", mp.getall(), " free:", mp.howManyFree);
 	mp.remove(1);
-	writeln(mp.getall(), " free:", mp.howManyFree);
+	writeln("\t\t\t\t\t", mp.getall(), " free:", mp.howManyFree);
 	mp.add(pair(5,0));
-	writeln(mp.getall(), " free:", mp.howManyFree);
+	writeln("\t\t\t\t\t", mp.getall(), " free:", mp.howManyFree);
 	mp.add(pair(6,0));
-	writeln(mp.getall(), " free:", mp.howManyFree);
+	writeln("\t\t\t\t\t", mp.getall(), " free:", mp.howManyFree);
 	mp.add(pair(7,0));
-	writeln(mp.getall(), " free:", mp.howManyFree);
+	writeln("\t\t\t\t\t", mp.getall(), " free:", mp.howManyFree);
 	mp.remove(3);
-	writeln(mp.getall(), " free:", mp.howManyFree);
-	mp.add(pair(8,0));
-	writeln(mp.getall(), " free:", mp.howManyFree);
+	writeln("\t\t\t\t\t", mp.getall(), " free:", mp.howManyFree);
+	auto p = pair(8,0);
+	mp.add(p);
+	writeln("\t\t\t\t\t", mp.getall(), " free:", mp.howManyFree);
+	mp.remove(p);
+	writeln("\t\t\t\t\t", mp.getall(), " free:", mp.howManyFree);
 	mp.clearAll;
-	writeln(mp.getall(), " free:", mp.howManyFree);
+	writeln("\t\t\t\t\t", mp.getall(), " free:", mp.howManyFree);
+	
+	auto p2 = pair(2,352);
+	mp ~= p2;
+	writeln(mp[0]);
+	writeln("\t\t\t\t\t", mp.getall(), " free:", mp.howManyFree);
 	}
 
 struct memoryPool(T)
 	{
-	immutable size_t size=5;
-	T[size] data;
-	bool[size] isUsed;
-	size_t totalFree=size; // do we want/need this? Someone can request how much is left.
+	size_t size=1000;
+	T[1000] data;
+	bool[1000] isUsed;  // <-- bad for cache unless we batch or combine with the data[] entries
+	size_t totalFree=1000; // do we want/need this? Someone can request how much is left.
 	
-	void add(T value) // worst O(n)
+	auto opSlice(){return data;}
+	
+	size_t length()
 		{
+		return size-totalFree;
+		}
+	
+	ref T opIndex(size_t i){
+        return data[i];
+		}
+	
+	//https://forum.dlang.org/post/heeaancctxcbjcsddmhc@forum.dlang.org	
+	auto opOpAssign(string op:"~")(T i){ 
+//		if(op =="~=" || op == "-="){
+		add(i);
+		}	
+	
+	void add(T value){ // worst O(n)
 		size_t i = 0;
 		while(isUsed[i] == true)
 			{
@@ -616,35 +640,56 @@ struct memoryPool(T)
 		writeln("inserting ", data[i], " into slot: ", i);
 		}
 	
-	T get(size_t index)
-		{
+	T get(size_t index){
 		return data[index];
 		}
 
-	T[size] getall()
-		{
+	T[1000] getall(){
 		return data;
 		}
 	
-	size_t howManyFree()
-		{
+	size_t howManyFree(){
 		return totalFree;
 		}
 	
-	void remove(size_t index) // O(1)
-		{
+	void remove2(size_t index){ // O(1)		not same as remove since you don't use data = data.remove(23);
 		assert(index<size, "index went passed the pool!");
 		assert(isUsed[index] == true, "tried to delete an already deleted index. Confirm code correctness.");
 		isUsed[index] = false;
 		data[index] = T.init;
 		totalFree++;
-		writeln("removed object at index ", index);
+//		writeln("removed object at index ", index);
+		} // we COULD reset data back to NaN or .init or whatever for debugging. But otherwise it should not matter.
+
+	 ref memoryPool!T remove(size_t index){ // O(1)		not same as remove since you don't use data = data.remove(23);
+		assert(index<size, "index went passed the pool!");
+		assert(isUsed[index] == true, "tried to delete an already deleted index. Confirm code correctness.");
+		isUsed[index] = false;
+		data[index] = T.init;
+		totalFree++;
+//		writeln("removed object at index ", index);
+		return this;
 		} // we COULD reset data back to NaN or .init or whatever for debugging. But otherwise it should not matter.
 	
-	void clearAll()
-		{
+	void remove(T object){ // O(N)
+		int index=-1;
+		for(int i = 0; i < size; i++)
+			{
+			if(data[i] is object)
+				{
+				remove(i);
+				index = i;
+				break;
+				}
+			}
+//		assert(index != -1, "object wasn't found in remove(T object)!");
+//		writeln("removed object at index ", index);
+		}
+
+	void clearAll(){
 		for(int i = 0; i < size; i++){isUsed[i] = false; data[i] = T.init;}
 		totalFree=size;
+//		writeln("emptied.");
 		}
 	}
 

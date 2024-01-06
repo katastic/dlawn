@@ -1,6 +1,8 @@
 dlawn
 ================================================================================================
 
+do benchmarks on objects with and without static pools
+
 memory pools speed comparison:
 	http://wyw.dcweb.cn/static_mem_pool.htm
 	
