@@ -329,8 +329,8 @@ struct displayType
 			makeOf(*stats["bullets"])
 			);
 			
-		drawText2(20, "dudes[%s] units[%s] structures[%s]",
-				makeOf(*stats["dudes"]),
+		drawText2(20, "objects[%s] units[%s] structures[%s]",
+				makeOf(*stats["objects"]),
 				makeOf(*stats["units"]),
 				makeOf(*stats["structures"])
 				);
@@ -603,14 +603,119 @@ void testMemoryPool()
 	writeln("\t\t\t\t\t", mp.getall(), " free:", mp.howManyFree);
 	}
 
+immutable size_t memSize = 20000;
+
 struct memoryPool(T)
 	{
-	size_t size=1000;
-	T[1000] data;
-	bool[1000] isUsed;  // <-- bad for cache unless we batch or combine with the data[] entries
-	size_t totalFree=1000; // do we want/need this? Someone can request how much is left.
+	size_t size=memSize;
+	size_t usedSize=0;
+	T[memSize] data;
+	bool[memSize] isUsed;  // <-- bad for cache unless we batch or combine with the data[] entries
+	size_t totalFree=memSize; // do we want/need this? Someone can request how much is left.
 	
-	auto opSlice(){return data;}
+	auto opSlice()
+		{
+	//	writeln("opSlice:", (size-totalFree-1));
+		return data[0..(size-totalFree)];
+		} // we cannot use external foreach because the 'length' is less than the total length!
+	
+	/*
+		don't forget @nogc
+		https://stackoverflow.com/questions/32538563/implement-opapply-with-nogc-and-inferred-parameters
+	*/
+
+	// GOOD PROBLEM:
+	/*
+		if we want to iterate over all valid entries:
+			- if we have ONE element in a 1 million entry static array, we're going to scan EVERY single element 
+			and check isUsed or =null! (though we don't want null because then we're using pointers and extra indirection)
+			- one optimization regardless is to treat in blocks of 512 because cacheline=64 bytes * 8 =512 bits
+			- or somehow pack the cached bit WITH (T) datatype but will that still mess with the structs? We'd ideally
+			want [X number of type T structs packed in 64 bytes - 1] or maybe even -2 or -3 if they're small but
+			we can do it
+			
+			- however, we've got a new problem. Even if we keep it contigious and move LAST_ELEMENT into the slot
+			of the most [recently deleted element], now we're invalidating all pointers/indexes into this array!
+			
+			- we might want a cascade of sub-static pools. So once all items in a sub-pool are deleted we no 
+			longer iterate over it, but otherwise we iterate over the entire sub-pool. 
+				So e.g.: 1 million entries into 1000 pools = 1000 elements each.
+				and at worst, with a single element, we're iterating over 1000 elements. 
+					We can optimize this sub-stacks for cacheline size, say 512 elements.
+					ceil(1 million/512)=1954 subpools.
+					
+					realistically we're at 100000 objects or possibly far less as scripting and such will 
+					far dwarf the content access.
+					
+					>>The only thing we really need to avoid from the default vector array is ALLOCATIONS.<<
+					
+			- okay but again, regardless of two-tier or 1-tier static pools. How do we seemlessly FOREACH
+			this shit or is that impossible? How do we return a subset of [valid entires] compared to [total set]
+			quickly? We're talking about a FUCK TON of if statements!
+			
+			[1 million static pool] = 1 million if statements MINIMUM
+			
+			and thats if we're not allocating some temporary SUBSET bullshit every return. 
+			
+			if we're just:
+			
+			for(int i =0; i < 1M; i++)
+				{
+				if(isUsed)doThingOn(data[i]);
+				}
+				
+			now we might be able to vectorize that into at least checking isUsed on 512 elements at a time.
+			
+			But, wouldn't it be FAR QUICKER to take the hit on allocation/deallocation time, and
+			[move LAST element to DELETED slot, and adjust reported size/length] so it's now:
+			
+			for(int i=0; i < ARRAY_SIZE; i++)  // no if statement branch cost AND no overhead on empty elements 
+				{
+				doThingOn(data[i]);
+				}
+				
+			BUT, if we do have references, how do we deal with MOVED references?
+				onDelete we basically have to scan:
+			
+			onDelete()
+				{
+				int deadIndex = 312;
+				for(int i=0; i < ARRAY_SIZE; i++)   
+					{
+					hasAnyReferenceTo(deadIndex, data[i]); //check if its storing any dead references
+					}
+				int oldIndex = 401;
+				int newIndex = 312;
+				for(int i=0; i < ARRAY_SIZE; i++)   
+					{
+					hasAnyReferenceTo(deadIndex, data[i]); // if anyone has 401 references, update to point to 312; 
+					}
+				}
+	*/
+	
+	//@nogc bool empty(){return true;}
+    //@nogc auto front(){return tuple(K.init, V.init);}
+    //@nogc void popFront(){}
+	
+	// https://dlang.org/library/std/range/interfaces/input_range.html
+	// http://ddili.org/ders/d.en/foreach_opapply.html
+	 /+int opApply(int delegate(ref int, ref int) dg) const {
+        int result = 0;
+		immutable long begin = 0;
+		long end = size;
+        for (int i = begin; (i + 1) < end; i += 5) {
+            int first = i;
+            int second = i + 1;
+
+            result = dg(first, second);
+
+            if (result) {
+                break;
+            }
+        }
+
+        return result;
+    }+/
 	
 	size_t length()
 		{
@@ -637,14 +742,15 @@ struct memoryPool(T)
 		data[i] = value;
 		isUsed[i] = true;
 		totalFree--;
-		writeln("inserting ", data[i], " into slot: ", i);
+		usedSize++;
+		//writeln("inserting ", data[i], " into slot: ", i);
 		}
 	
 	T get(size_t index){
 		return data[index];
 		}
 
-	T[1000] getall(){
+	T[memSize] getall(){
 		return data;
 		}
 	
@@ -658,16 +764,30 @@ struct memoryPool(T)
 		isUsed[index] = false;
 		data[index] = T.init;
 		totalFree++;
-//		writeln("removed object at index ", index);
+		usedSize--;
+	//	writeln("1 removed object at index ", index, " totalFree:", totalFree);
 		} // we COULD reset data back to NaN or .init or whatever for debugging. But otherwise it should not matter.
 
 	 ref memoryPool!T remove(size_t index){ // O(1)		not same as remove since you don't use data = data.remove(23);
 		assert(index<size, "index went passed the pool!");
 		assert(isUsed[index] == true, "tried to delete an already deleted index. Confirm code correctness.");
-		isUsed[index] = false;
-		data[index] = T.init;
+
+		// if were not the last element, move the last element here.
+		if(index != usedSize-1) 
+			{
+			data[index] = data[usedSize-1];
+			// clear old moved index
+			isUsed[usedSize-1] = false;
+			data[usedSize-1] = T.init;
+			}else{
+			// clear index
+			isUsed[index] = false;
+			data[index] = T.init;
+			}
+		
 		totalFree++;
-//		writeln("removed object at index ", index);
+		usedSize--;
+		//writeln("2 removed object at index ", index, " totalFree:", totalFree);
 		return this;
 		} // we COULD reset data back to NaN or .init or whatever for debugging. But otherwise it should not matter.
 	
@@ -683,12 +803,14 @@ struct memoryPool(T)
 				}
 			}
 //		assert(index != -1, "object wasn't found in remove(T object)!");
-//		writeln("removed object at index ", index);
+		//writeln("3 removed object at index ", index, " totalFree:", totalFree);
 		}
 
 	void clearAll(){
 		for(int i = 0; i < size; i++){isUsed[i] = false; data[i] = T.init;}
 		totalFree=size;
+		usedSize=0;
+
 //		writeln("emptied.");
 		}
 	}

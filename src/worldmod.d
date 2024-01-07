@@ -48,12 +48,13 @@ class world_t
 	team[] teams;
 				
 	import main : memoryPool;
-	baseObject[] objects; // other stuff TODO
-	//memoryPool!baseObject objects; // other stuff
+	//baseObject[] objects; // other stuff TODO
+	memoryPool!baseObject objects; // other stuff
 	unit[] units;
 	item[] items;
  	structure[] structures; // should all structures be owned by a planet? are there 'free floating' structures we'd have? an asteroid structure that's just a structure?
-	particle[] particles;
+	memoryPool!particle particles;
+	//particle[] particles;
 	bullet[] bullets;
 //	meteor[] meteors;
 
@@ -82,7 +83,7 @@ class world_t
 		d.isDebugging = true;
 		objects ~= d;
 		}
-		for(int i=0; i<300;i++)
+		for(int i=0; i<10000;i++)
 		{
 		auto d = cast(baseObject)new bigMeteor(pair(uniform(1,1000), uniform(1,100)));
 		objects ~= d;
@@ -117,12 +118,9 @@ class world_t
 		{
 		stats.swDraw.start();
 	
-		void drawStat3(T, U)(ref T obj, ref U stat)
-			{
-			foreach(ref o; obj)
-				{
-				if(o.draw(v))
-					{
+		void drawStat3(T, U)(ref T obj, ref U stat){
+			foreach(ref o; obj){
+				if(o.draw(v)){
 					stat.drawn++;
 					}else{
 					stat.clipped++;
@@ -130,13 +128,10 @@ class world_t
 				}
 			}
 
-		void drawStat4(T)(ref T obj, string name)
-			{
+		void drawStat4(T)(ref T obj, string name){
 			al_hold_bitmap_drawing(true);
-			foreach(ref o; obj)
-				{
-				if(o.draw(v))
-					{
+			foreach(ref o; obj){
+				if(o.draw(v)){
 					stats[name].drawn++;
 					}else{
 					stats[name].clipped++;
@@ -144,14 +139,14 @@ class world_t
 				}
 			al_hold_bitmap_drawing(false);
 			}
+		
 		import main:timeIndex;
 //		map.onDraw(viewports[0]);
 		timeIndex+=4;
 		if(timeIndex > 256)timeIndex = 0;
 		al_use_shader(shader);
 		
-		void setShaderFloat(const char* name, float value)
-			{
+		void setShaderFloat(const char* name, float value){
 			assert(al_set_shader_float(name, value) == 0);
 			}
 		
@@ -163,7 +158,7 @@ class world_t
 		drawStat4(bullets	, "bullets");
 		drawStat4(particles	, "particles");
 		drawStat4(units		, "units");
-		drawStat4(objects	, "dudes");
+		drawStat4(objects	, "objects"); 
 		drawStat4(structures, "structures");
 		drawStat4(items		, "items");		
 
@@ -400,7 +395,7 @@ class world_t
 		drawStat4(bullets	, "bullets");
 		drawStat4(particles	, "particles");
 		drawStat4(units		, "units");
-		drawStat4(objects	, "dudes");
+		drawStat4(objects	, "objects");
 		drawStat4(structures, "structures");
 		drawStat4(meteors	, "meteors");		
 		drawStat4(items		, "items");		
