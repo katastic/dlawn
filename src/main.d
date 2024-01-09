@@ -114,7 +114,7 @@ bool initialize()
 			ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION, ALLEGRO_RELEASE_NUMBER);
 		}
 	
-static if (true) // MULTISAMPLING. Not sure if helpful.
+static if (false) // MULTISAMPLING. Not sure if helpful.
 	{
 	with (ALLEGRO_DISPLAY_OPTIONS) // https://www.allegro.cc/manual/5/al_set_new_display_option
 		{
@@ -287,7 +287,7 @@ struct displayType
 		float last_position_plus_one = textHelper(false); // we use the auto-intent of one initial frame to find the total text length for the box
 		textHelper(true);  //reset
 
-		al_draw_filled_rounded_rectangle(16, 32, 64+800, last_position_plus_one+32, 8, 8, ALLEGRO_COLOR(.7, .7, .7, .7));
+		al_draw_filled_rounded_rectangle(16, 32, 64+1000, last_position_plus_one+32, 8, 8, ALLEGRO_COLOR(.7, .7, .7, .7));
 
 		drawText2(20, "fps[%d] frame#[%d] objrate[%d] -- Obj1[%.2f,%.2f]", g.stats.fps, g.stats.totalFramesPassed,	 
 					((*stats["particles"]).drawn +
@@ -320,7 +320,7 @@ struct displayType
 
 		string makeOf(statValue s)
 			{
-			return format("%d:%d/%d %.0f%%", s.drawn, s.clipped, s.drawn + s.clipped, ifNotZeroPercent2(s));
+			return format("%d:%d/%d %.0f%% (All/sec=%.0f)", s.drawn, s.clipped, s.drawn + s.clipped, ifNotZeroPercent2(s), s.allocationsPerSecond);
 			}
 
 		drawText2(20, "meteors[%s] particles[%s] bullets[%s]", 
@@ -534,8 +534,7 @@ void execute()
 			}						
 					if(event.timer.source == fps_timer) //ONCE per second
 						{
-						g.stats.fps = g.stats.framesPassed;
-						g.stats.framesPassed = 0;
+						g.stats.onTickSecond();
 						}
 					break;
 					}

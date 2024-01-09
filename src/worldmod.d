@@ -48,13 +48,16 @@ class world_t
 	team[] teams;
 				
 	import main : memoryPool;
-	//baseObject[] objects; // other stuff TODO
-	memoryPool!baseObject objects; // other stuff
+	static if(true){
+		memoryPool!baseObject objects; // other stuff
+		memoryPool!particle particles;
+	}else{
+		baseObject[] objects; // other stuff TODO
+		particle[] particles;
+	}
 	unit[] units;
 	item[] items;
  	structure[] structures; // should all structures be owned by a planet? are there 'free floating' structures we'd have? an asteroid structure that's just a structure?
-	memoryPool!particle particles;
-	//particle[] particles;
 	bullet[] bullets;
 //	meteor[] meteors;
 
@@ -98,8 +101,9 @@ class world_t
 
 		//structures ~= new structure(700, 400, bh["fountain"]);
 		
-		testGraph  = new intrinsicGraph!float("Draw (ms) ", g.stats.nsDraw , 100, 150, COLOR(1,0,0,1), 1_000_000);
-		testGraph2 = new intrinsicGraph!float("Logic (ms)", g.stats.nsLogic, 100, 260, COLOR(1,0,0,1), 1_000_000);
+		graphs ~= new intrinsicGraph!float("Draw (ms) ", g.stats.nsDraw , 100, 150, COLOR(1,0,0,1), 1_000_000);
+		graphs ~= new intrinsicGraph!float("Logic (ms)", g.stats.nsLogic, 100, 260, COLOR(1,0,0,1), 1_000_000);
+		graphs ~= new intrinsicGraph!float("Allocations", g.stats["objects"].allocationsPerSecond, 100, 370, COLOR(1,0,0,1), 1);
 				
 		viewports[0] = new viewport(0, 0, 1366, 768, 0, 0);
 		assert(units[0] !is null);
@@ -166,8 +170,7 @@ class world_t
 
 		grids.draw(v);
 
-		testGraph.draw(v);
-		testGraph2.draw(v);
+		foreach(g; graphs)g.draw(v);
 		stats.swDraw.stop();
 		stats.nsDraw = stats.swDraw.peek.total!"nsecs";
 		stats.swDraw.reset();
@@ -177,9 +180,7 @@ class world_t
 	void logic()
 		{
 		stats.swLogic.start();
-		assert(testGraph !is null);
-		testGraph.onTick();
-		testGraph2.onTick();
+		foreach(g;graphs)g.onTick();
 		
 		viewports[0].onTick();
 		players[0].onTick();

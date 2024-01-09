@@ -1,7 +1,12 @@
 dlawn
 ================================================================================================
 
+
 do benchmarks on objects with and without static pools
+
+ - track how many allocations per second
+
+ - graph does NOT work with integers!
 
 memory pools speed comparison:
 	http://wyw.dcweb.cn/static_mem_pool.htm

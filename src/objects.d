@@ -302,6 +302,8 @@ class bigMeteor : meteor
 	{
 	this(pair _pos)
 		{
+			//		stats.incAllocatedSinceReset("objects");
+			// parent is doing this ^
 		super(_pos);
 		bmp = bh["bigasteroid"];
 		}
@@ -350,6 +352,7 @@ class meteor : baseObject
 
 	this(pair _pos)
 		{
+		stats.incAllocatedSinceReset("objects");
 		import std.random : uniform;
 		vel = pair(-3 + uniform!"[]"(-1,1), 3);
 		super(_pos, vel, bh["asteroid"]);
@@ -360,6 +363,7 @@ class meteor : baseObject
 
 	this(pair _pos, pair _vel, bool _isSpawn=true)
 		{
+		stats.incAllocatedSinceReset("objects");
 		import std.random : uniform;
 		this(_pos);
 		vel = pair(_vel.x + uniform!"[]"(-1,1), _vel.y);
@@ -431,6 +435,7 @@ class splinterMeteor : baseObject
 
 	this(pair _pos)
 		{
+		stats.incAllocatedSinceReset("objects");
 		import std.random : uniform;
 		vel = pair(-3 + uniform!"[]"(-1,1), 3);
 		super(_pos, vel, bh["asteroid"]);
@@ -441,6 +446,7 @@ class splinterMeteor : baseObject
 
 	this(pair _pos, pair _vel, bool _isSpawn=true)
 		{
+		stats.incAllocatedSinceReset("objects");
 		import std.random : uniform;
 		this(_pos);
 		vel = pair(_vel.x + uniform!"[]"(-1,1), _vel.y);

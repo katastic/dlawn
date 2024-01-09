@@ -191,8 +191,7 @@ FONT* 	activeFont;
 
 enum DIR { UP, DOWN, LEFT, RIGHT, UPLEFT, UPRIGHT, DOWNRIGHT, DOWNLEFT, NONE=0};
 
-intrinsicGraph!float testGraph;
-intrinsicGraph!float testGraph2;
+intrinsicGraph!float[] graphs;
 
 bitmapHandler bh;
 atlasHandler ah;
@@ -451,6 +450,8 @@ struct statValue
 	{
 	int drawn=0;
 	int clipped=0;
+	int allocatedSinceReset=0;
+	float allocationsPerSecond=0;
 	}
 
 struct statistics_t
@@ -463,7 +464,7 @@ struct statistics_t
 //		writeln("  ", key);
 		auto p = (key in data);
 //		writeln("  P:", p);
-		if(p is null)data[key] = statValue(0,0);
+		if(p is null)data[key] = statValue(0,0,0,0);
 		auto p2 = (key in data);
 //		writeln("  P:", *p2);
 //		writeln("  data[key]: ", data[key]);
@@ -484,6 +485,13 @@ struct statistics_t
 		{
 		statValue* p = opIndex(key);
 		(*p).clipped += 1;
+		}
+		
+	void incAllocatedSinceReset(string key)
+		{
+		statValue* p = opIndex(key);
+		(*p).allocatedSinceReset += 1;
+//		writeln(key, " ", (*p).allocatedSinceReset);
 		}
 		
 	void list() /// list all keys
@@ -507,13 +515,24 @@ struct statistics_t
 	float nsLogic=0;
 	float nsDraw=0;
 	float nsLogging=0; //needed?
-	
+			
+	void onTickSecond()
+		{
+		fps = framesPassed;
+		framesPassed = 0;
+		writeln(data["objects"]);
+		foreach(key, val; data) {
+			data[key].allocationsPerSecond = data[key].allocatedSinceReset;
+			data[key].allocatedSinceReset = 0;
+			}	
+		}
+
 	void reset() // reset counters
 		{ // note we do NOT reset fps and frames_passed here as they are cumulative or handled elsewhere.
-
 		foreach(key, val; data) //TEST foreach isn't supposed to modify collections?
 			{
-			data[key] = statValue(0,0);
+			data[key].drawn = 0;
+			data[key].clipped = 0;
 			}
 		}
 	}
