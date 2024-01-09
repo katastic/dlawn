@@ -61,6 +61,8 @@ class world_t
 	bullet[] bullets;
 //	meteor[] meteors;
 
+	rainWeatherHandler rain;
+
 	this()
 		{
 //		grid = new dragAndDropGrid;
@@ -86,7 +88,7 @@ class world_t
 		d.isDebugging = true;
 		objects ~= d;
 		}
-		for(int i=0; i<10000;i++)
+		for(int i=0; i<1000;i++)
 		{
 		auto d = cast(baseObject)new bigMeteor(pair(uniform(1,1000), uniform(1,100)));
 		objects ~= d;
@@ -97,7 +99,7 @@ class world_t
 			units ~= u;
 			}
 		
-		con.log("'ello love 2023");
+		con.log("hello love 2023");
 
 		//structures ~= new structure(700, 400, bh["fountain"]);
 		
@@ -215,7 +217,7 @@ class world_t
 		if(key_j_down)viewports[0].ox -= 2;
 		if(key_l_down)viewports[0].ox += 2;
 +/
-		// rain.onTick();
+		rain.onTick();
 		tick(particles);
 		tick(bullets);
 		tick(units);

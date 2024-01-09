@@ -16,31 +16,27 @@ import std.stdio;
 import std.math;
 import std.random;
 
-struct rainWeatherHandler
-	{
-	void onTick()
-		{
-		for(int i = 0; i < 1; i++)
-			{
+struct rainWeatherHandler{
+	void onTick(){
+		for(int i = 0; i < 1; i++){ //note we can draw only around the screen +- some size. this could be a userland particle effect unless we want water to accumlate into tiles.
 			particle p = particle(uniform(0, 1366), 0, 1, 3, 0, 1000, bh["rain"]);
 			p.doScaling = false;
 			p.doDieOnHit = true;
-			p.doTinting = false;
+			p.doTinting = true;
 			g.world.particles ~= p;
 //			con.log("etstessteste");
 			}
 		}
 	}
 
-struct particle
-	{
+struct particle{
 	float x=0, y=0;
 	float vx=0, vy=0;
 	int type=0;
 	int lifetime=0;
 	int maxLifetime=0;
 	int rotation=0;
-	bool doScaling=true;
+	bool doScaling=false;
 	bool doTinting=true;
 	bool isDead=false;
 	bool doDieOnHit=false;
@@ -49,8 +45,7 @@ struct particle
 
 	//particle(x, y, vx, vy, 0, 5);
 	/// spawn smoke without additional unit u
-	this(float _x, float _y, float _vx, float _vy, int _type, int  _lifetime)
-		{
+	this(float _x, float _y, float _vx, float _vy, int _type, int  _lifetime){
 		import std.math : cos, sin;
 		x = _x;
 		y = _y;
@@ -66,8 +61,7 @@ struct particle
 		flipVertical = flipCoin();
 		}
 	
-	this(float _x, float _y, float _vx, float _vy, int _type, int  _lifetime, bitmap* _bmp)
-		{
+	this(float _x, float _y, float _vx, float _vy, int _type, int  _lifetime, bitmap* _bmp){
 		import std.math : cos, sin;
 		x = _x;
 		y = _y;
@@ -82,30 +76,7 @@ struct particle
 		flipHorizontal = flipCoin();
 		flipVertical = flipCoin();
 		}
-/+
-	// do we need this? why do we also specify _vx, and _vy then???
-	/// spawn smoke with acceleration from unit u
-	this(float _x, float _y, float _vx, float _vy, int _type, int  _lifetime, unit u)
-		{
-		import std.math : cos, sin;
-		float thrustAngle = u.angle;
-		float thrustDistance = -30;
-		float thrustVelocity = -3;
-		
-		x = _x + cos(thrustAngle)*thrustDistance;
-		y = _y + sin(thrustAngle)*thrustDistance;
-		vx = _vx + uniform!"[]"(-.1, .1) + cos(thrustAngle)*thrustVelocity;
-		vy = _vy + uniform!"[]"(-.1, .1) + sin(thrustAngle)*thrustVelocity;
-		type = _type;
-		lifetime = _lifetime;
-		maxLifetime = _lifetime;
-		rotation = uniform!"[]"(0, 3);
-		bmp = bh["smoke"];
-		assert(bmp !is null);
-		flipHorizontal = flipCoin();
-		flipVertical = flipCoin();
-		}
-	+/	
+
 	bool draw(viewport v)
 		{
 		assert(bmp !is null);
@@ -116,10 +87,8 @@ struct particle
 		float cy = y + v.y - v.oy;
 		float scaleX = (cast(float)lifetime/cast(float)maxLifetime) * b.w;
 		float scaleY = (cast(float)lifetime/cast(float)maxLifetime) * b.h;
-		doScaling=false;
 		if(!doScaling){scaleX = 1; scaleY = 1;}
-		if(!isInsideScreen(cx, cy, v))
-			{
+		if(!isInsideScreen(cx, cy, v)){
 			c = red; // DEBUG. show partially clipped:
 			return true; //if !debug
 			}
@@ -136,29 +105,17 @@ struct particle
 			   0,  //angle
 			   flipHorizontal & flipVertical);
 
-/+				
-			al_draw_tinted_scaled_bitmap2(b, c,
-				0, 0, 
-				b.w, b.h,
-				cx - b.w/2, cy - b.h/2, 
-				scaleX, scaleY, 
-				rotation);+/
-		//	return true;
-			//}
 		return false;
 		}
 	
-	void onTick() 
-		{
-		if(!g.world.map2.isValidMovement(pair(x + vx, y + vy)))
-			{
+	void onTick(){
+		if(!g.world.map2.isValidMovement(pair(x + vx, y + vy))){
 			vx=0;
 			vy=0;
 			if(doDieOnHit)isDead=true;
 			}
 		lifetime--;
-		if(lifetime == 0)
-			{
+		if(lifetime == 0){
 			isDead=true;
 			}else{
 			x += vx;

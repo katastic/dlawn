@@ -612,7 +612,7 @@ struct memoryPool(T)
 	bool[memSize] isUsed;  // <-- bad for cache unless we batch or combine with the data[] entries
 	size_t totalFree=memSize; // do we want/need this? Someone can request how much is left.
 	
-	auto opSlice()
+	@nogc auto opSlice()
 		{
 	//	writeln("opSlice:", (size-totalFree-1));
 		return data[0..(size-totalFree)];
@@ -716,22 +716,22 @@ struct memoryPool(T)
         return result;
     }+/
 	
-	size_t length()
+	@nogc size_t length()
 		{
 		return size-totalFree;
 		}
 	
-	ref T opIndex(size_t i){
+	@nogc ref T opIndex(size_t i){
         return data[i];
 		}
 	
 	//https://forum.dlang.org/post/heeaancctxcbjcsddmhc@forum.dlang.org	
-	auto opOpAssign(string op:"~")(T i){ 
+	@nogc auto opOpAssign(string op:"~")(T i){ 
 //		if(op =="~=" || op == "-="){
 		add(i);
 		}	
 	
-	void add(T value){ // worst O(n)
+	@nogc void add(T value){ // worst O(n)
 		size_t i = 0;
 		while(isUsed[i] == true)
 			{
@@ -745,19 +745,19 @@ struct memoryPool(T)
 		//writeln("inserting ", data[i], " into slot: ", i);
 		}
 	
-	T get(size_t index){
+	@nogc T get(size_t index){
 		return data[index];
 		}
 
-	T[memSize] getall(){
+	@nogc T[memSize] getall(){
 		return data;
 		}
 	
-	size_t howManyFree(){
+	@nogc size_t howManyFree(){
 		return totalFree;
 		}
 	
-	void remove2(size_t index){ // O(1)		not same as remove since you don't use data = data.remove(23);
+	@nogc void remove2(size_t index){ // O(1)		not same as remove since you don't use data = data.remove(23);
 		assert(index<size, "index went passed the pool!");
 		assert(isUsed[index] == true, "tried to delete an already deleted index. Confirm code correctness.");
 		isUsed[index] = false;
@@ -767,7 +767,7 @@ struct memoryPool(T)
 	//	writeln("1 removed object at index ", index, " totalFree:", totalFree);
 		} // we COULD reset data back to NaN or .init or whatever for debugging. But otherwise it should not matter.
 
-	 ref memoryPool!T remove(size_t index){ // O(1)		not same as remove since you don't use data = data.remove(23);
+	 @nogc ref memoryPool!T remove(size_t index){ // O(1)		not same as remove since you don't use data = data.remove(23);
 		assert(index<size, "index went passed the pool!");
 		assert(isUsed[index] == true, "tried to delete an already deleted index. Confirm code correctness.");
 
@@ -790,7 +790,7 @@ struct memoryPool(T)
 		return this;
 		} // we COULD reset data back to NaN or .init or whatever for debugging. But otherwise it should not matter.
 	
-	void remove(T object){ // O(N)
+	@nogc void remove(T object){ // O(N)
 		int index=-1;
 		for(int i = 0; i < size; i++)
 			{
@@ -805,7 +805,7 @@ struct memoryPool(T)
 		//writeln("3 removed object at index ", index, " totalFree:", totalFree);
 		}
 
-	void clearAll(){
+	@nogc void clearAll(){
 		for(int i = 0; i < size; i++){isUsed[i] = false; data[i] = T.init;}
 		totalFree=size;
 		usedSize=0;

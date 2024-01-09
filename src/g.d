@@ -520,7 +520,6 @@ struct statistics_t
 		{
 		fps = framesPassed;
 		framesPassed = 0;
-		writeln(data["objects"]);
 		foreach(key, val; data) {
 			data[key].allocationsPerSecond = data[key].allocatedSinceReset;
 			data[key].allocatedSinceReset = 0;

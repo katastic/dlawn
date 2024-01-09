@@ -1,12 +1,10 @@
 dlawn
 ================================================================================================
 
-
-do benchmarks on objects with and without static pools
-
- - track how many allocations per second
-
- - graph does NOT work with integers!
+ + do benchmarks on objects with and without static pools
+ + track how many allocations per second
+ 
+ - graph does NOT work with integers! Needs improved.
 
 memory pools speed comparison:
 	http://wyw.dcweb.cn/static_mem_pool.htm
@@ -28,7 +26,7 @@ there's also C++ allocators
 	https://dlang.org/library/core/stdcpp/allocator.html
 
  - dlawn
-	- when big meteor hits ground, it explodes into small meteors but they're affected by gravity and arc.
+	+ when big meteor hits ground, it explodes into small meteors but they're affected by gravity and arc.
 	- need to port old meteor objects to movingStyle2
 	- when tiles are deleted, we could have a fade out animation (whether generic or the same texture of the original tile) to smooth out deletions. alternatively have little dirt particles explode
 	- BUFFERED maxLength strings for debug output without allocations
