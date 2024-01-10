@@ -54,13 +54,29 @@ import viewportsmod;
 import molto;
 import g;
 displayType display;
+
+alias ALLEGRO_KEY = ubyte;
 //=============================================================================
 
 //https://www.allegro.cc/manual/5/keyboard.html
 //	(instead of individual KEYS touching ANY OBJECT METHOD. Because what if we 
 // 		change objects? We have to FIND all keys associated with that object and 
 // 		change them.)
-alias ALLEGRO_KEY = ubyte;
+
+import std.conv : emplace;
+
+struct myTestStruct
+	{
+	this(int x, int y)
+		{
+		}
+	}
+
+void constructTest()
+	{
+	myTestStruct temp;
+	emplace!myTestStruct(&temp, 2, 3);
+	}
 
 /+struct keyset_t
 		{
@@ -859,6 +875,9 @@ int main(string [] args)
 			break;
 			case "testmemorypool":
 				testMemoryPool();
+			break;
+			case "teststaticstrings":
+				testStaticStrings();
 			break;
 
 			case "testfail1": // works with gdb break _d_assert

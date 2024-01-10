@@ -5,6 +5,9 @@ dlawn
  + track how many allocations per second
  
  - graph does NOT work with integers! Needs improved.
+ - look into using std.conv.emplace instead of new
+ - BUFFERED maxLength strings for debug output without allocations
+		basically static strings / static arrays.
 
 memory pools speed comparison:
 	http://wyw.dcweb.cn/static_mem_pool.htm
@@ -29,8 +32,6 @@ there's also C++ allocators
 	+ when big meteor hits ground, it explodes into small meteors but they're affected by gravity and arc.
 	- need to port old meteor objects to movingStyle2
 	- when tiles are deleted, we could have a fade out animation (whether generic or the same texture of the original tile) to smooth out deletions. alternatively have little dirt particles explode
-	- BUFFERED maxLength strings for debug output without allocations
-		basically static strings / static arrays.
 
 
  - simple games: Biplane Bonaza. Skii Free or Die Hard. WW2 JRPG.

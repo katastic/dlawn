@@ -6,16 +6,63 @@
 	by Chris Katko
 +/
 
-struct staticString
+// https://forum.dlang.org/thread/capomekorutdfkypmhlu@forum.dlang.org
+
+void testStaticStrings()
+	{
+	/+
+	staticString s1 = "taco";
+	staticString s2 = normalString;
+	staticString s3 = staticString(20);
+	writeln(s1);
+	writeln(s2);
+	writeln(s3);
+	+/
+	string normalString = "3151235";
+	staticString t1 = "taco";
+	staticString t2 = normalString;
+	staticString t3 = staticString(20);
+	writeln(t1);
+	writeln(t2);
+	writeln(t3);
+	t3 ~= "bpos32";
+	writeln(t3);
+	t3 ~= normalString;
+	writeln(t3);
+	t3 ~= t1;
+	writeln(t3);
+	}
+/+
+struct staticString /// This one is managed by malloc so we have to delete it somehow
 	{
 	import core.stdc.stdlib;
 	import core.stdc.string;
 	char* str;
+	size_t strlength;
 
-	this(int length)
+	this(const char* s, ulong reserveSpace)
+		{
+		}
+
+	this(int _length) /// reserve blank string space, we might want to also have a combined const char + RESERVE 
 		{ //https://stackoverflow.com/questions/41830461/allocating-string-with-malloc
-		int n = length;
+		int n = _length;
 		str = cast(char*) malloc((n+1)*char.sizeof);
+		strlength = n;
+		}
+
+	this(const char* s)
+		{
+		ulong n = strlen(s);
+		str = cast(char*) malloc((n+1)*char.sizeof);
+		strlength = n;
+		}
+
+	this(string s)
+		{
+		ulong n = s.length;
+		str = cast(char*) malloc((n+1)*char.sizeof);
+		strlength = n;
 		}
 		
 	void opAssign(const char* _str)
@@ -26,29 +73,82 @@ struct staticString
 
 		// does D easily support C++ strings? Would those be easier? 
 		}
+		
+	size_t length()
+		{
+		return strlength;
+		}
 	}
-
-struct staticString2
++/
+struct staticString /// This one has data that's managed by GC, but static pool
 	{
+	
+string toString() pure nothrow @safe const
+	{
+	import std.conv;
+	return to!string(str[0..currentLength]);
+	}	
+
 	import core.stdc.stdlib;
 	import core.stdc.string;
 	char[] str;
 	size_t currentLength=-1;
 	size_t maxLength=-1;
 
-	this(int length)
-		{ //https://stackoverflow.com/questions/41830461/allocating-string-with-malloc
-		str = new char[length];
-		currentLength = 0;
-		maxLength = length;
+	size_t length(){return currentLength;} /// Note length is NOT CAPACITY
+	size_t capacity(){return maxLength;}
+	auto opSlice(){return str[0..currentLength];}
+
+	void opOpAssign(string op : "~")(string rhs){
+		append(rhs);
+		}
+	void opOpAssign(string op : "~")(const char* rhs){
+		append(rhs);
+		}
+	void opOpAssign(string op : "~")(staticString rhs){
+		append(rhs);
+		}
+
+	this(const char* _string){
+		currentLength = strlen(_string);
+		maxLength = currentLength;
+		for(int i = 0; i < maxLength; i++)str[i] = _string[i];
 		}
 		
-	void append(string newStr){
+	this(string _string){
+		currentLength = _string.length;
+		maxLength = currentLength;
+		auto tempStr = _string.toStringz;
+		str.length = maxLength;
+		for(int i = 0; i < maxLength; i++)str[i] = tempStr[i];
+		}
+
+	this(int _maxLength){ //https://stackoverflow.com/questions/41830461/allocating-string-with-malloc
+//		str = new char[_maxLength];
+		str.length = _maxLength;
+		currentLength = 0;
+		maxLength = _maxLength;
+		}
+		
+	void append(staticString newStr){
 		if(currentLength + newStr.length <= maxLength){
 			foreach(size_t i, char c; newStr){
 				str[currentLength-1 + i] = c;
 				}
 			currentLength += newStr.length;
+			}else{
+			assert(false, "staticString overran size of staticString!");
+			}
+		}
+		
+	void append(string newStr){
+		if(currentLength + newStr.length <= maxLength){
+			foreach(size_t i, char c; newStr){
+				str[currentLength + i] = c;
+				}
+			currentLength += newStr.length;
+			}else{
+			assert(false, "D string overran size of staticString!");
 			}
 		}
 		
@@ -58,6 +158,8 @@ struct staticString2
 				str[currentLength-1 + i] = c;
 				}
 			currentLength += newStr.length;
+			}else{
+			assert(false, "char[] overran size of staticString!");
 			}
 		}
 
@@ -68,11 +170,12 @@ struct staticString2
 				str[currentLength-1 + i] = c;
 				}
 			currentLength += strlen(newStr);
+			}else{
+			assert(false, "const char* overran size of staticString!");
 			}
 		}
 			
-	void opAssign(string newStr)
-		{
+	void opAssign(string newStr){
 		if(newStr.length <= maxLength){
 			foreach(size_t i, char c; newStr){
 				str[i] = c;
@@ -81,8 +184,7 @@ struct staticString2
 			}
 		}
 
-	void opAssign(char[] newStr)
-		{
+	void opAssign(char[] newStr){
 		if(newStr.length <= maxLength){
 			foreach(size_t i, char c; newStr){
 				str[i] = c;
