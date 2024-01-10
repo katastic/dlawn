@@ -310,7 +310,7 @@ struct displayType
 					(*stats["units"]).drawn + 
 					(*stats["bullets"]).drawn + 
 					(*stats["dudes"]).drawn +  
-					(*stats["tiles"]).drawn) * g.stats.fps, g.world.units[0].pos.x, g.world.units[0].pos.y ); 
+					(*stats["tiles"]).drawn) * g.stats.fps, g.world.objects[0].pos.x, g.world.objects[0].pos.y ); 
 
 		float ifNotZeroPercent(T)(T drawn, T clipped) /// percent CLIPPED
 			{

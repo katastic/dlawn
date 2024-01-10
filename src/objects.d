@@ -796,8 +796,8 @@ class dude : baseObject /// this is the new Unit class until we rename them, old
 		
 		debugString ~= format("%.1f ", hp);
 		
-		if(debugString != "")
-			drawTextCenter(cx, cy - bmp.w, white, debugString);
+		if(!debugString.isEmpty)
+			drawTextCenter(cx, cy - bmp.w, white, debugString.toString);
 		
 		debugString = ""; // reset at end
 		return true;
@@ -894,7 +894,7 @@ class baseObject
 	float w=0, h=0;   /// width, height 
 	float ang=0;	/// pointing angle 
 	float hp=100;
-	string debugString="";
+	staticString debugString=staticString(100);
 	bool flipHorizontal=false;
 	bool flipVertical=false;
 	int team;
@@ -921,11 +921,11 @@ class baseObject
 				pos.y + v.y - v.oy, 
 				ang, ALLEGRO_FLIP_HORIZONTAL & ALLEGRO_FLIP_VERTICAL);
 
-			if(debugString != "")
+			if(!debugString.isEmpty)
 				{
 				pair p = pair(pos.x + v.x - v.ox, pos.y + v.y - v.oy);
 				pushFont(g.font12);
-					drawText(p, white, debugString);
+					drawText(p, white, debugString.toString);
 				popFont();
 				}
 

@@ -19,7 +19,11 @@ import std.random;
 struct rainWeatherHandler{
 	void onTick(){
 		for(int i = 0; i < 1; i++){ //note we can draw only around the screen +- some size. this could be a userland particle effect unless we want water to accumlate into tiles.
-			particle p = particle(uniform(0, 1366), 0, 1, 3, 0, 1000, bh["rain"]);
+			float cx = g.world.objects[0].pos.x;
+			float cy = g.world.objects[0].pos.y;
+			float width = SCREEN_W/2;
+			float height = SCREEN_H/2;
+			particle p = particle(uniform(cx-width, cx+width), uniform(cy-height-60, cy-height-30), 1, 3, 0, 1000, bh["rain"]);
 			p.doScaling = false;
 			p.doDieOnHit = true;
 			p.doTinting = true;
@@ -47,6 +51,7 @@ struct particle{
 	/// spawn smoke without additional unit u
 	this(float _x, float _y, float _vx, float _vy, int _type, int  _lifetime){
 		import std.math : cos, sin;
+		stats.incAllocatedSinceReset("particles");
 		x = _x;
 		y = _y;
 		vx = _vx + uniform!"[]"(-.1, .1);
@@ -63,6 +68,7 @@ struct particle{
 	
 	this(float _x, float _y, float _vx, float _vy, int _type, int  _lifetime, bitmap* _bmp){
 		import std.math : cos, sin;
+		stats.incAllocatedSinceReset("particles");
 		x = _x;
 		y = _y;
 		vx = _vx + uniform!"[]"(-.1, .1);

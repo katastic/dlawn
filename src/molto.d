@@ -82,12 +82,14 @@ struct staticString /// This one is managed by malloc so we have to delete it so
 +/
 struct staticString /// This one has data that's managed by GC, but static pool
 	{
-	
-string toString() pure nothrow @safe const
-	{
-	import std.conv;
-	return to!string(str[0..currentLength]);
-	}	
+		
+	string toString() pure nothrow @safe const /// for writeln, currently allocates
+		{
+		import std.conv;
+		return to!string(str[0..currentLength]);
+		}
+		
+	bool isEmpty(){if(currentLength == 0)return true; else return false;}
 
 	import core.stdc.stdlib;
 	import core.stdc.string;
