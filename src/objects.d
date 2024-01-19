@@ -359,9 +359,9 @@ class bigMeteor : meteor
 		}
 	}
 	
-class meteor : baseObject
+class meteor : unit
 	{
-	fallingStyle!meteor moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
+//	fallingStyle!meteor moveStyle; // this cannot be a pointer for some reason? it's a reference type already though?
 
 	this(pair _pos)
 		{
@@ -369,8 +369,9 @@ class meteor : baseObject
 		stats.incAllocatedSinceReset("objects");
 		import std.random : uniform;
 		vel = pair(-3 + uniform!"[]"(-1,1), 3);
-		super(_pos, vel, bh["asteroid"]);
-		moveStyle = new fallingStyle!meteor(this);
+	//	super(_pos, vel, bh["asteroid"]);
+		super(_pos, new fallingObjectStyle(this));
+//		moveStyle = new fallingStyle!meteor(this);
 		flipHorizontal = cast(bool)uniform!"[]"(0, 1);
 		flipVertical = cast(bool)uniform!"[]"(0, 1);
 		}
@@ -420,9 +421,7 @@ class meteor : baseObject
 
 	override void onMapCollision(DIR hitDirection)
 		{
-		ipair p;
-		p.i = cast(int)pos.x/TILE_W;
-		p.j = cast(int)pos.y/TILE_W;
+		ipair p = ipair(cast(int)pos.x/TILE_W, cast(int)pos.y/TILE_W);
 		with(p)
 		with(g.world.map2)
 		if(isInsideMap(p))
@@ -910,7 +909,7 @@ class structure : baseObject
 /// NO ACTIVE PHYSICS code, base object. 
 class baseObject
 	{
-	movementStyle2 moveStyle2;
+//	movementStyle2 moveStyle2;
 
 	void onObjectCollision(baseObject by){}
 	void onMapCollision(DIR hitDirection){}

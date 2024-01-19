@@ -249,6 +249,53 @@ class planeStyle : movementStyle2
 		}
 	}
 
+
+import helper : isInsideRadius;
+class fallingObjectStyle : movementStyle2
+	{
+	bool doesCollide=true; // does it collide with objects  NYI
+
+
+	override void onTick()
+		{
+		with(myObject)
+			{
+			if(world.map2.isValidMovement(pair(pos, vel)))
+				{
+				vel.y += 0.05;
+				pos += vel;
+				}else{
+				//if(!g.world.map2.isValidMovement(pos))
+				vel.y = 0;
+				onMapCollision(DIR.DOWN);
+				//pos -= vel;
+				}
+			
+			foreach(o; g.world.objects)
+				{
+				if(o.OBJTYPE == 1 && isInsideRadius(pos, o.pos, 20))
+					{
+					onObjectCollision(o);
+					break;
+					}
+				}
+				
+			}
+		}
+
+	bool tryToMove(pair posDifference) // should this be in movementStyle for user actions
+		{
+		assert(false, "NYI");
+		return true;
+		}
+	
+	this(unit _myObject)
+		{
+		super(_myObject);
+		}
+		
+	}
+
 // class flatWalkerStyle(T) : movementStyle2(T)
 // template functions are NON-VIRTUAL and cannot be inhereted from!
 // or is that an old post from 2012?
