@@ -36,8 +36,6 @@ import gui;
 
 class world_t
 	{
-	
-//	dragAndDropGrid grid;	
 	gridWindow grids;
 			
 //	pixelMap map;
@@ -60,7 +58,6 @@ class world_t
  	structure[] structures; // should all structures be owned by a planet? are there 'free floating' structures we'd have? an asteroid structure that's just a structure?
 	bullet[] bullets;
 //	meteor[] meteors;
-
 	rainWeatherHandler rain;
 
 	this()
@@ -78,20 +75,35 @@ class world_t
 		oh = new objectHandler("./data/maps/objectmap.toml"); //NYI
 		
 		import datajack, aimod;
-		{
-		auto u = cast(unit)new runner(pair(730, 420));
-		u.isDebugging = true;
-		units ~= u;
+		
+		// UNITS
+		// -------------------------------------------------------
+		{	auto u = cast(unit)new runner(pair(730, 420)); // what is this for?
+			u.isDebugging = true;
+			units ~= u;
 		}
-		{
-		auto d = cast(baseObject)new dude(pair(730, 420));
-		d.isDebugging = true;
-		objects ~= d;
+		
+		// OBJECTS
+		// -------------------------------------------------------
+		{	auto t = new dude(pair(740, 420));
+			t.isDebugging = true;
+			objects ~= t;
 		}
-		for(int i=0; i<1;i++)
-		{
-		auto d = cast(baseObject)new bigMeteor(pair(uniform(1,1000), uniform(1,100)));
-		objects ~= d;
+		{	auto t = new cow(pair(750, 420));
+			objects ~= t;
+		}
+		{	auto t = new dude(pair(740, 420));
+			t.usingAI = true;
+			objects ~= t;
+		}
+		{	auto t = new dude(pair(780, 320));
+			t.usingAI = true;
+			objects ~= t;
+		}
+		
+		for(int i=0; i<10;i++){
+			auto t = cast(baseObject)new bigMeteor(pair(uniform(1,1000), uniform(1,100)));
+			objects ~= t;
 		}
 		for(int i = 0; i < 2; i++)
 			{
@@ -110,7 +122,6 @@ class world_t
 		viewports[0] = new viewport(0, 0, 1366, 768, 0, 0);
 		assert(units[0] !is null);
 		assert(objects[0] !is null);
-//		viewports[0].attach(&units[0]);
 		viewports[0].attach(&objects[0]);
 		setViewport2(viewports[0]);
 
@@ -188,8 +199,7 @@ class world_t
 		players[0].onTick();
 		
 		timer++;
-		if(timer > 200)
-			{
+		if(timer > 200){
 			}
 
 		auto p = objects[0];
@@ -200,11 +210,9 @@ class world_t
 		if(key_a_down)p.actionLeft();
 		if(key_d_down)p.actionRight();
 		
-		if(key_m_down)
-			{
+		if(key_m_down){
 			import aimod;
-			for(int i = 1; i<units.length;i++)
-				{
+			for(int i = 1; i<units.length;i++){
 				message m;
 				m.isSoundEvent=true;
 				m.pos = pair(viewports[0].ox + mouse_x, viewports[0].oy + mouse_y);
@@ -236,20 +244,16 @@ class world_t
 		stats.swLogic.reset();
 		}
 		
-	void tick(T)(ref T obj)
-		{
-		foreach(ref o; obj)
-			{
+	void tick(T)(ref T obj){
+		foreach(ref o; obj){
 			o.onTick();
 			}
 		}
 
 	//prune ready-to-delete entries (copied from g)
-	void prune(T)(ref T obj)
-		{
+	void prune(T)(ref T obj){
 		import std.algorithm : remove;
-		for(size_t i = obj.length ; i-- > 0 ; )
-			{
+		for(size_t i = obj.length ; i-- > 0 ; ){
 			if(obj[i].isDead)obj = obj.remove(i); continue;
 			}
 		//see https://forum.dlang.org/post/sagacsjdtwzankyvclxn@forum.dlang.org

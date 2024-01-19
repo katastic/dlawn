@@ -177,7 +177,6 @@ class atlasHandler2  : atlasHandlerI
 		}
 	
 	alias bmps this;
-
 	}
 
 /// (manifest) atlas handler

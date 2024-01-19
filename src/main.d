@@ -65,15 +65,12 @@ alias ALLEGRO_KEY = ubyte;
 
 import std.conv : emplace;
 
-struct myTestStruct
-	{
-	this(int x, int y)
-		{
+struct myTestStruct{
+	this(int x, int y){
 		}
 	}
 
-void constructTest()
-	{
+void constructTest(){
 	myTestStruct temp;
 	emplace!myTestStruct(&temp, 2, 3);
 	}
@@ -108,8 +105,7 @@ float [12]tints = [
    ];
 ALLEGRO_SHADER *shader;
 float timeIndex=0;
-bool initialize()
-	{
+bool initialize(){
 	al_set_config_value(al_get_system_config(), "trace", "level", "info"); // enable logging. see https://github.com/liballeg/allegro5/issues/1339
 	// "debug"
 	if (!al_init())
@@ -159,8 +155,7 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 	al_register_event_source(queue, al_get_keyboard_event_source());
 	al_register_event_source(queue, al_get_mouse_event_source());
 	
-	with(ALLEGRO_BLEND_MODE)
-		{
+	with(ALLEGRO_BLEND_MODE){
 		al_set_blender(ALLEGRO_BLEND_OPERATIONS.ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 		}
 
@@ -195,8 +190,7 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 	al_start_timer(screencap_timer);
 	
 	// should this throw an exception since this error can occur by user damage and not just [design error]
-	bool buildShader(ref ALLEGRO_SHADER *sh, string pixelShaderPath, string vertexShaderPath)
-		{		
+	bool buildShader(ref ALLEGRO_SHADER *sh, string pixelShaderPath, string vertexShaderPath){
 		sh = al_create_shader(ALLEGRO_SHADER_PLATFORM.ALLEGRO_SHADER_AUTO);
 		assert(sh);
 		
@@ -216,31 +210,26 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 	return 0;
 	}
 	
-void shutdown() 
-	{
+void shutdown(){
 	stats.list();
 	writeln("total frames passed ", g.stats.totalFramesPassed);
 //	con.compress();
 	al_destroy_shader(shader);
 	}
 
-struct displayType
-	{
-	void start_frame()	
-		{
+struct displayType{
+	void start_frame()	{
 		g.stats.reset();
 		reset_clipping(); //why would we need this? One possible is below! To clear to color the whole screen!
 //		al_clear_to_color(ALLEGRO_COLOR(.2,.2,.2,1)); //only needed if we aren't drawing a background
 		}
 		
-	void end_frame()
-		{
+	void end_frame(){
 		al_use_shader(null);
 		al_flip_display();
 		}
 
-	void draw_frame()
-		{
+	void draw_frame(){
 		start_frame();
 		//------------------
 		draw2();
@@ -248,8 +237,7 @@ struct displayType
 		end_frame();
 		}
 
-	void reset_clipping()
-		{
+	void reset_clipping(){
 		al_set_clipping_rectangle(0, 0, g.SCREEN_W-1, g.SCREEN_H-1);
 		}
 		
@@ -286,8 +274,7 @@ struct displayType
 		}
 		
 		//Viewport separator
-	static if(false)
-		{
+	static if(false){
 		al_draw_line(
 			g.SCREEN_W/2 + 0.5, 
 			0 + 0.5, 
@@ -312,30 +299,26 @@ struct displayType
 					(*stats["dudes"]).drawn +  
 					(*stats["tiles"]).drawn) * g.stats.fps, g.world.objects[0].pos.x, g.world.objects[0].pos.y ); 
 
-		float ifNotZeroPercent(T)(T drawn, T clipped) /// percent CLIPPED
-			{
+		float ifNotZeroPercent(T)(T drawn, T clipped){ /// percent CLIPPED
 			if(drawn + clipped == 0)
 				return 100;
 			else
 				return cast(float)clipped / (cast(float)drawn + cast(float)clipped) * 100.0;
 			}
 
-		float ifNotZeroPercent2(statValue v) /// percent CLIPPED
-			{
+		float ifNotZeroPercent2(statValue v){ /// percent CLIPPED
 			if(v.drawn + v.clipped == 0)
 				return 100;
 			else
 				return cast(float)v.clipped / (cast(float)v.drawn + cast(float)v.clipped) * 100.0;
 			}
 
-		string makeString(string name)
-			{
+		string makeString(string name){
 			string str = name ~ " " ~ format("%d", (*stats[name]).drawn);
 			return str;
 			}
 
-		string makeOf(statValue s)
-			{
+		string makeOf(statValue s){
 			return format("%d:%d/%d %.0f%% (All/sec=%.0f)", s.drawn, s.clipped, s.drawn + s.clipped, ifNotZeroPercent2(s), s.allocationsPerSecond);
 			}
 

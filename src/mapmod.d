@@ -603,12 +603,13 @@ class tileMap : mapBase
 				
 				import std.math : sin, sqrt;
 				
-				if(z>15){z=0; data[i][j] = 1; }
-				if(j > 16) data[i][j] = uniform!"[]"(1,3);
+				if(z>15){z=0; data[i][j] = 1; continue; } // horizontal bands
+				
+				if(j > 16) data[i][j] = uniform!"[]"(1,6);
 				if(sqrt((j-30)^^2 + sin(i/2/3.14159)*10^^2) < 10)data[i][j] = 2;
 				}
 		}
-			
+
 	bool set(ipair pos, ubyte val)
 		{
 		if(pos.i >= 0 && pos.i < 256 && 

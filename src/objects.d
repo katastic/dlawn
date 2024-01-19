@@ -102,12 +102,12 @@ class item : baseObject
 		moveStyle = new gravityStyle!item(this); // this needs corrected API. obviously sleep deprived code.
 		}
 		
-	void onMapCollision(DIR d)
+	override void onMapCollision(DIR d)
 		{
 		vel = 0;
 		}
 		
-	void onObjectCollision(baseObject by)
+	override void onObjectCollision(baseObject by)
 		{
 		}
 		
@@ -252,9 +252,9 @@ class fallingStyle(T)  /// Constant velocity "arcade-style" falling object
 			pos += vel;
 //			writeln("Meteor: ", pos, " ", vel);
 			
-			foreach(o; g.world.units)
+			foreach(o; g.world.objects)
 				{
-				if(isInsideRadius(pos, o.pos, 20))
+				if(o.OBJTYPE == 1 && isInsideRadius(pos, o.pos, 20))
 					{
 					onObjectCollision(o);
 					break;
@@ -275,33 +275,46 @@ class gravityStyle(T)  /// Falling object gravity
 		myObject = d;
 		}
 
-	void onTick()
-		{
-		with(myObject)
-			{
+	void onTick(){
+		with(myObject){
 			//writeln(*pos, " ", *vel);
 			pos += vel;
 			vel.y += .1;
 //			writeln("Meteor: ", pos, " ", vel);
 			
-			foreach(o; g.world.units)
-				{
-				if(isInsideRadius(pos, o.pos, 20))
-					{
+			foreach(o; g.world.units){
+				if(o.OBJTYPE == 1 && isInsideRadius(pos, o.pos, 20)){
 					onObjectCollision(o);
 					break;
 					}
 				}
-				
+
 			if(!g.world.map2.isValidMovement(pos))onMapCollision(DIR.DOWN);
 			}
 		}
 	}
 
-class bigMeteor : meteor	
+class blimp : unit
 	{
 	this(pair _pos)
 		{
+		OBJTYPE = 6;
+		stats.incAllocatedSinceReset("objects");
+		vel = pair(-3 + uniform!"[]"(-1,1), 3);
+		super(_pos, new flatWalkerStyle(this));
+//		super(_pos, vel, bh["blimp"]);
+		//moveStyle = 
+	//	moveStyle2 = new flatWalkerStyle(this); needs >>units<<
+		flipHorizontal = cast(bool)uniform!"[]"(0, 1);
+//		flipVertical = cast(bool)uniform!"[]"(0, 1);
+		}
+	}
+
+class bigMeteor : meteor
+	{
+	this(pair _pos)
+		{
+		OBJTYPE = 5;
 			//		stats.incAllocatedSinceReset("objects");
 			// parent is doing this ^
 		super(_pos);
@@ -352,6 +365,7 @@ class meteor : baseObject
 
 	this(pair _pos)
 		{
+		OBJTYPE = 4;
 		stats.incAllocatedSinceReset("objects");
 		import std.random : uniform;
 		vel = pair(-3 + uniform!"[]"(-1,1), 3);
@@ -363,6 +377,7 @@ class meteor : baseObject
 
 	this(pair _pos, pair _vel, bool _isSpawn=true)
 		{
+		OBJTYPE = 4;
 		stats.incAllocatedSinceReset("objects");
 		import std.random : uniform;
 		this(_pos);
@@ -394,7 +409,7 @@ class meteor : baseObject
 		vel.x = uniform(-3, 3);
 		}
 
-	void onObjectCollision(baseObject by)
+	override void onObjectCollision(baseObject by)
 		{
 //		isDead = true;
 //		con.log("onObjectCollision at %s".format(pos));
@@ -403,7 +418,7 @@ class meteor : baseObject
 		by.onHit(this, 1);
 		}
 
-	void onMapCollision(DIR hitDirection)
+	override void onMapCollision(DIR hitDirection)
 		{
 		ipair p;
 		p.i = cast(int)pos.x/TILE_W;
@@ -435,6 +450,7 @@ class splinterMeteor : baseObject
 
 	this(pair _pos)
 		{
+		OBJTYPE = 3;		
 		stats.incAllocatedSinceReset("objects");
 		import std.random : uniform;
 		vel = pair(-3 + uniform!"[]"(-1,1), 3);
@@ -446,6 +462,7 @@ class splinterMeteor : baseObject
 
 	this(pair _pos, pair _vel, bool _isSpawn=true)
 		{
+		OBJTYPE = 3;		
 		stats.incAllocatedSinceReset("objects");
 		import std.random : uniform;
 		this(_pos);
@@ -477,7 +494,7 @@ class splinterMeteor : baseObject
 		vel.x = uniform(-3, 3);
 		}
 
-	void onObjectCollision(baseObject by)
+	override void onObjectCollision(baseObject by)
 		{
 //		isDead = true;
 		//con.log("onObjectCollision at %s".format(pos));
@@ -486,7 +503,7 @@ class splinterMeteor : baseObject
 		by.onHit(this, 1);
 		}
 
-	void onMapCollision(DIR hitDirection)
+	override void onMapCollision(DIR hitDirection)
 		{
 		ipair p;
 		p.i = cast(int)pos.x/TILE_W;
@@ -552,6 +569,7 @@ class splinterMeteor : baseObject
 	further so it's easiest just to "not be an idiot" and only touch stuff you
 	should.
 +/
+/// if we DONT have any data we can just take a this pointer and link to singleton classes so there's no instance data..
 class wall2dStyle  // how do we integrate any flags with object code?
 	{
 	dude myObject;
@@ -646,7 +664,7 @@ class wall2dStyle  // how do we integrate any flags with object code?
 				}
 			}
 			
-		if(keepMoving)
+		if(keepMoving) /// ""AI"". 
 			{
 			if(facingRight)vel.x = 2f; else vel.x = -2f;
 			}
@@ -659,12 +677,19 @@ class wall2dStyle  // how do we integrate any flags with object code?
 		with(myObject)
 		if(!isFalling)
 			{
-			vel.y = -3;
+			vel.y = -4;
 			if(facingRight)vel.x = 4f; else vel.x = -4f;
 			}
 		}
 			
-	void actionDown(){with(myObject)if(!isFalling)vel.x = -0;}
+	void actionDown()
+		{
+		with(myObject)
+		if(!isFalling){
+			vel.x = -0;}
+		else
+			{vel.x = 0; vel.y = 0;}
+		}
 	void actionLeft(){with(myObject)if(!isFalling)vel.x = -4f;}
 	void actionRight(){with(myObject)if(!isFalling)vel.x = 4f;}
 	}
@@ -719,9 +744,9 @@ class aicontroller
 		{
 		with(myObject)
 			{
-			if(g.world.units[0].pos.x < pos.x && percent(50))actionLeft();
-			if(g.world.units[0].pos.x > pos.x && percent(50))actionRight();
-			if(g.world.units[0].pos.y < pos.y && percent(10))actionUp();
+			if(g.world.objects[0].pos.x < pos.x && percent(50))actionLeft();
+			if(g.world.objects[0].pos.x > pos.x && percent(50))actionRight();
+			if(g.world.objects[0].pos.y < pos.y && percent(10))actionUp();
 			}
 		}
 	// ???
@@ -747,7 +772,8 @@ class dude : baseObject /// this is the new Unit class until we rename them, old
 		}
 	
 	this(pair _pos)
-		{			
+		{
+		OBJTYPE = 1;			
 		moveStyle = new wall2dStyle(this);
 		super(_pos, pair(0, 0), bh["dude"]);
 		ai = new aicontroller(this);
@@ -884,6 +910,12 @@ class structure : baseObject
 /// NO ACTIVE PHYSICS code, base object. 
 class baseObject
 	{
+	movementStyle2 moveStyle2;
+
+	void onObjectCollision(baseObject by){}
+	void onMapCollision(DIR hitDirection){}
+
+	int OBJTYPE=0;
 	ALLEGRO_BITMAP* bmp;
 	@disable this(); 
 	bool isDebugging=false; /// display messages for this guy in particular (this allows us to have dump code for say, onDraw, but only the specific ones we care about by marking them ingame).

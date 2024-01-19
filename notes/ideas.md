@@ -1,6 +1,19 @@
+airport traffic upgrade game
+================================================================================================
+	- how do gamers manage the fleet? Are they directly controlling every single plane
+		or are they buying upgrades and the NPCs are responsible.
+	- directly plot airport lanes, extend them
+	- add space for more population/parking?
+	- is this farmville, or air traffic control?
+
+ww2rpg
+================================================================================================
+	- loot/upgrade system for modules with diablo rarity/modifiers
+		- pen, range, reload speed, ammo capacity
+		- unique/rare upgrades?
+
 dlawn
 ================================================================================================
-
  + do benchmarks on objects with and without static pools
  + track how many allocations per second
  
@@ -8,6 +21,18 @@ dlawn
  - look into using std.conv.emplace instead of new
  - BUFFERED maxLength strings for debug output without allocations
 		basically static strings / static arrays.
+
+
+dlawn ideas
+	- blimps or planes that drop bombs
+	- monsters of some kind
+	- cave generation 2d algorithm
+		- we could design segments and wave collapse it ala Spelunky connections
+	- limited items:
+		- place ladders
+		- ropes and jump off cliff. 
+		- drill through tile(s)
+
 
 memory pools speed comparison:
 	http://wyw.dcweb.cn/static_mem_pool.htm

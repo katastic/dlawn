@@ -307,8 +307,6 @@ class unit : baseObject /// Physics operating generic object
 	int direction; // facing direction
 	float maxHp;
 	float hp;
-	triplet pos3; // TODO
-	triplet vel3; // TODO. 
 		
 	void onHit(baseObject by) // could be bullet, or unit. might want two different functions for this.
 		{
