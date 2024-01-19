@@ -102,7 +102,11 @@ class world_t
 		}
 		
 		for(int i=0; i<10;i++){
-			auto t = cast(baseObject)new bigMeteor(pair(uniform(1,1000), uniform(1,100)));
+			auto t = new bigMeteor(pair(uniform(1,1000), uniform(1,100)));
+			objects ~= t;
+		}
+		for(int i=0; i<10;i++){
+			auto t = new blimp(pair(uniform(1,1000), uniform(200,300)));
 			objects ~= t;
 		}
 		for(int i = 0; i < 2; i++)

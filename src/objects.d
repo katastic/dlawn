@@ -300,13 +300,12 @@ class blimp : unit
 		{
 		OBJTYPE = 6;
 		stats.incAllocatedSinceReset("objects");
-		vel = pair(-3 + uniform!"[]"(-1,1), 3);
-		super(_pos, new flatWalkerStyle(this));
-//		super(_pos, vel, bh["blimp"]);
-		//moveStyle = 
-	//	moveStyle2 = new flatWalkerStyle(this); needs >>units<<
-		flipHorizontal = cast(bool)uniform!"[]"(0, 1);
-//		flipVertical = cast(bool)uniform!"[]"(0, 1);
+		import aimod;
+		super(_pos, new floatingObjectStyle(this), new blimpAi(this));
+		bmp = bh["blimp"];
+		vel = pair(uniform!"[]"(-3,3), 0);
+		if(vel.x < 0){direction = DIR.LEFT; flipHorizontal = 0;}// could be helper function
+		if(vel.x > 0){direction = DIR.RIGHT; flipHorizontal = 1;}
 		}
 	}
 
@@ -365,7 +364,7 @@ class meteor : unit
 
 	this(pair _pos)
 		{
-		OBJTYPE = 4;
+		OBJTYPE = 5;
 		stats.incAllocatedSinceReset("objects");
 		import std.random : uniform;
 		vel = pair(-3 + uniform!"[]"(-1,1), 3);
@@ -909,8 +908,6 @@ class structure : baseObject
 /// NO ACTIVE PHYSICS code, base object. 
 class baseObject
 	{
-//	movementStyle2 moveStyle2;
-
 	void onObjectCollision(baseObject by){}
 	void onMapCollision(DIR hitDirection){}
 
@@ -950,7 +947,7 @@ class baseObject
 			al_draw_center_rotated_bitmap(bmp, 
 				pos.x + v.x - v.ox, 
 				pos.y + v.y - v.oy, 
-				ang, ALLEGRO_FLIP_HORIZONTAL & ALLEGRO_FLIP_VERTICAL);
+				ang, (flipHorizontal&&ALLEGRO_FLIP_HORIZONTAL) || (flipVertical&&ALLEGRO_FLIP_VERTICAL));
 
 			if(!debugString.isEmpty)
 				{

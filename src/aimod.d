@@ -1,10 +1,27 @@
 import molto, helper;
 import std.math, std.random;
+import std.stdio;
+
+class blimpAi : aiType
+	{
+	this(unit _myOwner){super(_myOwner);}
+
+	override void onTick()
+		{
+		with(myOwner)
+			{
+			if(pos.x < 10){vel.x = 3; pos.x += 6; direction = DIR.RIGHT; con.log("LEFT BOUND");}
+			if(pos.x > 1000){vel.x = -3; pos.x -= 6; direction = DIR.LEFT; con.log("RIGHT BOUND");}
+			}
+		}
+	}
 
 class aiType
 	{
+	unit myOwner;
 	message[] messages;
 	void onTick(){}
+	this(unit _myOwner){myOwner = _myOwner; assert(myOwner !is null);}
 	}
 
 class finiteStateMachine
@@ -88,7 +105,7 @@ float angleToward(float currentAngle, float destAngle, float angleChange)
 
 class bugAi : aiType
 	{	
-	unit myOwner;
+//	unit myOwner;
 	BUG_STATES state;
 
 	immutable float agitationThresholdC = 100; // end with C for constant instead of FULLCAPSFORACONST?
@@ -101,10 +118,10 @@ class bugAi : aiType
 	float fleeAngle = 0; // opposite of what we're fleeing from
 	float currentAngle = 0;
 
-	this(unit owner)
+	this(unit _owner)
 		{
-		myOwner = owner;
-		assert(myOwner !is null);
+		super(_owner);
+//		assert(myOwner !is null);
 		}
 	
 	void triggerAudioCue(pair triggerPos, float volume)

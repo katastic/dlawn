@@ -213,13 +213,14 @@ class movementStyle2
 		myObject = _myObject;
 		}
 	
+	bool tryToMove(pair posDifference){return true;}
 	void onTick(){}; // why can't this be = 0; instead of requiring override???
 	}
 
 class planeStyle : movementStyle2
 	{
 	// "I want to move up/down/left/right"
-	bool tryToMove(pair posDifference) // not used?
+	override bool tryToMove(pair posDifference) // not used?
 		{
 		// "Yes"
 		//return true
@@ -249,13 +250,11 @@ class planeStyle : movementStyle2
 		}
 	}
 
-
 import helper : isInsideRadius;
 class fallingObjectStyle : movementStyle2
 	{
 	bool doesCollide=true; // does it collide with objects  NYI
-
-
+	
 	override void onTick()
 		{
 		with(myObject)
@@ -265,10 +264,8 @@ class fallingObjectStyle : movementStyle2
 				vel.y += 0.05;
 				pos += vel;
 				}else{
-				//if(!g.world.map2.isValidMovement(pos))
 				vel.y = 0;
 				onMapCollision(DIR.DOWN);
-				//pos -= vel;
 				}
 			
 			foreach(o; g.world.objects)
@@ -278,17 +275,63 @@ class fallingObjectStyle : movementStyle2
 					onObjectCollision(o);
 					break;
 					}
-				}
-				
+				}			
 			}
 		}
 
-	bool tryToMove(pair posDifference) // should this be in movementStyle for user actions
+	override bool tryToMove(pair posDifference) // should this be in movementStyle for user actions
 		{
 		assert(false, "NYI");
 		return true;
 		}
 	
+	this(unit _myObject)
+		{
+		super(_myObject);
+		}
+		
+	}
+	
+class floatingObjectStyle : movementStyle2 /// like a blimp (do we want velocity?)
+	{
+	bool doesCollide=true; // does it collide with objects  NYI
+	
+	override void onTick()
+		{
+		with(myObject)
+			{
+			if(world.map2.isValidMovement(pair(pos, vel)))
+				{
+				pos += vel;
+				if(pos.x < 0)pos.x = 0;
+				if(pos.x > 1005)pos.x = 1005; //fixme
+				}else{
+				onMapCollision(DIR.DOWN);
+				}
+			
+			if(doesCollide) foreach(o; g.world.objects)
+				{
+				if(o.OBJTYPE == 1 && isInsideRadius(pos, o.pos, 20))
+					{
+					onObjectCollision(o);
+					break;
+					}
+				}			
+			}
+		}
+
+	override bool tryToMove(pair posDifference)
+		{
+		alias p = posDifference; // set animation direction.
+		if		(p.x < 0 && p.y < 0){ myObject.direction = 0; }
+		else if	(p.x > 0 && p.y < 0){ myObject.direction = 1; }
+		else if	(p.x < 0 && p.y > 0){ myObject.direction = 2; }
+		else if	(p.x > 0 && p.y > 0){ myObject.direction = 3; }
+		myObject.pos += posDifference;
+		
+		return true;
+		}
+
 	this(unit _myObject)
 		{
 		super(_myObject);
@@ -306,7 +349,7 @@ class flatWalkerStyle : movementStyle2
 	bool isJumping=0;
 		
 	// "I want to move up/down/left/right"
-	bool tryToMove(pair posDifference)
+	override bool tryToMove(pair posDifference)
 		{
 		// "Yes"
 		//return true
@@ -364,10 +407,18 @@ class unit : baseObject /// Physics operating generic object
 		moveStyle = _moveStyle;
 		super(_pos, pair(0,0), bh["grass"]);
 		}
+
+	this(pair _pos, movementStyle2 _moveStyle, aiType _aiStyle)
+		{
+		moveStyle = _moveStyle;
+		ai = _aiStyle;
+		super(_pos, pair(0,0), bh["grass"]);
+		}
 		
 	override void onTick()
 		{
 		if(moveStyle !is null)moveStyle.onTick();
+		if(ai !is null)ai.onTick();
 		super.onTick();
 		}
 	}
