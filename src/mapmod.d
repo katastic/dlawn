@@ -372,10 +372,17 @@ class byteMap
 	void drawCircle(ipair pos, int r, ubyte val)
 		{
 		import std.math : sqrt;
-		for(float i = -r; i < r; i++)
-		for(float j = -r; j < r; j++)
+		if(r > 1)
 			{
-			if(sqrt(i^^2 + j^^2) <= r)set(cast(uint)(pos.i + i), cast(uint)(pos.j + j), val);
+			for(float i = -r; i < r; i++)
+			for(float j = -r; j < r; j++)
+				{
+				if(sqrt(i^^2 + j^^2) <= r)set(cast(uint)(pos.i + i), cast(uint)(pos.j + j), val);
+				}
+			}
+		if(r == 1)
+			{
+			set(pos, val);
 			}
 		}
 	

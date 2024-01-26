@@ -435,20 +435,40 @@ void execute()
 					isKeySet(ALLEGRO_KEY_L, g.key_l_down);
 					isKeySet(ALLEGRO_KEY_Q, g.key_q_down);
 					
+					void attackMapAt(pair _pos)
+						{
+						ipair pos = ipair(cast(int)_pos.x/TILE_W, cast(int)_pos.y/TILE_W);
+						writeln(pos);
+						if(g.world.map2.isInsideMap(pos))
+							{
+							writeln(g.world.map2.data[pos.i][pos.j], " = ", pos);
+							if(g.world.map2.data[pos.i][pos.j] > 0)g.world.map2.data[pos.i][pos.j]--;
+							}
+						}
+
 					if(g.key_e_down)
 						{
-						g.world.units[0].actionFire();
+//						g.world.units[0].actionFire();
+						auto p = g.world.objects[0].pos;
+						attackMapAt(pair(p, 0, TILE_W)); 
 						key_e_down = false;
-						}
+						}					
 					
 					if(g.key_q_down)//handleMouseAt(g.mouse_x, g.mouse_y, g.viewports[0]);
 						{
 						writeln("q is down");
 						viewport v = viewports[0];
+						auto o = g.world.objects[0];
 						auto p = g.world.objects[0].pos;
 						int w = 20;
 						int h = 20;
-						g.world.map2.drawCircle(p, 4, 0);
+//						g.world.map2.drawCircle(pair(p,-TILE_W,0), 1, 0);
+	//					g.world.map2.drawCircle(pair(p, TILE_W,0), 1, 0);
+						//if(o.direction == DIR.LEFT)
+						writeln(ipair(p, -TILE_W, 0));
+						attackMapAt(pair(p, TILE_W, 0)); 
+						//if(o.direction == DIR.RIGHT)
+						attackMapAt(pair(p, -TILE_W, 0)); 
 						g.key_q_down = false;
 						}
 					break;

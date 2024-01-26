@@ -11,6 +11,7 @@ ww2rpg
 	- loot/upgrade system for modules with diablo rarity/modifiers
 		- pen, range, reload speed, ammo capacity
 		- unique/rare upgrades?
+	- RPG specializations like Fallout Outer Worlds
 
 dlawn
 ================================================================================================
