@@ -334,7 +334,7 @@ class byteMap
 	uint w=0, h=0;
 	ubyte[] data;
 
-	void draw(viewport v)
+	void onDraw(viewport v)
 		{
 		auto screen = al_get_backbuffer(al_display);
 		al_lock_bitmap(screen, ALLEGRO_PIXEL_FORMAT.ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
@@ -566,30 +566,24 @@ class tileMap : mapBase
 	idimen size=idimen(w,h);
 	uint[w][h] data;
 		
-	void drawRectangle(irect r, ubyte val)
-		{
-		with(r)
-			{
+	void drawRectangle(irect r, ubyte val){
+		with(r){
 			assert(x >= 0);
 			assert(y >= 0);
 			assert(x < this.w);
 			assert(y < this.h);
 			for(int j = y; j < y + h; j++)
-			for(int i = x; i < x + w; i++)
-				{
+			for(int i = x; i < x + w; i++){
 				set(ipair(i,j), val);
 				}
 			}
 		}
 		
-	void drawCircle(pair pos, int r, ubyte mapIndexVal)
-		{
+	void drawCircle(pair pos, int r, ubyte mapIndexVal){
 		import std.math : sqrt;
 		for(int i = -r+1; i < r; i++)
-		for(int j = -r+1; j < r; j++)
-			{
-			if(sqrt(cast(float)i^^2 + cast(float)j^^2) < r - 1.0 + 0.4)
-				{
+		for(int j = -r+1; j < r; j++){
+			if(sqrt(cast(float)i^^2 + cast(float)j^^2) < r - 1.0 + 0.4){
 				int ci = cast(uint)pos.x/TILE_W + i;
 				int cj = cast(uint)pos.y/TILE_W + j;
 				set(ipair(ci,cj), mapIndexVal); 
@@ -603,22 +597,26 @@ class tileMap : mapBase
 		import std.random : uniform;
 		int z = 0;
 		for(int i = 0; i < dim.w; i++)
-			for(int j = 0; j < dim.h; j++)
-				{
+			for(int j = 0; j < dim.h; j++){
 				data[i][j] = 0;
 				z++;
 				
 				import std.math : sin, sqrt;
 				
+				
 				if(z>15){z=0; data[i][j] = 1; continue; } // horizontal bands
 				
-				if(j > 16) data[i][j] = uniform!"[]"(1,6);
+				if(j > 24) data[i][j] = uniform!"[]"(1,6);
 				if(sqrt((j-30)^^2 + sin(i/2/3.14159)*10^^2) < 10)data[i][j] = 2;
+
+				drawRectangle(irect(20, 10, 100, 1), 5);
+				drawRectangle(irect(20, 15, 100, 1), 5);
+				drawRectangle(irect(20, 20, 100, 1), 5);
+
 				}
 		}
 
-	bool set(ipair pos, ubyte val)
-		{
+	bool set(ipair pos, ubyte val){
 		if(pos.i >= 0 && pos.i < 256 && 
 		   pos.j >= 0 && pos.j < 256)
 			{
@@ -628,8 +626,7 @@ class tileMap : mapBase
 		return false;
 		}
 	
-	void onDraw(viewport v)
-		{
+	void onDraw(viewport v){
 		float x = 0, y = 0;
 		int iMin = capLow (cast(int)v.ox/TILE_W, 0);
 		int jMin = capLow (cast(int)v.oy/TILE_W, 0);		
@@ -643,8 +640,7 @@ class tileMap : mapBase
 //		writeln(" - ", pair(iMax, jMax));
 		al_hold_bitmap_drawing(true);
 		for(int i = iMin; i <= iMax; i++) // FIX WARNING, this shouldn't need +1 !!! are we rounding down?
-			for(int j = jMin; j <= jMax; j++) // actually +1 hits array bounds!
-				{
+			for(int j = jMin; j <= jMax; j++){ // actually +1 hits array bounds!
 				x = i*TILE_W;
 				y = j*TILE_W;
 				
@@ -667,12 +663,10 @@ class tileMap : mapBase
 		al_hold_bitmap_drawing(false);
 		}
 		
-	void onTick()
-		{
+	void onTick(){
 		}
 	
-	bool isValidMovement(pair pos) /// Checks for both physical obstructions, as well as map boundaries
-		{
+	bool isValidMovement(pair pos){ /// Checks for both physical obstructions, as well as map boundaries
 		import std.stdio : writeln;
 //		writeln(pos);
 		if(pos.x < 0 || pos.y < 0)return false;
@@ -685,8 +679,7 @@ class tileMap : mapBase
 // if we're using ARRAY DATA:	
 		auto p = ipair(pos);
 		with(p)
-		if(data[i/TILE_W][j/TILE_W] == 0) // kinda ugly, but it is a clear "recast" to int if you know the api
-			{
+		if(data[i/TILE_W][j/TILE_W] == 0){ // kinda ugly, but it is a clear "recast" to int if you know the api
 //			writeln("0");
 			return true;
 			}else{
@@ -702,14 +695,12 @@ class tileMap : mapBase
 /// also if we have 3d coordinates all a sudden, we've got TRIPLETS instead of PAIRS.
 /// unless we throw Z on a separate variable which is ugly but allows all other code to work for now.
 
-pair mapToScreenSpace(pair pos) /// note: float pair in case we want to go from 1.5 tile to screen space
-	{
+pair mapToScreenSpace(pair pos){ /// note: float pair in case we want to go from 1.5 tile to screen space
 	return pair((pos.x - pos.y) * ISOTILE_W/2, (pos.x + pos.y) * ISOTILE_H/2);
 	// https://clintbellanger.net/articles/isometric_math/
 	}
 
-pair screenToMapSpace(pair screen)
-	{
+pair screenToMapSpace(pair screen){
 	pair map = pair
 		(
 			(screen.x / (ISOTILE_W/2) + screen.y / (ISOTILE_H/2)) /2,
@@ -720,8 +711,7 @@ pair screenToMapSpace(pair screen)
 
 const int ISOTILE_W = 64;
 const int ISOTILE_H = 32;
-class isometricFlatMap : mapBase
-	{
+class isometricFlatMap : mapBase{
 	import std.random : uniform;
 	int[256][256] data;
 	

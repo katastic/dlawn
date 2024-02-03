@@ -38,6 +38,33 @@ const int MAP_H = 256;
 
 alias idx = size_t; /// alias for an index into an array. so int myTeamIndex; becomes idx myTeam; and it's obvious it's a lookup number.
 
+
+
+class guiTalker // what about scrolling, multiline stuff?
+	{
+	bool hasPortrait;
+	bitmap* portrait;
+	float characterRate;
+	string dialogText;
+	void onTick()
+		{
+		// simplest timing is just hijack normal 60 hz ticks
+		}
+	
+	void onDraw(viewport v)
+		{
+		
+		}
+	}
+
+
+
+
+
+
+
+
+
 /**
 	cachedAA
 
@@ -202,8 +229,8 @@ viewport[2] viewports;
 
 void loadResources()
 	{
-	font1 = getFont("./data/DejaVuSans.ttf", 18);
-	font8 = getFont("./data/DejaVuSans.ttf", 8);
+	font1  = getFont("./data/DejaVuSans.ttf", 18); //default font
+	font8  = getFont("./data/DejaVuSans.ttf", 8);
 	font12 = getFont("./data/DejaVuSans.ttf", 12);
 	font16 = getFont("./data/DejaVuSans.ttf", 16);
 	setActiveFont(font1);
@@ -318,7 +345,6 @@ struct timeoutHandler
 			}
 		}
 	// we could support 'push' notifications as opposed to polling here. do we need it though?
-	
 	}
 
 timeoutHandler th; // if we don't have this singleton we can't use 
@@ -354,12 +380,10 @@ class player
 	int aikills=0;
 	int deaths=0;
 	
-	this()
-		{
+	this(){
 		}
 		
-	void onTick()
-		{
+	void onTick(){
 		}			
 	}
 	
@@ -371,8 +395,7 @@ class team
 	int deaths=0;
 	COLOR color;
 	
-	this(player p, COLOR teamColor)
-		{
+	this(player p, COLOR teamColor){
 		color = teamColor;
 		}
 	}

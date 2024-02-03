@@ -134,11 +134,11 @@ class item : baseObject
 		isOnDropCooldown = false;
 		}
 		
-	override bool draw(viewport v)
+	override bool onDraw(viewport v)
 		{
 		if(!isInside)
 			{
-			super.draw(v);
+			super.onDraw(v);
 			return true;
 			}
 		return false;
@@ -212,7 +212,7 @@ class unit : baseObject // WARNING: This applies PHYSICS. If you inherit from it
 		super(pair(_x, _y), pair(_vx, _vy), b);
 		}
 
-	override bool draw(viewport v)
+	override bool onDraw(viewport v)
 		{
 		super.draw(v);
 		
@@ -807,7 +807,7 @@ class dude : baseObject /// this is the new Unit class until we rename them, old
 		}
 
 	// originally a copy of structure.draw
-	override bool draw(viewport v)
+	override bool onDraw(viewport v)
 		{
 		// we draw RELATIVE to planet.xy, so no using baseObject.draw
 		// TODO how do we rotate angle from center of planet properly? Or do we even need that?
@@ -940,7 +940,7 @@ class baseObject
 		bmp = _bmp;
 		}
 		
-	bool draw(viewport v)
+	bool onDraw(viewport v)
 		{
 		if(isInsideScreen(pos.x, pos.y, v))
 			{
@@ -1041,7 +1041,7 @@ class baseObject
 		super(1, _x, _y, _xv, _yv, ship_bmp);
 		}
 
-	override bool draw(viewport v)
+	override bool onDraw(viewport v)
 		{ //todo include bitmap width/height in this scenario (a helper function may already exist)
 		float cx = pos.x + v.x - v.ox;
 		float cy = pos.y + v.y - v.oy;

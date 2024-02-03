@@ -761,7 +761,7 @@ template isIncrementableStruct(T)
 	}
 +/
 
-void draw(T...)(T t)
+void onDraw(T...)(T t)
 	{
 	if(is(typeof(t[0]) : ALLEGRO_BITMAP*))
 	//	if(isAny2!(ALLEGRO_BITMAP*)(t))

@@ -166,7 +166,7 @@ class bullet : baseObject
 			}
 		}
 	
-	override bool draw(viewport v)
+	override bool onDraw(viewport v)
 		{		
 		float cx = x + v.x - v.ox;
 		float cy = y + v.y - v.oy;

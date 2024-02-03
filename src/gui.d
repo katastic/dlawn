@@ -147,13 +147,13 @@ class gridWindow
 		drawText(pair(canvas), white, title);
 		}
 
-	bool draw(viewport v) // WARN: We have no z-ordering here
+	bool onDraw(viewport v) // WARN: We have no z-ordering here
 		{
 		drawFilledRectangle(canvas, black.alpha(.25)); 
 		drawTitleBar();
 		foreach(gr; grids)
 			{
-			gr.draw(v);
+			gr.onDraw(v);
 			}
 		return true;
 		}
@@ -494,14 +494,14 @@ class dragAndDropGrid
 			}
 		}
 	
-	void draw(viewport v)
+	void onDraw(viewport v)
 		{
 		auto offsetPos = chop(owner.canvas);
 		drawBackground(offsetPos);
 		drawGrid(offsetPos);
 		foreach(i; items)
 			{
-			i.draw(canvas, v, offsetPos);
+			i.onDraw(canvas, v, offsetPos);
 			}
 	
 		if(isDrawingMouseOverlay)
@@ -638,7 +638,7 @@ class draggableItem
 	void dropItemIntoWorld(){}
 	void removeMeFromList(){}
 
-	void draw(rect canvas, viewport v, pair offsetPos)
+	void onDraw(rect canvas, viewport v, pair offsetPos)
 		{
 		if(!isPickedUp)
 			{

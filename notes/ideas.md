@@ -1,3 +1,25 @@
+
+
+Hotel Hell / Hotel Wars
+================================================================================================
+
+ - combine dlawn with that oldschool raining Hotel idea.
+ - survive elements, build hotel higher? Or survive as it collapses into basement.
+ - has room for interactive elements like powering things, setting up power lines/batteries to powered items.
+ - we ''could'' make Hotel Wars where there's multiple hotels and you fight between the neighboring hotels. 
+ - Each building is owned by a rival gang. One "issue" is if you have to deconstruct and redeploy to the next hotel over, is it annoying to have to bring everything. other thing is like, what separates one hotel from the next one? More potential details will show up if we actually start making game mechanics.
+
+
+
+Space Pirates
+================================================================================================
+ - spaceships, take other space ships
+ - ship yard derilicts. put pieces together. same game? I mean why assemble a ship from parts if you can steal a ship
+	- crew: gun fights
+	- repair breaches
+	- weld stuff
+
+
 airport traffic upgrade game
 ================================================================================================
 	- how do gamers manage the fleet? Are they directly controlling every single plane

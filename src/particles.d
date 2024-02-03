@@ -26,7 +26,7 @@ struct rainWeatherHandler{
 			particle p = particle(uniform(cx-width, cx+width), uniform(cy-height-60, cy-height-30), 1, 3, 0, 1000, bh["rain"]);
 			p.doScaling = false;
 			p.doDieOnHit = true;
-			p.doTinting = true;
+			p.doFadeOverTime = true;
 			g.world.particles ~= p;
 //			con.log("etstessteste");
 			}
@@ -41,7 +41,12 @@ struct particle{
 	int maxLifetime=0;
 	int rotation=0;
 	bool doScaling=false;
+	
 	bool doTinting=true;
+	color tint;
+	
+	bool doFadeOverTime=true;
+	
 	bool isDead=false;
 	bool doDieOnHit=false;
 	bool flipHorizontal, flipVertical;
@@ -83,19 +88,18 @@ struct particle{
 		flipVertical = flipCoin();
 		}
 
-	bool draw(viewport v)
-		{
+	bool onDraw(viewport v){
 		assert(bmp !is null);
 		BITMAP *b = bmp;
 		ALLEGRO_COLOR c = color(1,1,1,1);
-		if(doTinting)c = color(1,1,1,cast(float)lifetime/cast(float)maxLifetime);
+		if(doFadeOverTime)c = color(1,1,1,cast(float)lifetime/cast(float)maxLifetime);
 		float cx = x + v.x - v.ox;
 		float cy = y + v.y - v.oy;
 		float scaleX = (cast(float)lifetime/cast(float)maxLifetime) * b.w;
 		float scaleY = (cast(float)lifetime/cast(float)maxLifetime) * b.h;
 		if(!doScaling){scaleX = 1; scaleY = 1;}
 		if(!isInsideScreen(cx, cy, v)){
-			c = red; // DEBUG. show partially clipped:
+			c = blue; // DEBUG. show partially clipped:
 			return true; //if !debug
 			}
 			

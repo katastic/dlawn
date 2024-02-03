@@ -1,4 +1,53 @@
 import molto : angle;
+import viewportsmod;
+import atlasmod;
+
+// SPACE PIRATE
+// ==========================================================================
+
+/// space ship is a unit but also a tilemap
+class spaceShip : baseObject{
+	int [][] map; //filler since map2 has tons of code
+	
+	this(){
+		super(pair(0,0), pair(0,0), bh["asteroid"]);
+		}
+	
+	override bool onDraw(viewport v){return 0;
+		}
+	override void onTick(){
+		}
+	}
+
+class asteroid : baseObject{
+	this(){
+		super(pair(0,0), pair(0,0), bh["blimp"]);
+		}
+	override bool onDraw(viewport v){return 0;
+		}
+	override void onTick(){
+		}
+	}
+
+class spacePirate : baseObject{
+	this(){
+		super(pair(0,0), pair(0,0), bh["blimp"]);
+		}
+	override bool onDraw(viewport v){return 0;
+		}
+	override void onTick(){
+		}
+	}
+
+
+
+
+
+
+
+
+
+
 
 // THIS IS ww2 OR OTHERWISE now because why make a datajack game.
 // though that won't really have any kind of physics stuff that I usually do and enjoy

@@ -134,7 +134,7 @@ class intrinsicGraph(T)
 	// private data
  	private T max=-9999; //READONLY cache of max value.
  	private T min=-9999; //READONLY cache of max value.
- 	private float scaleFactor=1.00; //READONLY set by draw() every frame.
+ 	private float scaleFactor=1.00; //READONLY set by onDraw() every frame.
  	private int maxTimeRemembered=600; // how many frames do we remember a previous maximum. 0 for always update.
  	private T previousMaximum=0;
  	private T previousMinimum=0;
@@ -160,7 +160,7 @@ class intrinsicGraph(T)
 		
 		}
 
-	void draw(viewport v)
+	void onDraw(viewport v)
 		{
 		// TODO. Are we keeping/using viewport? 
 		// We'd have to know which grapsh are used in which viewport

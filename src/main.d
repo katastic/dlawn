@@ -256,7 +256,7 @@ struct displayType{
 		static if(DEBUG_NO_BACKGROUND)
 			al_clear_to_color(ALLEGRO_COLOR(0, 0, 0, 1));
 
-		g.world.draw(g.viewports[0]);
+		g.world.onDraw(g.viewports[0]);
 		}
 
 	static if(false) //draw right viewport
@@ -292,12 +292,12 @@ struct displayType{
 
 		al_draw_filled_rounded_rectangle(16, 32, 64+1000, last_position_plus_one+32, 8, 8, ALLEGRO_COLOR(.7, .7, .7, .7));
 
-		drawText2(20, "fps[%d] frame#[%d] objrate[%d] -- Obj1[%.2f,%.2f]", g.stats.fps, g.stats.totalFramesPassed,	 
+		drawText2(20, "fps[%d] frame#[%d] objrate[%d] -- Obj1[%.2f,%.2f]=[%.2f,%.2f]", g.stats.fps, g.stats.totalFramesPassed,	 
 					((*stats["particles"]).drawn +
 					(*stats["units"]).drawn + 
 					(*stats["bullets"]).drawn + 
 					(*stats["dudes"]).drawn +  
-					(*stats["tiles"]).drawn) * g.stats.fps, g.world.objects[0].pos.x, g.world.objects[0].pos.y ); 
+					(*stats["tiles"]).drawn) * g.stats.fps, g.world.objects[0].pos.x, g.world.objects[0].pos.y, g.world.objects[0].pos.x/TILE_W,g.world.objects[0].pos.x/TILE_H ); 
 
 		float ifNotZeroPercent(T)(T drawn, T clipped){ /// percent CLIPPED
 			if(drawn + clipped == 0)

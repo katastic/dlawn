@@ -135,13 +135,13 @@ class world_t
 		stats.swGameStart = StopWatch(AutoStart.yes);
 		}
 
-	void draw(viewport v)
+	void onDraw(viewport v)
 		{
 		stats.swDraw.start();
 	
 		void drawStat3(T, U)(ref T obj, ref U stat){
 			foreach(ref o; obj){
-				if(o.draw(v)){
+				if(o.onDraw(v)){
 					stat.drawn++;
 					}else{
 					stat.clipped++;
@@ -152,7 +152,7 @@ class world_t
 		void drawStat4(T)(ref T obj, string name){
 			al_hold_bitmap_drawing(true);
 			foreach(ref o; obj){
-				if(o.draw(v)){
+				if(o.onDraw(v)){
 					stats[name].drawn++;
 					}else{
 					stats[name].clipped++;
@@ -185,9 +185,9 @@ class world_t
 
 //		map.drawMinimap(pair(SCREEN_W-300,50));
 
-		grids.draw(v);
+		grids.onDraw(v);
 
-		foreach(g; graphs)g.draw(v);
+		foreach(g; graphs)g.onDraw(v);
 		stats.swDraw.stop();
 		stats.nsDraw = stats.swDraw.peek.total!"nsecs";
 		stats.swDraw.reset();
@@ -332,15 +332,15 @@ class world_t
 		stats.swGameStart = StopWatch(AutoStart.yes);
 		}
 
-	void draw(viewport v)
+	void onDraw(viewport v)
 		{
 		stats.swDraw.start();
 
-		void draw(T)(ref T obj)
+		void onDraw(T)(ref T obj)
 			{
 			foreach(ref o; obj)
 				{
-				o.draw(v);
+				o.onDraw(v);
 				}
 			}
 		
@@ -349,7 +349,7 @@ class world_t
 			foreach(ref o; obj)
 				{
 				stat++;
-				o.draw(v);
+				o.onDraw(v);
 				}
 			}
 
@@ -357,7 +357,7 @@ class world_t
 			{
 			foreach(ref o; obj)
 				{
-				if(o.draw(v))
+				if(o.onDraw(v))
 					{
 					stat++;
 					}else{
@@ -370,7 +370,7 @@ class world_t
 			{
 			foreach(ref o; obj)
 				{
-				if(o.draw(v))
+				if(o.onDraw(v))
 					{
 					stat.drawn++;
 					}else{
@@ -384,7 +384,7 @@ class world_t
 			al_hold_bitmap_drawing(true);
 			foreach(ref o; obj)
 				{
-				if(o.draw(v))
+				if(o.onDraw(v))
 					{
 					stats[name].drawn++;
 					}else{
@@ -413,8 +413,8 @@ class world_t
 
 //		map.drawMinimap(pair(SCREEN_W-300,50));
 
-		testGraph.draw(v);
-		testGraph2.draw(v);
+		testGraph.onDraw(v);
+		testGraph2.onDraw(v);
 		stats.swDraw.stop();
 		stats.nsDraw = stats.swDraw.peek.total!"nsecs";
 		stats.swDraw.reset();
