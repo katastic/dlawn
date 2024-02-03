@@ -104,16 +104,11 @@ struct particle{
 			}
 			
 			al_draw_tinted_scaled_rotated_bitmap(b, c,
-			   bmp.w/2, 
-			   bmp.h/2, 
-			   
-			   cx, 
-			   cy, 
-			   
-			   scaleX, 
-			   scaleY,
+			   bmp.w/2, bmp.h/2,
+			   cx, cy,
+			   scaleX, scaleY,
 			   0,  //angle
-			   flipHorizontal & flipVertical);
+			   flipHorizontal*ALLEGRO_FLIP_HORIZONTAL && flipVertical*ALLEGRO_FLIP_VERTICAL);
 
 		return false;
 		}

@@ -742,9 +742,9 @@ class aicontroller
 		{
 		with(myObject)
 			{
-			if(g.world.objects[0].pos.x < pos.x && percent(50))actionLeft();
-			if(g.world.objects[0].pos.x > pos.x && percent(50))actionRight();
-			if(g.world.objects[0].pos.y < pos.y && percent(10))actionUp();
+			if(g.world.objects[0].pos.x < pos.x && percent(7))actionLeft();
+			if(g.world.objects[0].pos.x > pos.x && percent(7))actionRight();
+			if(g.world.objects[0].pos.y < pos.y && percent(1))actionUp();
 			}
 		}
 	// ???
