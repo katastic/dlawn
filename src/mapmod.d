@@ -603,7 +603,6 @@ class tileMap : mapBase
 				
 				import std.math : sin, sqrt;
 				
-				
 				if(z>15){z=0; data[i][j] = 1; continue; } // horizontal bands
 				
 				if(j > 24) data[i][j] = uniform!"[]"(1,6);

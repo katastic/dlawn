@@ -5,6 +5,7 @@ trace.log
 profilegc.log
 callgrind.out.*
 allegro.log
+allegro.log.pyg
 game.log
 game.log.7z
 game.log.pyg

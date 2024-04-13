@@ -11,13 +11,14 @@ Hotel Hell / Hotel Wars
 
 
 
-Space Pirates
+Space Pirates / DETECTIVE
 ================================================================================================
  - spaceships, take other space ships
  - ship yard derilicts. put pieces together. same game? I mean why assemble a ship from parts if you can steal a ship
 	- crew: gun fights
 	- repair breaches
 	- weld stuff
+ -  we could alos be some sort of space DETECTIVE. Analyze wreckages, daamage types, clues for who attacked and where they came from.
 
 
 airport traffic upgrade game
@@ -34,6 +35,8 @@ ww2rpg
 		- pen, range, reload speed, ammo capacity
 		- unique/rare upgrades?
 	- RPG specializations like Fallout Outer Worlds
+	- INFANTRY groups could be involved too instead of just tanks and AT cannons
+	- call in arty and air support with mana. different areas have less or more (harder/easier casting). cooldowns.
 
 dlawn
 ================================================================================================

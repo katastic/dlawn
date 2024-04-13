@@ -163,6 +163,7 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 	con = new logger();
 				
 	extraLogsAfterAllegro();
+	setThreadName("main taco thread");	
 	
 	al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP); // this should be the default...
 		 // https://www.allegro.cc/manual/5/al_set_new_bitmap_flags

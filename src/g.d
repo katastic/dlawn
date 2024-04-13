@@ -38,8 +38,6 @@ const int MAP_H = 256;
 
 alias idx = size_t; /// alias for an index into an array. so int myTeamIndex; becomes idx myTeam; and it's obvious it's a lookup number.
 
-
-
 class guiTalker // what about scrolling, multiline stuff?
 	{
 	bool hasPortrait;
@@ -56,14 +54,6 @@ class guiTalker // what about scrolling, multiline stuff?
 		
 		}
 	}
-
-
-
-
-
-
-
-
 
 /**
 	cachedAA

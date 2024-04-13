@@ -2,6 +2,93 @@ import molto : angle;
 import viewportsmod;
 import atlasmod;
 
+
+// GANGS OF SHERWOOD
+// ==========================================================================
+
+/+
+gladiator. warcraft 1, 2. heroes of might magic
+
+baseObject-> 
+	unit->
+		(neutral NPCs)
+			rabbit
+			deer
+			cow
+			chicken
+			birds
+		(enemy NPCs)
+			dragon
+			ogre
+			goblins
+			kobold
+			orcs
+			demon
+	
+		elf/dwarves
+		thief
+		peasants
+		thugs/mercs/brigand
+		pikeman
+		fighter
+		knight
+		mage/archmage/sorcerer
+		cleric
+		conjurer
+		faerie
+		fireElemental
+		waterElemental
+		airElemental
+		giantScorpion
+		slime, bigSlime, hugeSlime
+		spider
+		golem
+		orc
+		ogre
+		archer
+		druid
+		skeleton
+		necromancer
+		engineer (builds towers
+		seigeWeapons
+			catapult
+			ballista
+		demon
+	buildings
+		enemy spawners?
+	ridableVehicle
+		horse	[can any NPC mount a knight]
+		chariot
+		wagon
+		dragon/griffon
+		gnomish flying machine
++/
+
+
+class pikeman : dude{
+	this(){
+		super(pair(0,0), pair(0,0), bh["asteroid"]);
+		}
+	override bool onDraw(viewport v){return 0;
+		}
+	override void onTick(){
+		}
+	}
+
+
+class dude : baseObject{
+	this(){
+		super(pair(0,0), pair(0,0), bh["asteroid"]);
+		}
+	override bool onDraw(viewport v){return 0;
+		}
+	override void onTick(){
+		}
+	}
+
+// HOTEL HELL / WARS
+// ==========================================================================
+
 // SPACE PIRATE
 // ==========================================================================
 
@@ -38,16 +125,6 @@ class spacePirate : baseObject{
 	override void onTick(){
 		}
 	}
-
-
-
-
-
-
-
-
-
-
 
 // THIS IS ww2 OR OTHERWISE now because why make a datajack game.
 // though that won't really have any kind of physics stuff that I usually do and enjoy

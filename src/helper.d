@@ -20,6 +20,32 @@ import g;
 import objects;
 import molto;
 
+extern (C)
+	{
+	struct pthread_t{}
+	
+	int pthread_setname_np(pthread_t *thread, const char *name);
+	int pthread_getname_np(pthread_t *thread, const char *name, size_t len);
+	pthread_t pthread_self();
+	}
+
+void setThreadName(string _name)
+	{
+	assert(_name.length <= 16); // https://stackoverflow.com/questions/8944236/gdb-how-to-get-thread-name-displayed
+	import core.thread;
+	ThreadBase t;
+	t = t.getThis();
+	t.name = _name;
+	char* data;
+	char* data2;
+	pthread_t tid = pthread_self();
+	pthread_getname_np(&tid, data, 16);
+	pthread_setname_np(&tid, _name.toStringz());
+	pthread_getname_np(&tid, data2, 16);
+	writeln("thread name was: ", data, " is:", data2);
+	}
+
+
 //mixin template grey(T)(T w)
 	//{
 	//COLOR(w, w, w, 1);
