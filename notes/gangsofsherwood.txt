@@ -1,0 +1,75 @@
+Gangs of Sherwood ala "Streets of Robinhood"
+=============================================================================
+
+name note: sherwood is the forest, and the city is ???
+
+	Sherwood is in Nottinghamshire
+
+		so Nottingham City?
+		loxley is south yorkshire
+
+GTA meets Earthbound aesthetic meets that gang warfare game Constructor whatever
+
+	- maybe streets of rogue style characters and weapon fighting. simple yet effective.
+	- GTA 1/2 meets influence/base capture
+
+BIG QUESTION: 
+	- Great name, aesthetically nobody has done a ROBINHOOD GANG WAR game.
+	- here's the problem. There's SO much less to do if you restrict yourself to medival times. think about it.
+		- NO CARS. So what, ride a horse? Okay but that's it. Compare a sedan, to a truck, to a firetruck, to a police car, to a race car, to a superbike.
+		VS
+		- "a horse". "a fast horse". "a armored horse". "a carriage".
+		
+		see how bland and similar they are by comparison?
+
+	- likewise with weapons. IF, we stay with GTA itself style, GUNS are way more interesting. otherwise what do you have? 
+			a sword and a bow.
+			
+	- now we could cheatish and go "ADD MAGIC" and "STEAMPUNK CARS". But that takes away a bit from the robinhood aesthetic thats actually a large source of charm.
+	
+	
+	
+now there's RPG stuff we can add. Maybe you level up the more regions you control.
+	should the game be pure PVE against a kingdom, or is it more interesting to make it almost PVP (But with AI's competing the same as you to rise up) like that Constructor and similar gang warfare games where it's almost like a board game.
+		
+
+using Streets of Rogue as a combat base though, you can see how to make basic weaponry interesting.
+
+	bats
+	knives
+	swords
+	axes
+	shields	(if these make it easy to block arrows, then bows aren't the automatic goto weapon)
+	bows
+	
+having the weapon deteriotartion system of streets of rogue / beat-em-up games is good too.	
+	
+
+
+
+vehicles
+	WARN: Vehicles often break games too so maybe not having many won't automatically break the game.
+	
+	if you're faster on the vehicle, you don't need to be off the vehicle. whereas before you were having fun walking around and exploring you're now constantly juggling being on and off the vehicle.
+	
+	-- vehicle storage.
+	
+	
+	(some of these will be NPCs only probably because user utility is limited)
+	- Horse
+	- RICKSHAW / handcart
+	- Horse and Carriage. Two horses side-by-side. 
+	- Three horses long wagon
+	- Chariot?
+	- small boats, big boats for cargo
+
+
+
+GANG WARFARE. 
+	- Run cheap crimes. Then
+	- Hire GOONS and have them run protection racket
+	- Create money laundering operations to hide/pawn stolen goods
+	- GO TO WAR with rival gangs.
+	- OVERTHROW THE KING
+	
+a natural phase progression.
