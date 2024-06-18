@@ -17,7 +17,7 @@ import std.stdio;
 
 import datajack; // gamemodule
 
-class bullet : baseObject
+class Bullet : BaseObject
 	{
 	bool isDebugging=false;
 	float x=0, y=0;
@@ -26,12 +26,13 @@ class bullet : baseObject
 	int type; // 0 = normal bullet whatever
 	int lifetime; // frames passed since firing
 	bool isDead=false; // to trim
-	unit myOwner;
+	BaseObject myOwner;
 	bool isAffectedByGravity=true;
 	COLOR c;
 	
-	this(float _x, float _y, float _vx, float _vy, float _angle, COLOR _c, int _type, int _lifetime, bool _isAffectedByGravity, unit _myOwner, bool _isDebugging)
-		{
+	this(float _x, float _y, float _vx, float _vy, float _angle, COLOR _c, 
+		int _type, int _lifetime, bool _isAffectedByGravity, BaseObject _myOwner, 
+		bool _isDebugging){
 		isDebugging = _isDebugging;
 		c = _c;
 		myOwner = _myOwner;

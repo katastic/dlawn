@@ -34,8 +34,7 @@ import main : shader;
 import datajack; // gamemodule
 import gui;
 
-class world_t
-	{
+class world_t{
 	gridWindow grids;
 			
 //	pixelMap map;
@@ -47,16 +46,16 @@ class world_t
 				
 	import main : memoryPool;
 	static if(true){
-		memoryPool!baseObject objects; // other stuff
+		memoryPool!BaseObject objects; // other stuff
 		memoryPool!particle particles;
 	}else{
-		baseObject[] objects; // other stuff TODO
+		BaseObject[] objects; // other stuff TODO
 		particle[] particles;
 	}
 	unit[] units;
 	item[] items;
  	structure[] structures; // should all structures be owned by a planet? are there 'free floating' structures we'd have? an asteroid structure that's just a structure?
-	bullet[] bullets;
+	Bullet[] bullets;
 //	meteor[] meteors;
 	rainWeatherHandler rain;
 
@@ -101,7 +100,7 @@ class world_t
 			objects ~= t;
 		}
 		
-		for(int i=0; i<10;i++){
+		for(int i=0; i<1500;i++){
 			auto t = new bigMeteor(pair(uniform(1,1000), uniform(1,100)));
 			objects ~= t;
 		}
@@ -123,7 +122,7 @@ class world_t
 		graphs ~= new intrinsicGraph!float("Logic (ms)", g.stats.nsLogic, 100, 260, COLOR(1,0,0,1), 1_000_000);
 		graphs ~= new intrinsicGraph!float("Allocations", g.stats["objects"].allocationsPerSecond, 100, 370, COLOR(1,0,0,1), 1);
 				
-		viewports[0] = new viewport(0, 0, 1366, 768, 0, 0);
+		viewports[0] = new viewport(0, 0, g.SCREEN_W, g.SCREEN_H, 0, 0);
 		assert(units[0] !is null);
 		assert(objects[0] !is null);
 		viewports[0].attach(&objects[0]);

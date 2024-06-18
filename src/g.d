@@ -29,8 +29,14 @@ import atlasmod;
 
 import datajack; // gamemodule
 
+version(Windows){
+int SCREEN_W = 1920;
+int SCREEN_H = 1080;
+}
+version(Linux){
 int SCREEN_W = 1300;
 int SCREEN_H = 768;
+}
 const int TILE_W = 32;
 const int TILE_H = 32; // beware some stuff assumed TILE_W=TILE_H so they just used TILE_W everywhere.
 const int MAP_W = 256;
@@ -421,23 +427,7 @@ template GenList2(string T)	// using array of strings
     const char[] GenList2 = T ~"[] " ~ T ~"s;";
 	pragma(msg, GenList2);
 	}
-		
-void worldmaker(U...)(U u)
-	{
-	mixin GenList!lawnMower;
-	
-//	pragma(msg, u);
-		
-	foreach(t; u)
-		{
-//		mixin
-		}
-	}
-	
-import std.meta;
-alias listOfObjects = AliasSeq!(structure, unit);
-immutable auto listOfObjects2 = ["structure", "unit"];
-/+
+		/+
 void testWorldMaker()
 	{
 	static foreach(l; listOfObjects)

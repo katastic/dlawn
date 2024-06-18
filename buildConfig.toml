@@ -1,0 +1,103 @@
+[project]
+    name = "dLawn"
+    profiles = ["release", "debug"]
+    compilers = ["dmd", "ldc"]
+    targets = ["linux", "windows"]
+    
+[options]
+    automaticallyAddOutputExtension = true   # main for linux, main.exe for windows
+
+[windows]
+    sourcePaths = [ 'C:\git\dlawn\src\' ]
+    recursiveSourcePaths = [ ]
+    libPaths = [
+        '.',
+        'C:\git\dlawn\winbuilddeps\lib\',  # allegro.lib
+        'C:\git\dlawn\winbuilddeps\dallegro5\', # dallegro5dmd.lib
+        'C:\git\dlawn\toml\', # toml.lib
+        'C:\git\dlawn\src\'] 
+    recursiveLibPaths = []
+    libs = [ "toml" ]
+    includePaths = ['C:\git\dlawn\src\', 'C:\git\dlawn\toml\src\', 'C:\git\dlawn\'] # we could auto add the normal source directory
+    intermediatePath = 'C:\git\masterBuilDer\temp\' # where to store obj files for incremental build
+
+[linux] ## FIX ME
+    sourcePaths = [ 'C:\git\dlawn\src', 'C:\git\dlawn\toml\src\toml' ]
+    recursiveSourcePaths = [ ]
+    libPaths = [
+        '.',
+        'C:\git\dlawn\winbuilddeps\lib\', 
+        'C:\git\dlawn\winbuilddeps\dallegro5', 
+        'C:\git\dlawn\toml',
+        'C:\git\dlawn\src'] 
+    recursiveLibPaths = []
+    libs = [ "toml" ]
+    includePaths = ['C:\git\dlawn\toml\src\toml', 'C:\git\dlawn\allegro5']
+    intermediatePath = '.\temp\' # where to store obj files for incremental build
+
+[setupCode]
+    getDeps = ["git submodule init", "git submodule init"]
+
+#dmd -debug -gs -gf -g -gx -ofmain `ls ./src/*.d` `ls ./toml/src/toml/*.d` -L-L./lib/ 
+#ldc2 -wi -d-debug -fsanitize=address -fsanitize-memory-track-origins=0 -fsanitize-blacklist=asanblacklist.txt --frame-pointer=all  -g --gc -stats -ofmain `ls ./src/*.d`  `ls ./toml/src/toml/*.d` -L-L/usr/local/lib/ -L-L./lib/ $@ --preview=shortenedMethods
+
+[modeStrings]
+    debug = ["-debug","-d-debug"]
+    debugSymbols = ["-g", "-g"]
+    debugSymbolsNonDDebuggers = ["", "-gc"]
+    optimize = ["-O", "-O"]
+    profile = ["-profile",""]
+    release = ["-release", "--release"]
+    profileGC = ["-profile=gc",""]
+    haltingWarn = ["-w", "-w"]
+    warn = ["-wi", "-wi"]
+    setOutputFile = ["-of=", "--of="]
+    inline = ["-inline", ""]
+    stackStomp = ["-gx -s -gf", ""] # -gf emit debug info for all referenced types, -gs always emit stack frames, -gx stack stomp code
+    other = ["", ""]
+    ignoreDepreciated = ["-d", "-d"] # silently allow
+    warnDepreciated = ["-dw", ""]
+    errorDepreciated = ["-de", ""]
+    noObjectIntermediates = ["-o-", ""] 
+    dip1000 = ["-dip1000", "-dip1000"]
+
+[release]
+    name = "release"
+    modesEnabled = ["optimize", "other", "ignoreDepreciated", "dip1000"]
+    extraCompilerFlags = "" # these won't be cross compiler. add your own [modeStrings] for those.
+    extraLinkerFlags = ""
+    outputFilename = "main" # auto add .exe for windows or change [automaticallyAddOutputExtension]
+    successOnRunScript = ""
+    failureOnRunScript = ""
+
+[debug]
+    name = "debug"
+    modesEnabled = ["debug", "optimize", "ignoreDepreciated", "dip1000"]
+    extraCompilerFlags = "" # these won't be cross compiler. add your own [modeStrings] for those.
+    extraLinkerFlags = ""
+    outputFilename = "main" # auto add .exe for windows or change [automaticallyAddOutputExtension]
+    successOnRunScript = ""
+    failureOnRunScript = ""
+
+[dscanner]
+    hide = ["undocumented", "max120characters", "style"]
+# , "neverused", "nevermodified", "empty", "asserttrue", "samename", "virtualcall", "autofunc", "nonconstmethod", "underscores", "returndiscarded"
+
+[dscannerStrings] # list of strings to remove. All listed here so you don't need docs.
+    max120characters = "Line is longer than 120 characters"
+    undocumented = "undocumented"
+    neverused = "is never used"
+    nevermodified = "is never modified"
+    style = "does not match style guidelines"
+    empty = "Empty declaration"
+    asserttrue = "Assert condition is always true"
+    samename = "has the same name as a variable defined on line"
+    virtualcall = "virtual call inside a constructor"
+    functionreturn = "Function return value is discarded"
+    underscores = "Use underscores to improve number constant readability"
+    autofunc = "Auto function without return statement"
+    nonconstmethod = "Methods 'opCmp', 'toHash', 'opEquals', 'opCast', and/or 'toString' are non-const"
+    returndiscarded = "Function return value is discarded"
+    # add any more you want here, or adjust above if DScanner verbage changes.
+
+#WARN: TOML file cannot end on comment, need a final newline.

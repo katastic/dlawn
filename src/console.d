@@ -29,8 +29,7 @@ import std.file;
 		18.9% wikipedia ratio
 +/
 
-class dialogConsole
-	{
+class dialogConsole{
 	rect dims;
 	size_t scrollIndex; // in pixels? in lines?
 	size_t bufferLength; // TODO: get this from log.
@@ -56,16 +55,14 @@ class dialogConsole
 /// movement or finite state machine.
 
 /// Do we need a MAPPING setup? "debug" includes "object,error,info,etc"
-enum logChannel : string
-	{
+enum logChannel : string{
 	INFO="info",
 	ERROR="error",
 	DEBUG="debug",
 	FSM="FSM"
 	}
 
-class pygmentize// : prettyPrinter
-	{
+class pygmentize{// : prettyPrinter
 	bool hasStreamStarted=false;
 	string style="arduino"; // see [pygmentize -L style] for list of installed styles
 	string language="SQL"; // you don't necessarily want "D" for console coloring
@@ -75,8 +72,7 @@ class pygmentize// : prettyPrinter
 	// this will be "slower" since we're constantly re-running it with all that overhead
 	// we might want to do some sort of batch/buffered version to reduce the number
 	// of invocations
-	string convert(string input)
-		{
+	string convert(string input){
 		stats.swLogging.start();	
 		import std.process : spawnProcess, spawnShell, wait;
 	/+	auto pid = spawnProcess(["pygmentize", "-l D"],
@@ -98,8 +94,7 @@ class pygmentize// : prettyPrinter
 	import std.process : spawnProcess, spawnShell, wait, ProcessPipes, pipeProcess, Redirect;
 	ProcessPipes pipes;
 
-	string convert2(string input) /// Complete console call every produced text. (see convert3())
-		{
+	string convert2(string input){ /// Complete console call every produced text. (see convert3())
 		stats.swLogging.start();	
 		import std.process : spawnProcess, spawnShell, wait;
 

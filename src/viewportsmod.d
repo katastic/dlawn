@@ -4,18 +4,16 @@ import helper;
 import molto;
 import datajack;
 
-class viewport
-	{
+class viewport{
 //	unit attachedUnit;
 
 	bool isAttached=false;
 	bool isDudeAttached=false; //FIXME
 	bool isConfinedToMap=false;
 	unit* attachedObject;
-	baseObject* attachedDude;//FIXME
+	BaseObject* attachedDude;//FIXME
 	
-	bool seekFormula(pair position, pair goal, pair velocity)
-		{
+	bool seekFormula(pair position, pair goal, pair velocity){
 		if(goal.x > ox)ox--;
 		if(goal.y > oy)oy++;
 		if(goal.x < ox)ox++;
@@ -23,14 +21,12 @@ class viewport
 		return false; // return true if we're done
 		}
 		
-	void attach(unit* o)
-		{
+	void attach(unit* o){
 		isAttached = true;
 		attachedObject = o;
 		}
 
-	void attach(baseObject* o) //FIXME
-		{
+	void attach(BaseObject* o){ //FIXME
 		isDudeAttached = true;
 		attachedDude = o;
 		}
@@ -54,8 +50,7 @@ class viewport
 
 	@disable this();
 
-	this(int _x, int _y, int _w, int _h, float _ox, float _oy)
-		{
+	this(int _x, int _y, int _w, int _h, float _ox, float _oy){
 		x = _x;
 		y = _y;
 		w = _w;
@@ -70,12 +65,10 @@ class viewport
 		//isAttached = true;
 		//}
 		
-	void onTick()
-		{
-//		import std.stdio : writeln;
+	void onTick(){
+//	import std.stdio : writeln;
 		if(attachedObject is null)isAttached = false;
-		if(isAttached)
-			{
+		if(isAttached){
 			unit* ao = attachedObject;
 //			writeln(pair(ao.pos, w/2, h/2), " vs (", ox, ",", oy, ")");
 //			seekFormula(pair(x,y), attachedObject.pos, pair(0,0));
@@ -90,13 +83,11 @@ class viewport
 	//			if(oy + h > g.world.map2.size.h*TILE_W)clampHigh(oy, g.world.map2.size.h*TILE_W - h);
 				}
 			}
-		if(isDudeAttached)
-			{
-			baseObject* ao = attachedDude;
+		if(isDudeAttached){
+			BaseObject* ao = attachedDude;
 			ox = (attachedDude.pos.x - w/2);
 			oy = (attachedDude.pos.y - h/2);
-			if(isConfinedToMap)
-				{
+			if(isConfinedToMap){
 				clampLow(ox, 0);
 				clampLow(oy, 0);
 				}

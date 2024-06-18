@@ -64,10 +64,10 @@ baseObject->
 		gnomish flying machine
 +/
 
-
+/+
 class pikeman : dude{
 	this(){
-		super(pair(0,0), pair(0,0), bh["asteroid"]);
+		super(pair(0,0));
 		}
 	override bool onDraw(viewport v){return 0;
 		}
@@ -77,9 +77,14 @@ class pikeman : dude{
 
 
 class dude : baseObject{
+	bool usingAI = false;
 	this(){
 		super(pair(0,0), pair(0,0), bh["asteroid"]);
 		}
+	this(pair pos){
+		super(pos, pair(0,0), bh["asteroid"]);
+		}
+	
 	override bool onDraw(viewport v){return 0;
 		}
 	override void onTick(){
@@ -717,3 +722,4 @@ struct gunType // what about gunmods
 	float accuracy; // spread?precision?
 	float recoil;
 	}
++/

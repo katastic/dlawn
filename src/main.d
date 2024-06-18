@@ -19,9 +19,8 @@ import std.datetime.stopwatch : benchmark, StopWatch, AutoStart;
 //extern (C) int pthread_yield(); //does this ... work? No errors yet I can't tell if it changes anything...
 //------------------------------
 
-version(LDC)		{pragma(msg, "using ldc version of dallegro"); pragma(lib, "dallegro5ldc"); }
-version(DigitalMars){pragma(msg, "using dmd version of dallegro"); pragma(lib, "dallegro5dmd"); }
-version(GNU)		{pragma(msg, "using gdc version of dallegro"); pragma(lib, "dallegro5gdc"); } //NYI
+version(LDC)		{pragma(msg, "using LDC version of dallegro"); pragma(lib, "dallegro5ldc"); }
+version(DigitalMars){pragma(msg, "using DMD version of dallegro"); pragma(lib, "dallegro5dmd"); }
 
 version(ALLEGRO_NO_PRAGMA_LIB){}else{
 	pragma(lib, "allegro");
@@ -53,7 +52,6 @@ import objects;
 import viewportsmod;
 import molto;
 import g;
-displayType display;
 
 alias ALLEGRO_KEY = ubyte;
 //=============================================================================
@@ -137,9 +135,16 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 
 	//see https://www.allegro.cc/manual/5/al_set_new_display_flags
 	int display_flags = 0;
-	al_set_new_display_flags(ALLEGRO_OPENGL_3_0 | ALLEGRO_PROGRAMMABLE_PIPELINE | display_flags);
+	al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0 | ALLEGRO_PROGRAMMABLE_PIPELINE | display_flags);
 
 	al_display 	= al_create_display(g.SCREEN_W, g.SCREEN_H);
+
+	auto displayFlagsResult = al_get_display_flags(al_display);
+	writeln("displayFlagsResult:", displayFlagsResult);
+	writeln("ALLEGRO_OPENGL    :", displayFlagsResult & ALLEGRO_OPENGL);
+	writeln("ALLEGRO_OPENGL_3_0:", displayFlagsResult & ALLEGRO_OPENGL_3_0);
+
+	
 	queue		= al_create_event_queue();
 	with(ALLEGRO_DISPLAY_OPTIONS)
 		writeln("OpenGL version reported: ", al_get_display_option(al_display, ALLEGRO_OPENGL_MAJOR_VERSION), ".", al_get_display_option(al_display, ALLEGRO_OPENGL_MINOR_VERSION));
@@ -163,7 +168,7 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 	con = new logger();
 				
 	extraLogsAfterAllegro();
-	setThreadName("main taco thread");	
+//	setThreadName("main taco thread");	
 	
 	al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP); // this should be the default...
 		 // https://www.allegro.cc/manual/5/al_set_new_bitmap_flags
@@ -203,9 +208,15 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 			}
 		return true;
 		}
-	
-	string psource = r"./data/shaders/ex_shader_pixel.glsl";
-	string vsource = r"./data/shaders/ex_shader_vertex.glsl";
+
+version(Linux){
+	string psource = r"/data/shaders/ex_shader_pixel.glsl";
+	string vsource = r"/data/shaders/ex_shader_vertex.glsl";
+}
+version(Windows){
+	string psource = r"C:\git\dlawn\data\shaders\ex_shader_pixel.glsl";
+	string vsource = r"C:\git\dlawn\data\shaders\ex_shader_vertex.glsl";
+}
 	buildShader(shader, psource, vsource);
 	
 	return 0;
@@ -217,6 +228,8 @@ void shutdown(){
 //	con.compress();
 	al_destroy_shader(shader);
 	}
+
+displayType display; // WHY WAS THIS MISSING?
 
 struct displayType{
 	void start_frame()	{

@@ -19,7 +19,7 @@ import viewportsmod;
 import g;
 import objects;
 import molto;
-
+/+
 extern (C)
 	{
 	struct pthread_t{}
@@ -45,7 +45,7 @@ void setThreadName(string _name)
 	writeln("thread name was: ", data, " is:", data2);
 	}
 
-
++/
 //mixin template grey(T)(T w)
 	//{
 	//COLOR(w, w, w, 1);
@@ -80,7 +80,7 @@ bool isZero(float val, float fudge=.01)
 	}
 
 // TODO: does this track viewport offset or not?!
-void drawAngleHelper(baseObject o, viewport v, float angle, float distance, ALLEGRO_COLOR color)
+void drawAngleHelper(BaseObject o, viewport v, float angle, float distance, ALLEGRO_COLOR color)
 	{
 	float cx = cos(angle)*distance;
 	float cy = sin(angle)*distance;
@@ -212,8 +212,9 @@ float distance(float x, float y)
 /// For bitmap culling. Is this point inside the screen?
 bool isInsideScreen(float x, float y, viewport v) 
 	{
-	if(	x > 0 && x < v.w + v.ox && 
-		y > 0 && y < v.h + v.oy)
+	//writefln("x%s y%s w%s h%s ox%s oy%s", x, y, v.w, v.h, v.ox, v.oy);
+	if(	x >= 0 && x < v.w + v.ox && 
+		y >= 0 && y < v.h + v.oy)
 		{return true;} else{ return false;}
 	}
 

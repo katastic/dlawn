@@ -22,7 +22,70 @@ import guns;
 import bulletsmod;
 import atlasmod;
 
-import datajack; // gamemodule
+import helper, g, atlasmod;
+import molto;
+import viewportsmod;
+
+class SkierObject : BaseObject{
+    this(pair _pos){
+        super(_pos);
+        }
+}
+
+enum DIR2{
+        UP = 0, DOWN, LEFT, RIGHT,              // 4 dir
+        DOWNLEFT, DOWNRIGHT, UPLEFT, UPRIGHT,   // 8 dir
+        DOWNDOWNLEFT, DOWNDOWNRIGHT             // 10? dir (two extra turning ones)
+    }
+
+class BaseObject{
+    pair pos;
+    pair vel;
+    bitmap* sprite; /// placeholder one sprite
+    bitmap[]* sprites;
+
+    this(pair _pos){
+        pos = _pos;
+        bmp = bh["blimp"];
+        }
+		
+	this(pair _pos, pair _vel, bitmap* _bmp){
+        pos = _pos;
+		vel = _vel;
+        bmp = _bmp;
+        }
+
+    void onTick(){
+        }
+    
+    /// draw object: returns 1 if clipped
+    bool onDraw(viewport v){
+        return 0;
+        }
+
+    void actionUp(){}
+    void actionDown(){}
+    void actionLeft(){}
+    void actionRight(){}
+
+    void actionFire(){}
+    void actionJump(){}
+    void actionSelect(){}
+    void actionButton4(){}
+/+
+    void actionButton5(){} // L button
+    void actionButton6(){} // R button
+    void actionButton7(){} // start
+    void actionButton8(){} // select
+
+    // D up, down, left, right  4
+    // L/R thumb triggers       2
+
+    // L/R trigger axis 2x
++/
+
+    }
+
 
 // we should organize this at some point. game mechanic constants.
 float STAT_WALK_SPEED = 1245;
@@ -38,6 +101,9 @@ float stat_meteor_damage = 23;
 // also combined meteors
 
 import toml;
+class item : BaseObject{this(){}};
+class unit : BaseObject{this(){}};
+class structure : BaseObject{this(){}};
 class objectHandler /// load a MAP format full of objects. could be in objects.d
 	{
 	unit data; //baseobject, or unit? or (T)
@@ -86,7 +152,7 @@ name clashes
 	- we cannot use "object" since that's a D keyword. 
 	- we also can't use "with" for onCollision(baseObject with)
 */
-
+/+
 class item : baseObject
 	{
 	bool isInside = false; //or isHidden? Not always the same though...
@@ -1257,3 +1323,5 @@ class eventFSM
 		dg(this);
 		}
 	}
+
++/
