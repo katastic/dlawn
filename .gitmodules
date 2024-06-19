@@ -1,3 +1,6 @@
 [submodule "toml"]
 	path = toml
 	url = https://github.com/dlang-community/toml.git
+[submodule "masterBuilDer"]
+	path = masterBuilDer
+	url = https://github.com/katastic/masterBuilDer
