@@ -16,17 +16,16 @@ https://medium.com/mirum-budapest/introduction-to-data-oriented-programming-85b5
 
 import molto;
 
-struct entity
-	{
+struct entity {
 	ulong indentifier;
-	}
-	
+}
+
 struct transform // component, each has a unique id
-	{
+{
 	pair pos;
-	}
+}
 
 struct shape // component, each has a unique id
-	{
+{
 	color c;
-	}
+}

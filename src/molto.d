@@ -8,8 +8,7 @@
 
 // https://forum.dlang.org/thread/capomekorutdfkypmhlu@forum.dlang.org
 
-void testStaticStrings()
-	{
+void testStaticStrings() {
 	/+
 	staticString s1 = "taco";
 	staticString s2 = normalString;
@@ -31,7 +30,7 @@ void testStaticStrings()
 	writeln(t3);
 	t3 ~= t1;
 	writeln(t3);
-	}
+}
 /+
 struct staticString /// This one is managed by malloc so we have to delete it somehow
 	{
@@ -81,124 +80,142 @@ struct staticString /// This one is managed by malloc so we have to delete it so
 	}
 +/
 struct staticString /// This one has data that's managed by GC, but static pool
+{
+
+	string toString() pure nothrow @safe const  /// for writeln, currently allocates
 	{
-		
-	string toString() pure nothrow @safe const /// for writeln, currently allocates
-		{
 		import std.conv;
-		return to!string(str[0..currentLength]);
-		}
-		
-	bool isEmpty(){if(currentLength == 0)return true; else return false;}
+
+		return to!string(str[0 .. currentLength]);
+	}
+
+	bool isEmpty() {
+		if (currentLength == 0)
+			return true;
+		else
+			return false;
+	}
 
 	import core.stdc.stdlib;
 	import core.stdc.string;
+
 	char[] str;
-	size_t currentLength=-1;
-	size_t maxLength=-1;
+	size_t currentLength = -1;
+	size_t maxLength = -1;
 
-	size_t length(){return currentLength;} /// Note length is NOT CAPACITY
-	size_t capacity(){return maxLength;}
-	auto opSlice(){return str[0..currentLength];}
+	size_t length() {
+		return currentLength;
+	} /// Note length is NOT CAPACITY
+	size_t capacity() {
+		return maxLength;
+	}
 
-	void opOpAssign(string op : "~")(string rhs){
-		append(rhs);
-		}
-	void opOpAssign(string op : "~")(const char* rhs){
-		append(rhs);
-		}
-	void opOpAssign(string op : "~")(staticString rhs){
-		append(rhs);
-		}
+	auto opSlice() {
+		return str[0 .. currentLength];
+	}
 
-	this(const char* _string){
+	void opOpAssign(string op : "~")(string rhs) {
+		append(rhs);
+	}
+
+	void opOpAssign(string op : "~")(const char* rhs) {
+		append(rhs);
+	}
+
+	void opOpAssign(string op : "~")(staticString rhs) {
+		append(rhs);
+	}
+
+	this(const char* _string) {
 		currentLength = strlen(_string);
 		maxLength = currentLength;
-		for(int i = 0; i < maxLength; i++)str[i] = _string[i];
-		}
-		
-	this(string _string){
+		for (int i = 0; i < maxLength; i++)
+			str[i] = _string[i];
+	}
+
+	this(string _string) {
 		currentLength = _string.length;
 		maxLength = currentLength;
 		auto tempStr = _string.toStringz;
 		str.length = maxLength;
-		for(int i = 0; i < maxLength; i++)str[i] = tempStr[i];
-		}
+		for (int i = 0; i < maxLength; i++)
+			str[i] = tempStr[i];
+	}
 
-	this(int _maxLength){ //https://stackoverflow.com/questions/41830461/allocating-string-with-malloc
-//		str = new char[_maxLength];
+	this(int _maxLength) { //https://stackoverflow.com/questions/41830461/allocating-string-with-malloc
+		//		str = new char[_maxLength];
 		str.length = _maxLength;
 		currentLength = 0;
 		maxLength = _maxLength;
-		}
-		
-	void append(staticString newStr){
-		if(currentLength + newStr.length <= maxLength){
-			foreach(size_t i, char c; newStr){
-				str[currentLength-1 + i] = c;
-				}
+	}
+
+	void append(staticString newStr) {
+		if (currentLength + newStr.length <= maxLength) {
+			foreach (size_t i, char c; newStr) {
+				str[currentLength - 1 + i] = c;
+			}
 			currentLength += newStr.length;
-			}else{
+		} else {
 			assert(false, "staticString overran size of staticString!");
-			}
 		}
-		
-	void append(string newStr){
-		if(currentLength + newStr.length <= maxLength){
-			foreach(size_t i, char c; newStr){
+	}
+
+	void append(string newStr) {
+		if (currentLength + newStr.length <= maxLength) {
+			foreach (size_t i, char c; newStr) {
 				str[currentLength + i] = c;
-				}
+			}
 			currentLength += newStr.length;
-			}else{
+		} else {
 			assert(false, "D string overran size of staticString!");
-			}
 		}
-		
-	void append(char[] newStr){
-		if(currentLength + newStr.length <= maxLength){
-			foreach(size_t i, char c; newStr){
-				str[currentLength-1 + i] = c;
-				}
+	}
+
+	void append(char[] newStr) {
+		if (currentLength + newStr.length <= maxLength) {
+			foreach (size_t i, char c; newStr) {
+				str[currentLength - 1 + i] = c;
+			}
 			currentLength += newStr.length;
-			}else{
+		} else {
 			assert(false, "char[] overran size of staticString!");
-			}
 		}
+	}
 
-	void append(const char* newStr){
-		if(currentLength + strlen(newStr) <= maxLength){
-			for(size_t i=0; i < strlen(newStr); i++){
+	void append(const char* newStr) {
+		if (currentLength + strlen(newStr) <= maxLength) {
+			for (size_t i = 0; i < strlen(newStr); i++) {
 				char c = newStr[i];
-				str[currentLength-1 + i] = c;
-				}
+				str[currentLength - 1 + i] = c;
+			}
 			currentLength += strlen(newStr);
-			}else{
+		} else {
 			assert(false, "const char* overran size of staticString!");
-			}
 		}
-			
-	void opAssign(string newStr){
-		if(newStr.length <= maxLength){
-			foreach(size_t i, char c; newStr){
-				str[i] = c;
-				}
-			currentLength = newStr.length;
-			}
-		}
+	}
 
-	void opAssign(char[] newStr){
-		if(newStr.length <= maxLength){
-			foreach(size_t i, char c; newStr){
+	void opAssign(string newStr) {
+		if (newStr.length <= maxLength) {
+			foreach (size_t i, char c; newStr) {
 				str[i] = c;
-				}
-			currentLength = newStr.length;
 			}
+			currentLength = newStr.length;
 		}
 	}
-	
-struct typedStaticString(T) // compiler checked? allocated once.
-	{
+
+	void opAssign(char[] newStr) {
+		if (newStr.length <= maxLength) {
+			foreach (size_t i, char c; newStr) {
+				str[i] = c;
+			}
+			currentLength = newStr.length;
+		}
 	}
+}
+
+struct typedStaticString(T) // compiler checked? allocated once.
+{
+}
 
 /+
 	Notes on unit system (pair, apair, vpair, ipair, ...)
@@ -316,31 +333,29 @@ import std.stdio;
 import std.format : format;
 import std.string : toStringz;
 
-struct angle
-	{
+struct angle {
 	float a;
 	alias a this;
-	
-	void opAssign(T)(T f)
-		{
+
+	void opAssign(T)(T f) {
 		a = wrapRad(f);
-		}
-		
-	void wrapRad(T)(ref T angle)
-		{
-		angle = fmod(angle, 2.0*PI);
-		if(angle < 0)angle += 2.0*PI;
+	}
+
+	void wrapRad(T)(ref T angle) {
+		angle = fmod(angle, 2.0 * PI);
+		if (angle < 0)
+			angle += 2.0 * PI;
 		return angle;
-		}
-/+
+	}
+	/+
 https://stackoverflow.com/questions/11498169/dealing-with-angle-wrap-in-c-code
 +/
 
 	float flip(float a) // we could make angles their own typedef
-		{
+	{
 		return (a + degToRad(180)).wrapRad;
-		}
 	}
+}
 
 // ALLEGRO symbols
 // -----------------------------------------------------------------
@@ -355,31 +370,33 @@ alias color = ALLEGRO_COLOR;
 alias sample = ALLEGRO_SAMPLE;
 alias bitmap = ALLEGRO_BITMAP;
 alias font = ALLEGRO_FONT;
-	
-COLOR white  = COLOR(1,1,1,1);
-COLOR black  = COLOR(0,0,0,1);
-COLOR red    = COLOR(1,0,0,1);
-COLOR green  = COLOR(0,1,0,1);
-COLOR blue   = COLOR(0,0,1,1);
-COLOR yellow = COLOR(1,1,0,1);
-COLOR orange = COLOR(1,0.65,0,1);
+
+COLOR white = COLOR(1, 1, 1, 1);
+COLOR black = COLOR(0, 0, 0, 1);
+COLOR red = COLOR(1, 0, 0, 1);
+COLOR green = COLOR(0, 1, 0, 1);
+COLOR blue = COLOR(0, 0, 1, 1);
+COLOR yellow = COLOR(1, 1, 0, 1);
+COLOR orange = COLOR(1, 0.65, 0, 1);
 
 color grey(float val) /// get a grey with rgb=val
-	{
+{
 	return color(val, val, val, 1);
-	}
+}
 
 color alpha(color c, float a) /// apply alpha to a color (for convenience with red, green, yellow, etc labels above)
-	{
+{
 	return color(c.r, c.g, c.b, a);
-	}
+}
 
 alias KEY_UP = ALLEGRO_KEY_UP; // should we do these? By time we write them out we've already done more work than just writing them.
 alias KEY_DOWN = ALLEGRO_KEY_DOWN; // i'll leave them coded as an open question for later
-alias KEY_LEFT = ALLEGRO_KEY_LEFT; 
-alias KEY_RIGHT = ALLEGRO_KEY_RIGHT; 
+alias KEY_LEFT = ALLEGRO_KEY_LEFT;
+alias KEY_RIGHT = ALLEGRO_KEY_RIGHT;
 
-struct triplet{float x,y,z;} 
+struct triplet {
+	float x, y, z;
+}
 
 // pairs, trios, etc code
 // ----------------------------------------------------------------
@@ -400,337 +417,321 @@ struct triplet{float x,y,z;}
 	because they're only used in obvious cases, in obvious relationships, and its hardcoded.
 +/
 
-struct irect
-	{
-	int x,y,w,h; //shouldn't x,y be i,j??
-	}
+struct irect {
+	int x, y, w, h; //shouldn't x,y be i,j??
+}
 
-struct rect
-	{
-	float x,y,w,h; //alternative, a pair and dim, and/or write applicable conversion functions
+struct rect {
+	float x, y, w, h; //alternative, a pair and dim, and/or write applicable conversion functions
 	// rect is WAY easier than a pair+dim or some tuple strangeness.
-	
-	this(float x_, float y_, float w_, float h_)
-		{
+
+	this(float x_, float y_, float w_, float h_) {
 		x = x_;
 		y = y_;
 		w = w_;
 		h = h_;
-		}
+	}
 
-	this(pair a, float w_, float h_)
-		{
+	this(pair a, float w_, float h_) {
 		x = a.x;
 		y = a.y;
 		w = w_;
 		h = h_;
-		}
-		
-	this(pair a, pair b)
-		{
+	}
+
+	this(pair a, pair b) {
 		x = a.x;
 		y = a.y;
 		w = b.x; // warn name mismatch
 		h = b.y; // warn name mismatch
-		}
-	} // ALSO, what if we want x1,y1, x2,y2 instead of x,y,w,h? pair?
+	}
+} // ALSO, what if we want x1,y1, x2,y2 instead of x,y,w,h? pair?
 
-void testipair()
-	{
+void testipair() {
 	import std.math.rounding : floor, ceil;
-	ipair t = ipair(1,2);
-	pair u = pair(3,4);
+
+	ipair t = ipair(1, 2);
+	pair u = pair(3, 4);
 	t = ipair(u, &floor);
 	writeln(t);
 	t = ipair(u, &ceil);
 	writeln(t);
-	}
-	
+}
+
 struct dimen /// dimension. good name? dimen dim... ehh...?
-	{ 
-	float w, h; 
-	}
+{
+	float w, h;
+}
 
 struct idimen /// dimension. good name? dimen dim... ehh...?
-	{ 
-	int w, h; 
-	}
+{
+	int w, h;
+}
 
-struct ipair
-	{
-	int i=0, j=0;
+struct ipair {
+	int i = 0, j = 0;
 
-//	this(T)(T[] dim) //multidim arrays still want T[]? interesting
+	//	this(T)(T[] dim) //multidim arrays still want T[]? interesting
 	//	{
 	//	}
 
 	this(pair val, float function(float) roundingFunction) /// Convert a pair with a desired rounding function.
-		{
+	{
 		// WARN: Technically, roundingFunction could be a function that 
 		// DOESN'T give only integers in float format, like quantize().
 		// But if you're dumb enough to do that, we'll just chop it to 
 		// integer anyway. 
-		i = cast(int)roundingFunction(val.x);
-		j = cast(int)roundingFunction(val.y);
-		}
+		i = cast(int) roundingFunction(val.x);
+		j = cast(int) roundingFunction(val.y);
+	}
 
-	this(int _i, int _j)
-		{
+	this(int _i, int _j) {
 		i = _i;
 		j = _j;
-		}
+	}
 
-	this(ipair p)
-		{
+	this(ipair p) {
 		i = p.i;
 		j = p.j;
-		}
+	}
 
-	this(ipair p, int offsetx, int offsety)
-		{
+	this(ipair p, int offsetx, int offsety) {
 		i = p.i + offsetx;
 		j = p.j + offsety;
-		}		
+	}
 
 	// WARNING: take note that we're using implied viewport conversions
 	// .... ARE WE?!?!? 
-	this(pair p)
-		{
+	this(pair p) {
 		// this is ROUNDING THE INTEGER DOWN. (or the other one)
-//		alias v=IMPLIED_VIEWPORT; // wait this isn't used???
-//		this = ipair(cast(int)p.x/TILE_W, cast(int)p.y/TILE_H);
-//		this = ipair(cast(int)lround(p.x/cast(float)TILE_W), cast(int)lround(p.y/cast(float)TILE_H));
+		//		alias v=IMPLIED_VIEWPORT; // wait this isn't used???
+		//		this = ipair(cast(int)p.x/TILE_W, cast(int)p.y/TILE_H);
+		//		this = ipair(cast(int)lround(p.x/cast(float)TILE_W), cast(int)lround(p.y/cast(float)TILE_H));
 		float x, y;
-//		writeln("going from ", p);
-		if(p.x < 0 )x = ceil(p.x) - (TILE_W-1);// FIXME. TODO. THIS WORKS But do we UNDERSTAND IT ENOUGH?
-		if(p.y < 0 )y = ceil(p.y) - (TILE_W-1);
-		if(p.x >= 0)x = floor(p.x);
-		if(p.y >= 0)y = floor(p.y);
+		//		writeln("going from ", p);
+		if (p.x < 0)
+			x = ceil(p.x) - (TILE_W - 1); // FIXME. TODO. THIS WORKS But do we UNDERSTAND IT ENOUGH?
+		if (p.y < 0)
+			y = ceil(p.y) - (TILE_W - 1);
+		if (p.x >= 0)
+			x = floor(p.x);
+		if (p.y >= 0)
+			y = floor(p.y);
 
 		this = ipair(cast(int)(x), cast(int)(y));
-//		this = ipair(cast(int)(x/cast(float)TILE_W), cast(int)(y/cast(float)TILE_H));
-//		writeln("going to ", this);
-		}
+		//		this = ipair(cast(int)(x/cast(float)TILE_W), cast(int)(y/cast(float)TILE_H));
+		//		writeln("going to ", this);
+	}
 
-/// FIXME: OOOH, I do NOT LIKE THIS. ipair -> pair conversion including TILE SIZE. What if we're using ipair for a RECTANGLE or something???
+	/// FIXME: OOOH, I do NOT LIKE THIS. ipair -> pair conversion including TILE SIZE. What if we're using ipair for a RECTANGLE or something???
 	this(pair p, float xOffset, float yOffset) /// take a pair, and apply scalar offsets to both
-		{
-//		alias v=IMPLIED_VIEWPORT; // wait this isn't used???
-//		writeln("  going from ", p, " ", xOffset, " ", yOffset);
+	{
+		//		alias v=IMPLIED_VIEWPORT; // wait this isn't used???
+		//		writeln("  going from ", p, " ", xOffset, " ", yOffset);
 		float x, y;
-		if(p.x + xOffset < 0 )x = ceil(p.x + xOffset) - (TILE_W-1); // FIXME. TODO. THIS WORKS But do we UNDERSTAND IT ENOUGH?
-		if(p.y + yOffset < 0 )y = ceil(p.y + yOffset) - (TILE_W-1);
-		if(p.x + xOffset >= 0)x = floor(p.x + xOffset);
-		if(p.y + yOffset >= 0)y = floor(p.y + yOffset);
+		if (p.x + xOffset < 0)
+			x = ceil(p.x + xOffset) - (TILE_W - 1); // FIXME. TODO. THIS WORKS But do we UNDERSTAND IT ENOUGH?
+		if (p.y + yOffset < 0)
+			y = ceil(p.y + yOffset) - (TILE_W - 1);
+		if (p.x + xOffset >= 0)
+			x = floor(p.x + xOffset);
+		if (p.y + yOffset >= 0)
+			y = floor(p.y + yOffset);
 
 		this = ipair(cast(int)(x), cast(int)(y));
 
-//		this = ipair(cast(int)(x/cast(float)TILE_W), cast(int)(y/cast(float)TILE_H));
-//		writeln("  going to ", this);
-		}
+		//		this = ipair(cast(int)(x/cast(float)TILE_W), cast(int)(y/cast(float)TILE_H));
+		//		writeln("  going to ", this);
+	}
 
 	this(T)(T obj, float xOffset, float yOffset) /// Take ANYTHING. Are we using this?!?!
-		{
+	{
 		pragma(msg, "Are you using this code???");
-	//	alias v=IMPLIED_VIEWPORT; // wait this isn't used???
-		this = ipair(cast(int)(obj.pos.x+xOffset)/TILE_W, cast(int)(obj.pos.y+yOffset)/TILE_H);
-		}
-		
-	bool opEquals(const int val) const @safe nothrow pure // what about float/double scenarios?
-		{
+		//	alias v=IMPLIED_VIEWPORT; // wait this isn't used???
+		this = ipair(cast(int)(obj.pos.x + xOffset) / TILE_W, cast(int)(obj.pos.y + yOffset) / TILE_H);
+	}
+
+	bool opEquals(const int val) const @safe nothrow pure  // what about float/double scenarios?
+	{
 		assert(val == 0, "Did you really mean to check a pair to something other than 0 == 0,0? This should only be for velocity pairs = 0");
-		if(i == val && j == val)
-			{
+		if (i == val && j == val) {
 			return true;
-			}
-		return false;
 		}
-	
+		return false;
+	}
+
 	// no idea what it should be
 	// https://forum.dlang.org/post/dgawdxjtsffcqjskwwwx@forum.dlang.org
-	size_t toHash() const nothrow @safe 
-		{
-		return typeid(this).getHash(&this); 
+	size_t toHash() const nothrow @safe {
+		return typeid(this).getHash(&this);
 		// https://forum.dlang.org/post/iavcspvqttccocezmqeb@forum.dlang.org
-		} 
-	
-	void opAssign(int val)
-		{
+	}
+
+	void opAssign(int val) {
 		assert(val == 0, "Did you really mean to set a pair to something other than 0,0? This is an unlikely case.");
 		i = val;
 		j = val;
-		}
 	}
+}
 
 pair chop(rect r) /// returns just x,y and throws away w,h
-	{
+{
 	return pair(r.x, r.y);
-	}
+}
 
-struct pair
-	{
+struct pair {
 	float x, y;
 	// what about the following scenarios:
 	// if(pair < 0)   		(both coordinates are higher/lower than 0)
 	// if(pair < pair)		(both coordinates are higher/lower than the second pair coords) ???
-	
-	int opCmp(ref const int s)//https://forum.dlang.org/thread/zljczqndhxifttonlmtl@forum.dlang.org
-		{//https://dlang.org/spec/operatoroverloading.html#compare
-		if(x < s && y < s)return -1;
-		if(x > s && y > s)return 1;
+
+	int opCmp(ref const int s) //https://forum.dlang.org/thread/zljczqndhxifttonlmtl@forum.dlang.org
+	{ //https://dlang.org/spec/operatoroverloading.html#compare
+		if (x < s && y < s)
+			return -1;
+		if (x > s && y > s)
+			return 1;
 		return 0; // NOTE: should we return zero if only one case is true???
-		} // HOWEVER, if we're doing that we're not going to get a TYPE ERROR if someone accidentally compares a pair to an int
-	
+	} // HOWEVER, if we're doing that we're not going to get a TYPE ERROR if someone accidentally compares a pair to an int
+
 	// this ~ rhs
-    pair opBinary(string op : "+")(immutable pair rhs)
-		{
-        return pair(x + rhs.x, y + rhs.y);
-		}
-    pair opBinary(string op : "-")(immutable pair rhs)
-		{
-        return pair(x - rhs.x, y - rhs.y);
-		}
-    pair opBinary(string op : "*")(immutable int rhs)
-		{
-        return pair(x * rhs, y * rhs);
-		}
-    pair opBinary(string op : "*")(immutable float rhs)
-		{
-        return pair(x * rhs, y * rhs);
-		}
-    pair opBinary(string op : "/")(immutable int rhs)
-		{
-        return pair(x / rhs, y / rhs);
-		}
-    pair opBinary(string op : "/")(immutable float rhs)
-		{
-        return pair(x / rhs, y / rhs);
-		}
-		
-	bool opEquals(immutable ref int val) const @safe nothrow pure // what about float/double scenarios?
-		{
+	pair opBinary(string op : "+")(immutable pair rhs) {
+		return pair(x + rhs.x, y + rhs.y);
+	}
+
+	pair opBinary(string op : "-")(immutable pair rhs) {
+		return pair(x - rhs.x, y - rhs.y);
+	}
+
+	pair opBinary(string op : "*")(immutable int rhs) {
+		return pair(x * rhs, y * rhs);
+	}
+
+	pair opBinary(string op : "*")(immutable float rhs) {
+		return pair(x * rhs, y * rhs);
+	}
+
+	pair opBinary(string op : "/")(immutable int rhs) {
+		return pair(x / rhs, y / rhs);
+	}
+
+	pair opBinary(string op : "/")(immutable float rhs) {
+		return pair(x / rhs, y / rhs);
+	}
+
+	bool opEquals(immutable ref int val) const @safe nothrow pure  // what about float/double scenarios?
+	{
 		assert(val == 0, "Did you really mean to check a pair to something other than 0 == 0,0? This should only be for velocity pairs = 0");
-		if(x == val && y == val)
-			{
+		if (x == val && y == val) {
 			return true;
-			}
-		return false;
 		}
+		return false;
+	}
 
 	// no idea what it should be
 	// https://forum.dlang.org/post/dgawdxjtsffcqjskwwwx@forum.dlang.org
-	size_t toHash() const nothrow @safe 
-		{
+	size_t toHash() const nothrow @safe {
 		assert(false, "VERIFY BEFORE USING");
-		return typeid(this).getHash(&this); 
+		return typeid(this).getHash(&this);
 		// https://forum.dlang.org/post/iavcspvqttccocezmqeb@forum.dlang.org
-		} 
-	
-	void opAssign(immutable int val)
-		{
+	}
+
+	void opAssign(immutable int val) {
 		assert(val == 0, "Did you really mean to set a pair to something other than 0,0? This is an unlikely case.");
-		x = cast(float)val;
-		y = cast(float)val;
-		}
+		x = cast(float) val;
+		y = cast(float) val;
+	}
 
 	void opAssign(apair val) /// ipair from velocity vectors (apair, "angle/vel pair");
-		{
-		x = cos(val.a)*val.m;
-		y = sin(val.a)*val.m;
-		}
-	 
-	auto opOpAssign(string op)(pair p)
-		{
-		static if(op == "+=")
-		{
+	{
+		x = cos(val.a) * val.m;
+		y = sin(val.a) * val.m;
+	}
+
+	auto opOpAssign(string op)(pair p) {
+		static if (op == "+=") {
 			pragma(msg, "+= THIS HASNT BEEN VERIFIED");
 			//x += p.x;
 			//y += p.y; // also can't we just do:
 			this = this + p; // VERIFIY
 			return this;
-		}else static if(op == "-=") 
-		{
+		} else static if (op == "-=") {
 			assert(false, "TODO");
-		}else static if(op == "+" || op == "-")
-		{
-//			pragma(msg, op);
-			mixin("x = x "~op~" p.x;");
-			mixin("y = y "~op~" p.y;");
+		} else static if (op == "+" || op == "-") {
+			//			pragma(msg, op);
+			mixin("x = x " ~ op ~ " p.x;");
+			mixin("y = y " ~ op ~ " p.y;");
 			return this;
-		}
-		else static assert(0, "Operator "~op~" not implemented");
-			
-		}
-	
+		} else
+			static assert(0, "Operator " ~ op ~ " not implemented");
+
+	}
+
 	this(T)(T t) //give it any object that has fields x and y
-		{
+	{
 		x = t.x;
 		y = t.y;
-		}
+	}
 
-	this(T)(T t, float offsetX, float offsetY)
-		{
+	this(T)(T t, float offsetX, float offsetY) {
 		x = t.x + offsetX;
 		y = t.y + offsetY;
-		}
+	}
 
 	this(pair val, pair offset) // does this really need a constructor? We're constructing a temporary object to return one.
-		{
+	{
 		x = val.x + offset.x;
 		y = val.y + offset.y;
-		}
-	
-	this(int _x, int _y)
-		{
+	}
+
+	this(int _x, int _y) {
 		x = to!float(_x);
 		y = to!float(_y);
-		}
+	}
 
-	this(float _x, float _y)
-		{
+	this(float _x, float _y) {
 		x = _x;
 		y = _y;
-		}
-
-	this(apair val)
-		{
-		x = cos(val.a)*val.m;
-		y = sin(val.a)*val.m;
-		}
 	}
+
+	this(apair val) {
+		x = cos(val.a) * val.m;
+		y = sin(val.a) * val.m;
+	}
+}
 
 import std.traits;
 import std.meta;
 
-bool isAny(T, U...)(T t, U u)
-	{
+bool isAny(T, U...)(T t, U u) {
 	pragma(msg, typeof(t));
 	pragma(msg, "--------------");
 	pragma(msg, typeof(u));
 	pragma(msg, "--------------");
-	foreach(element; u) //__traits(parameters)
-		{
-	//	if(is(element : u))return true;
+	foreach (element; u) //__traits(parameters)
+	{
+		//	if(is(element : u))return true;
 		pragma(msg, typeof(element));
-		if(is(typeof(element) : ALLEGRO_BITMAP *))return true;
-		}
+		if (is(typeof(element) : ALLEGRO_BITMAP*))
+			return true;
+	}
 	return false;
 
-	}
+}
 
-bool isAny2(T, U...)(U u)
-	{
+bool isAny2(T, U...)(U u) {
 	pragma(msg, typeof(u));
 	pragma(msg, "--------------");
-	foreach(element; u) //__traits(parameters)
-		{
-	//	if(is(element : u))return true;
+	foreach (element; u) //__traits(parameters)
+	{
+		//	if(is(element : u))return true;
 		pragma(msg, typeof(element));
-		if(is(typeof(element) : ALLEGRO_BITMAP *))return true;
-		}
-	return false;
+		if (is(typeof(element) : ALLEGRO_BITMAP*))
+			return true;
 	}
-	
+	return false;
+}
+
 // whats an enum template here?
 // https://stackoverflow.com/questions/10957744/struct-and-tuple-template-parameters-in-d	
 
@@ -761,26 +762,26 @@ template isIncrementableStruct(T)
 	}
 +/
 
-void onDraw(T...)(T t)
-	{
-	if(is(typeof(t[0]) : ALLEGRO_BITMAP*))
-	//	if(isAny2!(ALLEGRO_BITMAP*)(t))
-	//	if(isAny(ALLEGRO_BITMAP*, t))  how do we pass a TYPE?!
-	//	if(is(typeof(t) : ALLEGRO_BITMAP*))
-	//	if(isContainedIn(typeof(center).stringof, t))   // https://dlang.org/articles/constraints.html
-		{	
-	//	pragma(msg, typeof(t));
-		al_draw_center_rotated_bitmap(t[0], t[1].x, t[1].x, 0, 0);
-		}
-	if(is(typeof(t[0]) : string))
+void onDraw(T...)(T t) {
+	if (is(typeof(t[0]) : ALLEGRO_BITMAP*)) //	if(isAny2!(ALLEGRO_BITMAP*)(t))
+		//	if(isAny(ALLEGRO_BITMAP*, t))  how do we pass a TYPE?!
+		//	if(is(typeof(t) : ALLEGRO_BITMAP*))
+		//	if(isContainedIn(typeof(center).stringof, t))   // https://dlang.org/articles/constraints.html
 		{
-		// al_draw_text(const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, int flags, char const *text);
-//		al_draw_text(font, color, t[1].x, t[1].y,  0, text);
-		}
+		//	pragma(msg, typeof(t));
+		al_draw_center_rotated_bitmap(t[0], t[1].x, t[1].x, 0, 0);
 	}
+	if (is(typeof(t[0]) : string)) {
+		// al_draw_text(const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, int flags, char const *text);
+		//		al_draw_text(font, color, t[1].x, t[1].y,  0, text);
+	}
+}
 
 //enum center;
-struct center{bool yes;}
+struct center {
+	bool yes;
+}
+
 center centered;
 
 //void test()
@@ -795,24 +796,21 @@ center centered;
 // using / with
 // https://forum.dlang.org/post/lyplbnbujwmapooclrce@forum.dlang.org
 
-vpair toViewport(T)(T point, viewport v)
-	{
+vpair toViewport(T)(T point, viewport v) {
 	return vpair(point.x + v.x - v.ox, point.y + v.y - v.oy);
-	}
-	
+}
+
 viewport IMPLIED_VIEWPORT;
 
-void setViewport2(viewport v)
-	{
+void setViewport2(viewport v) {
 	IMPLIED_VIEWPORT = v;
-	}
+}
 
-vpair toViewport2(T)(T point)
-	{
+vpair toViewport2(T)(T point) {
 	assert(IMPLIED_VIEWPORT !is null);
 	alias v = IMPLIED_VIEWPORT;
 	return vpair(point.x + v.x - v.ox, point.y + v.y - v.oy);
-	}
+}
 
 /// WARNING: This can be a 'CONFUSING' construct if you don't enforce it 
 ///		through understanding:
@@ -820,33 +818,29 @@ vpair toViewport2(T)(T point)
 ///  - converts world coordinates to viewport coordinates automatically
 ///	 - IMPLIED_VIEWPORT (an appropriately loud name) must be set beforehand 
 ///		with setViewport2(viewport); or you'll segfault.
-struct vpair
-	{
+struct vpair {
 	float r, s;
-	
-	this(T)(T obj) // warning: this only works if we [ENFORCE] that x and y MEAN world coordinates regardless of object.
-		{ // also, why don't we just use a pair for position on objects instead of indivudal x/y's? 
-		r = obj.x + IMPLIED_VIEWPORT.x - IMPLIED_VIEWPORT.ox;
-		s = obj.y + IMPLIED_VIEWPORT.y - IMPLIED_VIEWPORT.oy;		
-		}
 
-	this(float _x, float _y)
-		{
+	this(T)(T obj) // warning: this only works if we [ENFORCE] that x and y MEAN world coordinates regardless of object.
+	{ // also, why don't we just use a pair for position on objects instead of indivudal x/y's? 
+		r = obj.x + IMPLIED_VIEWPORT.x - IMPLIED_VIEWPORT.ox;
+		s = obj.y + IMPLIED_VIEWPORT.y - IMPLIED_VIEWPORT.oy;
+	}
+
+	this(float _x, float _y) {
 		r = _x + IMPLIED_VIEWPORT.x - IMPLIED_VIEWPORT.ox;
 		s = _y + IMPLIED_VIEWPORT.y - IMPLIED_VIEWPORT.oy;
-		}
+	}
 
-	this(pair pos)
-		{
+	this(pair pos) {
 		r = pos.x + IMPLIED_VIEWPORT.x - IMPLIED_VIEWPORT.ox;
-		s = pos.y + IMPLIED_VIEWPORT.y - IMPLIED_VIEWPORT.oy;		
-		}
+		s = pos.y + IMPLIED_VIEWPORT.y - IMPLIED_VIEWPORT.oy;
+	}
 
-	this(vpair vpos)
-		{
+	this(vpair vpos) {
 		r = vpos.r;
-		s = vpos.s;		
-		}
+		s = vpos.s;
+	}
 
 	/// OFFSET constructors:
 	///
@@ -855,19 +849,17 @@ struct vpair
 	///
 	///	have a this.vpair, but then add an offset
 	/// build vpair with an offset
-	this(vpair vpos, float xOffset, float yOffset)
-		{
+	this(vpair vpos, float xOffset, float yOffset) {
 		r = vpos.r + xOffset;
-		s = vpos.s + yOffset;	
-		}
-		
-	/// build vpair with an offset
-	this(T)(T obj, float xOffset, float yOffset)
-		{
-		r = obj.x + xOffset + IMPLIED_VIEWPORT.x - IMPLIED_VIEWPORT.ox;
-		s = obj.y + yOffset + IMPLIED_VIEWPORT.y - IMPLIED_VIEWPORT.oy;		
-		}
+		s = vpos.s + yOffset;
 	}
+
+	/// build vpair with an offset
+	this(T)(T obj, float xOffset, float yOffset) {
+		r = obj.x + xOffset + IMPLIED_VIEWPORT.x - IMPLIED_VIEWPORT.ox;
+		s = obj.y + yOffset + IMPLIED_VIEWPORT.y - IMPLIED_VIEWPORT.oy;
+	}
+}
 
 //void testthing()
 //	{
@@ -877,17 +869,16 @@ struct vpair
 //	ip(isMapPassable);
 //	}
 
-struct apair
-	{
+struct apair {
 	float a; /// angle
 	float m; /// magnitude
-	} // idea: some sort of automatic convertion between angle/magnitude, and xy velocities?
+} // idea: some sort of automatic convertion between angle/magnitude, and xy velocities?
 
 struct rpair // relative pair. not sure best way to implement automatic conversions
-	{
+{
 	float rx; //'rx' to not conflict with x/y duct typing.
 	float ry;
-	} // <-------- not used
+} // <-------- not used
 
 /+
     enum position = staticIndexOf!(pos, A);
@@ -906,9 +897,11 @@ struct rpair // relative pair. not sure best way to implement automatic conversi
 /// Returns the first element of Args that is of type T,
 /// or an empty AliasSeq if no such element exists.
 template find(T, Args...) {
-    enum idx = staticIndexOf!(T, typeof(Args));
-    static if (idx > -1) alias find = Args[idx];
-    else                 alias find = AliasSeq!();
+	enum idx = staticIndexOf!(T, typeof(Args));
+	static if (idx > -1)
+		alias find = Args[idx];
+	else
+		alias find = AliasSeq!();
 }
 
 // Checks if find!() found anything.
@@ -916,50 +909,48 @@ enum found(T...) = T.length == 1;
 
 // Using those, you would write this code:
 
-void funct2(A...)(ALLEGRO_BITMAP* bit, A a)
-if (anySatisfy!(isa!pos, A))
-{
-    enum isCentered  = anySatisfy!(isa!center, A);
+void funct2(A...)(ALLEGRO_BITMAP* bit, A a) if (anySatisfy!(isa!pos, A)) {
+	enum isCentered = anySatisfy!(isa!center, A);
 
-    alias position = find!(pos, a);
-    alias rotation = find!(rotate, a);
-    alias scaling  = find!(scale, a);
-    // alias stretch  (non-aspect correct / affine? scaling)
-    // alias tint
-    // alias flipH 
-    // alias flipV 
-    // alias flip(w), flip(h) (somehow abuse bitmap.w bitmap.h ?) 
+	alias position = find!(pos, a);
+	alias rotation = find!(rotate, a);
+	alias scaling = find!(scale, a);
+	// alias stretch  (non-aspect correct / affine? scaling)
+	// alias tint
+	// alias flipH 
+	// alias flipV 
+	// alias flip(w), flip(h) (somehow abuse bitmap.w bitmap.h ?) 
 
-    static if (isCentered) {
-        // No need to use array lookup - find!() did that for us.
-        // That also means we can more easily modify position directly,
-        // instead of using temporaries.
-        position.x -= bit.w/2;
-        position.y -= bit.h/2;
-    }
+	static if (isCentered) {
+		// No need to use array lookup - find!() did that for us.
+		// That also means we can more easily modify position directly,
+		// instead of using temporaries.
+		position.x -= bit.w / 2;
+		position.y -= bit.h / 2;
+	}
 
-    static if (!found!rotation && !found!scaling) {
-        // Since rotation and scaling are empty AliasSeqs here,
-        // attempting to use them will cause immediate compile errors.
-        al_draw_bitmap(bit, position.x, position.y, 0);
-    } else static if (found!rotation && !found!scaling) {
-        al_draw_rotated_bitmap(bit,
-            bit.w/2,    bit.h/2,
-            position.x, position.y,
-            rotation.a,
-            0);
-    } else static if (found!rotation && found!scaling) {
-        // Handle this case.
-    } else static if (!found!rotation && found!scaling) {
-        // Handle this case.
-    }
+	static if (!found!rotation && !found!scaling) {
+		// Since rotation and scaling are empty AliasSeqs here,
+		// attempting to use them will cause immediate compile errors.
+		al_draw_bitmap(bit, position.x, position.y, 0);
+	} else static if (found!rotation && !found!scaling) {
+		al_draw_rotated_bitmap(bit,
+			bit.w / 2, bit.h / 2,
+			position.x, position.y,
+			rotation.a,
+			0);
+	} else static if (found!rotation && found!scaling) {
+		// Handle this case.
+	} else static if (!found!rotation && found!scaling) {
+		// Handle this case.
+	}
 }
 
 /// This function corrects a bug/error/oversight in al_save_bitmap that dumps ALPHA channel from the screen into the picture
 ///
-void al_save_screen(string path)
-	{
+void al_save_screen(string path) {
 	import std.datetime.stopwatch : benchmark, StopWatch, AutoStart;
+
 	auto sw = StopWatch(AutoStart.yes);
 	auto disp = al_get_backbuffer(al_display);
 	auto w = disp.w;
@@ -968,145 +959,133 @@ void al_save_screen(string path)
 	al_lock_bitmap(temp, al_get_bitmap_format(temp), ALLEGRO_LOCK_WRITEONLY);
 	al_lock_bitmap(disp, al_get_bitmap_format(temp), ALLEGRO_LOCK_READONLY); // makes HUGE difference (6.4 seconds vs 270 milliseconds)
 	al_set_target_bitmap(temp);
-	for(int j = 0; j < h; j++)
-		for(int i = 0; i < w; i++)
-			{
+	for (int j = 0; j < h; j++)
+		for (int i = 0; i < w; i++) {
 			auto pixel = al_get_pixel(disp, i, j);
 			pixel.a = 1.0; // remove alpha
 			al_put_pixel(i, j, pixel);
-			}
+		}
 	al_unlock_bitmap(disp);
 	al_unlock_bitmap(temp);
 	al_save_bitmap(path.toStringz, temp);
 	al_reset_target();
 	al_destroy_bitmap(temp);
-	
+
 	sw.stop();
 	int secs, msecs;
 	sw.peek.split!("seconds", "msecs")(secs, msecs);
 	writefln("Saving screenshot took %d.%ds", secs, msecs);
-	}
+}
 
 /// Draws a rectangle but it's missing the inside of lines. Currently just top left and bottom right corners.
-void drawSplitRectangle(pair ul, pair lr, float legSize, float thickness, COLOR c)
-	{
+void drawSplitRectangle(pair ul, pair lr, float legSize, float thickness, COLOR c) {
 	// upper left
 	al_draw_line(ul.x, ul.y, ul.x + legSize, ul.y, c, thickness); // horizontal
 	al_draw_line(ul.x, ul.y, ul.x, ul.y + legSize, c, thickness); // vertical
-	
+
 	// lower right
 	al_draw_line(lr.x, lr.y, lr.x - legSize, lr.y, c, thickness); // horizontal
 	al_draw_line(lr.x, lr.y, lr.x, lr.y - legSize, c, thickness); // vertical
-	}
+}
 
-float charHeight=16;
+float charHeight = 16;
 
-void drawTextArray(pair pos, COLOR c, string[] strings)
-	{
-	foreach(index, s; strings)
-		drawText(pos.x, pos.y + index*charHeight, c, "%s", s);
-	}
+void drawTextArray(pair pos, COLOR c, string[] strings) {
+	foreach (index, s; strings)
+		drawText(pos.x, pos.y + index * charHeight, c, "%s", s);
+}
 
-void setActiveFont(FONT* theFont)
-	{
+void setActiveFont(FONT* theFont) {
 	assert(theFont !is null);
 	activeFont = theFont;
-	}
-	
-void resetActiveFont()
-	{
+}
+
+void resetActiveFont() {
 	activeFont = g.font1;
-//	fontStack = [];
+	//	fontStack = [];
 	fontStack[fontStackLength] = g.font1;
-	}
-	
+}
+
 int fontStackLength = 0;
 font*[16] fontStack; /// contains any fonts ABOVE default original font
 // THIS HAS MANY ALLOCATIONS we could just use a static array of MAX_FONT_STACK and we can assert if you go past that.
 
-void pushFont(font* newFont){
+void pushFont(font* newFont) {
 	fontStack[fontStackLength] = activeFont;
 	activeFont = newFont;
 	fontStackLength++;
-	}
+}
 
-void popFont(){ // pop any ADDITIONAL fonts after original font. Calling at original font asserts because you pop/push'd wrong and will likely have other hidden errors.
+void popFont() { // pop any ADDITIONAL fonts after original font. Calling at original font asserts because you pop/push'd wrong and will likely have other hidden errors.
 	import std.range : popBack;
-	if(fontStackLength > 0)
-		{
-//		fontStack.popBack;
+
+	if (fontStackLength > 0) {
+		//		fontStack.popBack;
 		fontStackLength--;
-		if(fontStackLength > 0)
-			{
-			activeFont = fontStack[fontStackLength-1];
-			}else{
+		if (fontStackLength > 0) {
+			activeFont = fontStack[fontStackLength - 1];
+		} else {
 			activeFont = g.font1;
-			}
 		}
-	else
+	} else
 		assert("You popped past the original font. Somewhere in your code you have unbalanced push/pops which will cause hidden problems!");
-	}
+}
 
 /// Draw text using most common settings
-void drawText(A...)(float x, float y, COLOR c, string formatStr, A a)
-	{
-	al_draw_text(g.activeFont, c, x, y, ALLEGRO_ALIGN_LEFT, format(formatStr, a).toStringz); 
-	}
+void drawText(A...)(float x, float y, COLOR c, string formatStr, A a) {
+	al_draw_text(g.activeFont, c, x, y, ALLEGRO_ALIGN_LEFT, format(formatStr, a).toStringz);
+}
 
 /// Draw text using most common settings
-void drawText(A...)(pair pos, COLOR c, string formatStr, A a)
-	{
-	al_draw_text(g.activeFont, c, pos.x, pos.y, ALLEGRO_ALIGN_LEFT, format(formatStr, a).toStringz); 
-	}
+void drawText(A...)(pair pos, COLOR c, string formatStr, A a) {
+	al_draw_text(g.activeFont, c, pos.x, pos.y, ALLEGRO_ALIGN_LEFT, format(formatStr, a).toStringz);
+}
 
 /// Draw text using most common settings
-void drawTextCenter(A...)(float x, float y, COLOR c, string formatStr, A a)
-	{
-	al_draw_text(g.activeFont, c, x, y, ALLEGRO_ALIGN_CENTER, format(formatStr, a).toStringz); 
-	}
+void drawTextCenter(A...)(float x, float y, COLOR c, string formatStr, A a) {
+	al_draw_text(g.activeFont, c, x, y, ALLEGRO_ALIGN_CENTER, format(formatStr, a).toStringz);
+}
 
 /// Draw text using most common settings
-void drawTextCenter(A...)(pair pos, COLOR c, string formatStr, A a)
-	{
-	with(pos)
-	al_draw_text(g.activeFont, c, x, y, ALLEGRO_ALIGN_CENTER, format(formatStr, a).toStringz); 
-	}
-	
+void drawTextCenter(A...)(pair pos, COLOR c, string formatStr, A a) {
+	with (pos)
+		al_draw_text(g.activeFont, c, x, y, ALLEGRO_ALIGN_CENTER, format(formatStr, a).toStringz);
+}
+
 /// Draw text with help of textHelper auto-indenting
-void drawText2(A...)(float x, string formatStr, A a)
-	{
-	al_draw_text(g.activeFont, ALLEGRO_COLOR(0, 0, 0, 1), x, textHelper(), ALLEGRO_ALIGN_LEFT, format(formatStr, a).toStringz); 
-	}	
+void drawText2(A...)(float x, string formatStr, A a) {
+	al_draw_text(g.activeFont, ALLEGRO_COLOR(0, 0, 0, 1), x, textHelper(), ALLEGRO_ALIGN_LEFT, format(formatStr, a)
+			.toStringz);
+}
 
 /// Helper functions using universal function call syntax.
 int h(const ALLEGRO_FONT* f) => al_get_font_line_height(f); /// Font Height = Ascent + Descent
 int a(const ALLEGRO_FONT* f) => al_get_font_ascent(f); /// Font Ascent
 int d(const ALLEGRO_FONT* f) => al_get_font_descent(f); /// Font Descent
 
-int w(ALLEGRO_BITMAP* b) => al_get_bitmap_width(b);/// Return BITMAP width
-int h(ALLEGRO_BITMAP* b) => al_get_bitmap_height(b);/// Return BITMAP height	
+int w(ALLEGRO_BITMAP* b) => al_get_bitmap_width(b); /// Return BITMAP width
+int h(ALLEGRO_BITMAP* b) => al_get_bitmap_height(b); /// Return BITMAP height	
 
-int charWidth=9;
+int charWidth = 9;
 
-string splitStringAtWidth(string str, int pixelWidth)
-	{
-	ulong numCharactersWide = pixelWidth/charWidth;
+string splitStringAtWidth(string str, int pixelWidth) {
+	ulong numCharactersWide = pixelWidth / charWidth;
 	// simplest version is every X characters split.
 	// next version will try to preserve whole worlds
 	// next version will use true-type glyph aware widths (non-uniform widths to account for)
-	string output="";
-	
+	string output = "";
+
 	//writeln("input:\n", str);
-	while(str.length > 0)
-		{
-		if(numCharactersWide > str.length)numCharactersWide = str.length;
-		output ~= str[0..numCharactersWide] ~ "\n";
-	//	writeln("middle:\n", output);
-		str = str[numCharactersWide..$];		
-		}
-//	writeln("finished:\n", output);
-	return output;
+	while (str.length > 0) {
+		if (numCharactersWide > str.length)
+			numCharactersWide = str.length;
+		output ~= str[0 .. numCharactersWide] ~ "\n";
+		//	writeln("middle:\n", output);
+		str = str[numCharactersWide .. $];
 	}
+	//	writeln("finished:\n", output);
+	return output;
+}
 
 /+
 string[] splitStringArrayAtWidth(string str, int pixelWidth)
@@ -1139,30 +1118,27 @@ string[] splitStringArrayAtWidth(string str, int pixelWidth)
 // but we'd have to have some sort of applyRichTextToEachWord() to ensure colorizing 
 // is spread to each now split word. And we'd also need a getTextFromRichText().length 
 // for text length
-string[] splitStringArrayAtWidth(string str, int pixelWidth)
-	{
+string[] splitStringArrayAtWidth(string str, int pixelWidth) {
 	import std.string : split;
-	ulong numCharactersWide = pixelWidth/charWidth;
+
+	ulong numCharactersWide = pixelWidth / charWidth;
 	string[] output;
 	string[] temp = str.split(" ");
-	
-	while(temp.length > 0)
-		{
-		string temp2 = temp[0] ~ " ";
-		temp = temp[1..$]; // take front
-		while(temp.length > 0 && temp2.length + temp[0].length <= numCharactersWide)
-			{
-			temp2 ~= temp[0] ~ " ";
-			temp = temp[1..$]; // take front
-			}
-		output ~= temp2;
-		}
-//	writeln("finished:\n", output);
-	return output;
-	}
 
-string[] splitStringArrayAtWidth3(string str, int pixelWidth)
-	{
+	while (temp.length > 0) {
+		string temp2 = temp[0] ~ " ";
+		temp = temp[1 .. $]; // take front
+		while (temp.length > 0 && temp2.length + temp[0].length <= numCharactersWide) {
+			temp2 ~= temp[0] ~ " ";
+			temp = temp[1 .. $]; // take front
+		}
+		output ~= temp2;
+	}
+	//	writeln("finished:\n", output);
+	return output;
+}
+
+string[] splitStringArrayAtWidth3(string str, int pixelWidth) {
 	// IMPLIED VARIABLE: activeFont
 	import std.string : split;
 
@@ -1170,98 +1146,89 @@ string[] splitStringArrayAtWidth3(string str, int pixelWidth)
 	string consumedStr = str;
 	string[] output;
 	int numConsumed = 0;
-	while(numConsumed <= str.length && consumedStr.length > 0)
-		{
+	while (numConsumed <= str.length && consumedStr.length > 0) {
 		tempStr ~= consumedStr[0];
-		consumedStr = consumedStr[1..$];
-//		writeln(numConsumed, "|", consumedStr, "|", tempStr);
+		consumedStr = consumedStr[1 .. $];
+		//		writeln(numConsumed, "|", consumedStr, "|", tempStr);
 		numConsumed++;
-		if(al_get_text_width(activeFont, tempStr.toStringz()) > pixelWidth) // TODO: we have to be ONE TAG LESS so we have to be able to REVERSE one action
-			{
+		if (al_get_text_width(activeFont, tempStr.toStringz()) > pixelWidth) // TODO: we have to be ONE TAG LESS so we have to be able to REVERSE one action
+		{
 			output ~= tempStr;
 			tempStr = "";
-//			writeln(output);
-			} // TODO #2: do the whole word boundary split
-		}
+			//			writeln(output);
+		} // TODO #2: do the whole word boundary split
+	}
 	output ~= tempStr;
-//	writeln(output);
+	//	writeln(output);
 
 	return output;
-	}
+}
 
 //2023
-void drawRoundedFilledRectangle(rect r, color c, float radius)
-	{
-	with(r)
+void drawRoundedFilledRectangle(rect r, color c, float radius) {
+	with (r)
 		al_draw_filled_rounded_rectangle(x, y, x + w, y + h, radius, radius, c);
-	}
-void drawFilledRectangle(rect r, color c)
-	{
-	with(r)
+}
+
+void drawFilledRectangle(rect r, color c) {
+	with (r)
 		al_draw_filled_rectangle(x, y, x + w, y + h, c);
-	}
+}
 
-void drawRectangle(rect r, color c, float thickness)
-	{
-	with(r)
+void drawRectangle(rect r, color c, float thickness) {
+	with (r)
 		al_draw_rectangle(x, y, x + w, y + h, c, thickness);
-	}
+}
 
-void drawBitmap(bitmap *b, pair pos, uint flags=0)
-	{
+void drawBitmap(bitmap* b, pair pos, uint flags = 0) {
 	al_draw_bitmap(b, pos.x, pos.y, flags);
-	}
+}
 
-void drawTintedBitmap(bitmap *b, COLOR tint, pair pos, uint flags=0) // do we want color before position?
-	{
+void drawTintedBitmap(bitmap* b, COLOR tint, pair pos, uint flags = 0) // do we want color before position?
+{
 	al_draw_tinted_bitmap(b, tint, pos.x, pos.y, flags);
-	}
+}
 
 /// How do we handle PARALLAX scrolling? We need a SCALE value. (vpair could include that if we want)
-void drawBitmap(bitmap *b, vpair pos, uint flags=0) /// draw bitmap with implied viewport
-	{
-	al_draw_bitmap(b, 
-		pos.r + IMPLIED_VIEWPORT.x - IMPLIED_VIEWPORT.ox, 
+void drawBitmap(bitmap* b, vpair pos, uint flags = 0) /// draw bitmap with implied viewport
+{
+	al_draw_bitmap(b,
+		pos.r + IMPLIED_VIEWPORT.x - IMPLIED_VIEWPORT.ox,
 		pos.s + IMPLIED_VIEWPORT.y - IMPLIED_VIEWPORT.oy,
 		flags);
-	} // TODO. Rename this shit. Implied viewports shoudl have anotehr name.
-	// like drawBitmapImp
-	// or just pass the fucking viewport.
-	// it also takes a vpair so it could be subtle taking the wrong one
-	// maybe not. the vpair is essential for telling the signatures apart.
+} // TODO. Rename this shit. Implied viewports shoudl have anotehr name.
+// like drawBitmapImp
+// or just pass the fucking viewport.
+// it also takes a vpair so it could be subtle taking the wrong one
+// maybe not. the vpair is essential for telling the signatures apart.
 
 /// Same as al_draw_bitmap but center the sprite
 /// we can also chop off the last item.
 /// we could also throw an assert!null in here but maybe not for performance reasons.
-void al_draw_centered_bitmap(ALLEGRO_BITMAP* b, float x, float y, int flags=0)
-	{
-	al_draw_bitmap(b, x - b.w/2, y - b.h/2, flags);
-	}
-	
+void al_draw_centered_bitmap(ALLEGRO_BITMAP* b, float x, float y, int flags = 0) {
+	al_draw_bitmap(b, x - b.w / 2, y - b.h / 2, flags);
+}
+
 /// Set texture target back to normal (the screen)
-void al_reset_target() 
-	{
+void al_reset_target() {
 	al_set_target_backbuffer(al_get_current_display());
-	}
+}
 
 /// draw scaled bitmap but with a scale factor (simpler than the allegro API version)
-void al_draw_scaled_bitmap2(ALLEGRO_BITMAP *bmp, float x, float y, float scaleX, float scaleY, int flags=0)
-	{
-	al_draw_scaled_bitmap(bmp, 
-		0, 0, bmp.w, bmp.h, 
-		x, y, bmp.w * scaleX, bmp.h * scaleY, 
+void al_draw_scaled_bitmap2(ALLEGRO_BITMAP* bmp, float x, float y, float scaleX, float scaleY, int flags = 0) {
+	al_draw_scaled_bitmap(bmp,
+		0, 0, bmp.w, bmp.h,
+		x, y, bmp.w * scaleX, bmp.h * scaleY,
 		flags);
-	}
+}
 
-void al_draw_center_rotated_bitmap(BITMAP* bmp, float x, float y, float angle, int flags)
-	{
-	al_draw_rotated_bitmap(bmp, bmp.w/2, bmp.h/2, x, y, angle, flags);
-	}
+void al_draw_center_rotated_bitmap(BITMAP* bmp, float x, float y, float angle, int flags) {
+	al_draw_rotated_bitmap(bmp, bmp.w / 2, bmp.h / 2, x, y, angle, flags);
+}
 
-void al_draw_center_rotated_tinted_bitmap(BITMAP* bmp, COLOR tint, float x, float y, float angle, int flags)
-	{
-	al_draw_tinted_rotated_bitmap(bmp, tint, bmp.w/2, bmp.h/2, x, y, angle, flags);
-	}
+void al_draw_center_rotated_tinted_bitmap(BITMAP* bmp, COLOR tint, float x, float y, float angle, int flags) {
+	al_draw_tinted_rotated_bitmap(bmp, tint, bmp.w / 2, bmp.h / 2, x, y, angle, flags);
+}
 
 // you know, we could do some sort of scoped lambda like thing that auto resets the target
 /*
@@ -1282,55 +1249,51 @@ void al_draw_center_rotated_tinted_bitmap(BITMAP* bmp, COLOR tint, float x, floa
 //ALLEGRO_BITMAP* target, 
 
 void al_target2(ALLEGRO_BITMAP* target, scope void delegate() func) // why scope?
-	{
+{
 	al_set_target_bitmap(target);
 	func();
 	al_reset_target();
-	}
-	
+}
+
 import std.stdio;
-void test2()
-	{
+
+void test2() {
 	ALLEGRO_BITMAP* bmp;
-	al_target2(bmp, 
-		{ 
-		al_draw_pixel(5, 5, white); 
-		}); // slightly confusing to an outsider why we have curley and parethessis, though lambads are fairly common knowledge now
-	}
+	al_target2(bmp,
+	{ al_draw_pixel(5, 5, white); }); // slightly confusing to an outsider why we have curley and parethessis, though lambads are fairly common knowledge now
+}
 
 /// Print variablename = value
 /// usage because of D oddness:    
 /// writeval(var.stringof, var);
-void writeval(T)(string x, T y) 
-	{
+void writeval(T)(string x, T y) {
 	writeln(x, " = ", y);
-	} // is this junk code?
+} // is this junk code?
 
 // TODO consider renaming these to loadFont, loadBitmap since we're already camelCase now instead of underscores
 /// Load a font and verify we succeeded or cause an out-of-band error to occur.
-FONT* getFont(string path, int size)
-	{
+FONT* getFont(string path, int size) {
 	import std.string : toStringz;
+
 	ALLEGRO_FONT* f = al_load_font(toStringz(path), size, 0);
 	assert(f != null, format("ERROR: Failed to load font [%s]!", path));
 	return f;
-	}
+}
 
 /// Load a bitmap and verify we succeeded or cause an out-of-band error to occur.
-ALLEGRO_BITMAP* getBitmap(string path)
-	{
+ALLEGRO_BITMAP* getBitmap(string path) {
 	import std.string : toStringz;
+
 	ALLEGRO_BITMAP* bmp = al_load_bitmap(toStringz(path));
 	assert(bmp != null, format("ERROR: Failed to load bitmap [%s]!", path));
-	assert( (al_get_bitmap_flags(bmp) & ALLEGRO_MEMORY_BITMAP) == 0, "Allegro was naughty and tried to make a MEMORY bitmap"); 
+	assert((al_get_bitmap_flags(bmp) & ALLEGRO_MEMORY_BITMAP) == 0, "Allegro was naughty and tried to make a MEMORY bitmap");
 	return bmp;
-	}
+}
 
 /// ported Gourand shading Allegro 5 functions from my old forum post
 /// 	https://www.allegro.cc/forums/thread/615262
 /// Four point shading:
-void al_draw_gouraud_bitmap(ALLEGRO_BITMAP* bmp, float x, float y, COLOR tl, COLOR tr, COLOR bl, COLOR br)
-	{
+void al_draw_gouraud_bitmap(ALLEGRO_BITMAP* bmp, float x, float y, COLOR tl, COLOR tr, COLOR bl, COLOR br) {
 	ALLEGRO_VERTEX[4] vtx;
 	float w = bmp.w;
 	float h = bmp.h;
@@ -1363,23 +1326,23 @@ void al_draw_gouraud_bitmap(ALLEGRO_BITMAP* bmp, float x, float y, COLOR tl, COL
 	vtx[3].u = 0;
 	vtx[3].v = h;
 
-	al_draw_prim(cast(void*)vtx, null, bmp, 0, vtx.length, ALLEGRO_PRIM_TYPE.ALLEGRO_PRIM_TRIANGLE_FAN);
-	}
+	al_draw_prim(cast(void*) vtx, null, bmp, 0, vtx.length, ALLEGRO_PRIM_TYPE
+			.ALLEGRO_PRIM_TRIANGLE_FAN);
+}
 
 /// Five points (includes center)
-void al_draw_gouraud_bitmap_5pt(ALLEGRO_BITMAP* bmp, float x, float y, COLOR tl, COLOR tr, COLOR bl, COLOR br, COLOR mid)
-	{
+void al_draw_gouraud_bitmap_5pt(ALLEGRO_BITMAP* bmp, float x, float y, COLOR tl, COLOR tr, COLOR bl, COLOR br, COLOR mid) {
 	ALLEGRO_VERTEX[6] vtx;
 	float w = bmp.w;
 	float h = bmp.h;
 
 	//center
-	vtx[0].x = x + w/2;
-	vtx[0].y = y + h/2;
+	vtx[0].x = x + w / 2;
+	vtx[0].y = y + h / 2;
 	vtx[0].z = 0;
 	vtx[0].color = mid;
-	vtx[0].u = w/2;
-	vtx[0].v = h/2;
+	vtx[0].u = w / 2;
+	vtx[0].v = h / 2;
 
 	vtx[1].x = x;
 	vtx[1].y = y;
@@ -1416,104 +1379,96 @@ void al_draw_gouraud_bitmap_5pt(ALLEGRO_BITMAP* bmp, float x, float y, COLOR tl,
 	vtx[5].u = vtx[1].u;
 	vtx[5].v = vtx[1].v;
 
-	al_draw_prim(cast(void*)vtx, null, bmp, 0, vtx.length, ALLEGRO_PRIM_TYPE.ALLEGRO_PRIM_TRIANGLE_FAN);
-	}
-		
+	al_draw_prim(cast(void*) vtx, null, bmp, 0, vtx.length, ALLEGRO_PRIM_TYPE
+			.ALLEGRO_PRIM_TRIANGLE_FAN);
+}
+
 /// al_draw_line_segment for pairs
-void al_draw_line_segment(pair[] pairs, COLOR color, float thickness)
-	{
+void al_draw_line_segment(pair[] pairs, COLOR color, float thickness) {
 	assert(pairs.length > 1);
 	pair lp = pairs[0]; // initial p, also previous p ("last p")
-	foreach(ref p; pairs)
-		{
+	foreach (ref p; pairs) {
 		al_draw_line(p.x, p.y, lp.x, lp.y, color, thickness);
 		lp = p;
-		}
 	}
-	
+}
+
 /// al_draw_line_segment for raw integers floats POD arrays
-void al_draw_line_segment(T)(T[] x, T[] y, COLOR color, float thickness)
-	{
+void al_draw_line_segment(T)(T[] x, T[] y, COLOR color, float thickness) {
 	assert(x.length > 1);
 	assert(y.length > 1);
 	assert(x.length == y.length);
 
-	for(int i = 1; i < x.length; i++) // note i = 1
-		{
-		al_draw_line(x[i], y[i], x[i-1], y[i-1], color, thickness);
-		}
+	for (int i = 1; i < x.length; i++) // note i = 1
+	{
+		al_draw_line(x[i], y[i], x[i - 1], y[i - 1], color, thickness);
 	}
+}
 
 /// al_draw_line_segment 1D
-void al_draw_line_segment(T)(T[] y, COLOR color, float thickness)
-	{
+void al_draw_line_segment(T)(T[] y, COLOR color, float thickness) {
 	assert(y.length > 1);
 
-	for(int i = 1; i < y.length; i++) // note i = 1
-		{
-		al_draw_line(i, y[i], i-1, y[i-1], color, thickness);
-		}
+	for (int i = 1; i < y.length; i++) // note i = 1
+	{
+		al_draw_line(i, y[i], i - 1, y[i - 1], color, thickness);
 	}
+}
 
 /// al_draw_line_segment 1D
-void al_draw_scaled_line_segment(T)(pair xycoord, T[] y, float yScale, COLOR color, float thickness)
-	{
+void al_draw_scaled_line_segment(T)(pair xycoord, T[] y, float yScale, COLOR color, float thickness) {
 	assert(y.length > 1);
 
-	for(int i = 1; i < y.length; i++) // note i = 1
-		{
+	for (int i = 1; i < y.length; i++) // note i = 1
+	{
 		al_draw_line(
-			xycoord.x + i, 
-			xycoord.y + y[i]*yScale, 
-			xycoord.x + i-1, 
-			xycoord.y + y[i-1]*yScale, 
+			xycoord.x + i,
+			xycoord.y + y[i] * yScale,
+			xycoord.x + i - 1,
+			xycoord.y + y[i - 1] * yScale,
 			color, thickness);
-		}
 	}
+}
 
 /// al_draw_line_segment 1D
-void al_draw_scaled_indexed_line_segment(T)(pair xycoord, T[] y, float yScale, COLOR c1, float thickness, int index, COLOR indexColor)
-	{
+void al_draw_scaled_indexed_line_segment(T)(pair xycoord, T[] y, float yScale, COLOR c1, float thickness, int index, COLOR indexColor) {
 	assert(y.length > 1);
 
-	for(int i = 1; i < y.length; i++) // note i = 1
-		{
-		if(i == index)
-			{
+	for (int i = 1; i < y.length; i++) // note i = 1
+	{
+		if (i == index) {
 			al_draw_line(
-				xycoord.x + i, 
-				xycoord.y + y[i]*yScale, 
-				xycoord.x + i-1, 
-				xycoord.y + y[i-1]*yScale, 
-				indexColor, thickness*2);
-			}else{
+				xycoord.x + i,
+				xycoord.y + y[i] * yScale,
+				xycoord.x + i - 1,
+				xycoord.y + y[i - 1] * yScale,
+				indexColor, thickness * 2);
+		} else {
 			al_draw_line(
-				xycoord.x + i, 
-				xycoord.y + y[i]*yScale, 
-				xycoord.x + i-1, 
-				xycoord.y + y[i-1]*yScale, 
+				xycoord.x + i,
+				xycoord.y + y[i] * yScale,
+				xycoord.x + i - 1,
+				xycoord.y + y[i - 1] * yScale,
 				c1, thickness);
-			}
 		}
 	}
+}
 
-void al_draw_scaled_indexed_segment(T)(pair xycoord, T[] y, float yScale, COLOR c1, float thickness, int index, COLOR indexColor)
-	{
+void al_draw_scaled_indexed_segment(T)(pair xycoord, T[] y, float yScale, COLOR c1, float thickness, int index, COLOR indexColor) {
 	assert(y.length > 1);
 
-	for(int i = 1; i < y.length; i++) // note i = 1
-		{
-		if(i == index)
-			{
+	for (int i = 1; i < y.length; i++) // note i = 1
+	{
+		if (i == index) {
 			al_draw_pixel(
-				xycoord.x + i, 
-				xycoord.y + y[i]*yScale, 
+				xycoord.x + i,
+				xycoord.y + y[i] * yScale,
 				indexColor);
-			}else{
+		} else {
 			al_draw_pixel(
-				xycoord.x + i, 
-				xycoord.y + y[i]*yScale, 
+				xycoord.x + i,
+				xycoord.y + y[i] * yScale,
 				c1);
-			}
 		}
 	}
+}

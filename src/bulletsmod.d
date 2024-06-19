@@ -17,22 +17,21 @@ import std.stdio;
 
 import datajack; // gamemodule
 
-class Bullet : BaseObject
-	{
-	bool isDebugging=false;
-	float x=0, y=0;
-	float vx=0, vy=0;
-	float angle=0;
+class Bullet : BaseObject {
+	bool isDebugging = false;
+	float x = 0, y = 0;
+	float vx = 0, vy = 0;
+	float angle = 0;
 	int type; // 0 = normal bullet whatever
 	int lifetime; // frames passed since firing
-	bool isDead=false; // to trim
+	bool isDead = false; // to trim
 	BaseObject myOwner;
-	bool isAffectedByGravity=true;
+	bool isAffectedByGravity = true;
 	COLOR c;
-	
-	this(float _x, float _y, float _vx, float _vy, float _angle, COLOR _c, 
-		int _type, int _lifetime, bool _isAffectedByGravity, BaseObject _myOwner, 
-		bool _isDebugging){
+
+	this(float _x, float _y, float _vx, float _vy, float _angle, COLOR _c,
+		int _type, int _lifetime, bool _isAffectedByGravity, BaseObject _myOwner,
+		bool _isDebugging) {
 		isDebugging = _isDebugging;
 		c = _c;
 		myOwner = _myOwner;
@@ -45,46 +44,43 @@ class Bullet : BaseObject
 		angle = _angle;
 		isAffectedByGravity = _isAffectedByGravity;
 		super(pair(_x, _y), pair(_vx, _vy), bh["bullet"]);
-		}
-	
-	void applyV(float applyAngle, float vel)
-		{
-		vx += cos(applyAngle)*vel;
-		vy += sin(applyAngle)*vel;
-		}
+	}
 
-	bool checkUnitCollision(unit u)
-		{
-//		writefln("[%f,%f] vs u.[%f,%f]", x, y, u.x, u.y);
-		if(pos.x - 10 < u.pos.x)
-		if(pos.x + 10 > u.pos.x)
-		if(pos.y - 10 < u.pos.y)
-		if(pos.y + 10 > u.pos.y)
-			{
-//		writeln("[bullet] Death by unit contact.");
-			return true;
-			}		
+	void applyV(float applyAngle, float vel) {
+		vx += cos(applyAngle) * vel;
+		vy += sin(applyAngle) * vel;
+	}
+
+	bool checkUnitCollision(BaseObject u) {
+		//		writefln("[%f,%f] vs u.[%f,%f]", x, y, u.x, u.y);
+		if (pos.x - 10 < u.pos.x)
+			if (pos.x + 10 > u.pos.x)
+				if (pos.y - 10 < u.pos.y)
+					if (pos.y + 10 > u.pos.y) {
+						//		writeln("[bullet] Death by unit contact.");
+						return true;
+					}
 		return false;
-		}
-					
-	void die(unit from)
-		{
-		isDead=true;
+	}
+
+	void die(unit from) {
+		isDead = true;
 		vx = 0;
 		vy = 0;
 		import std.random : uniform;
+
 		g.world.particles ~= particle(x, y, vx, vy, 0, uniform!"[]"(3, 6));
-		if(isDebugging) writefln("[debug] bullet at [%3.2f, %3.2f] died from [%s]", x, y, from);
-		}
-	
+		if (isDebugging)
+			writefln("[debug] bullet at [%3.2f, %3.2f] died from [%s]", x, y, from);
+	}
+
 	override void onTick() // should we check for planets collision?
-		{
+	{
 		lifetime--;
-		if(lifetime == 0)
-			{
-			isDead=true;
-			}else{
-/+			if(isAffectedByGravity) applyGravity(g.world.planets[0]);
+		if (lifetime == 0) {
+			isDead = true;
+		} else {
+			/+			if(isAffectedByGravity) applyGravity(g.world.planets[0]);
 
 // bullet check against planets
 			foreach(p; g.world.planets)
@@ -139,43 +135,38 @@ class Bullet : BaseObject
 					die(a);
 					}
 				}
-				+/			
-		//	writeln("---FRAME---");
-			foreach(u; g.world.units) // NOTE: this is only scanning units not SUBARRAYS containing turrets
-				{
-				if(u != myOwner)
-					{
-/+					auto t = cast(attachedTurret)myOwner; //if we're from a turret, check against our turrets owner
+				+/
+			//	writeln("---FRAME---");
+			foreach (u; g.world.units) // NOTE: this is only scanning units not SUBARRAYS containing turrets
+			{
+				if (u != myOwner) {
+					/+					auto t = cast(attachedTurret)myOwner; //if we're from a turret, check against our turrets owner
 					if(t !is null && u == t.myOwner)
 						{
 						writefln("1 collision with %s", u);
 //						writefln("[%s] found. I am a: [%s] owned by a [%s] -- TURRET", u, t, t.myOwner);
 						continue; //we cannot hit our own unit (a ship, or a turret), or, if our spawner is a turret, we cannot hit the turrets owner (a ship/freighter)
 						}
-	+/					
-					if(checkUnitCollision(u))
-						{
+	+/
+					if (checkUnitCollision(u)) {
 						writefln("3 collision with %s", u);
 						u.onHit(this);
 						die(u);
-						}
-					}					
+					}
 				}
-						
+			}
 			x += vx;
 			y += vy;
-			}
-		}
-	
-	override bool onDraw(viewport v)
-		{		
-		float cx = x + v.x - v.ox;
-		float cy = y + v.y - v.oy;
-		if(cx > 0 && cx < SCREEN_W && cy > 0 && cy < SCREEN_H)
-			{
-			al_draw_center_rotated_tinted_bitmap(bmp, c, cx, cy, angle + degToRad(90), 0);
-			return true;
-			}
-		return false;
 		}
 	}
+
+	override bool onDraw(viewport v) {
+		float cx = x + v.x - v.ox;
+		float cy = y + v.y - v.oy;
+		if (cx > 0 && cx < SCREEN_W && cy > 0 && cy < SCREEN_H) {
+			al_draw_center_rotated_tinted_bitmap(bmp, c, cx, cy, angle + degToRad(90), 0);
+			return true;
+		}
+		return false;
+	}
+}

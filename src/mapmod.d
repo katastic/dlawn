@@ -224,66 +224,60 @@ import atlasmod;
 
 import std.stdio;
 
-struct tileInstance
-	{
+struct tileInstance {
 	uint val;
-	}
-	
-struct layer
-	{
+}
+
+struct layer {
 	string name; // useful? for saving? debugging?
 	bitmap* data;
-	float scale; 
-		/// 1x = 1:1.  
-		/// 2x scale = half the pixels per dimension?
-		/// 0.5x scale = twice the pixels?
-		
-		/// scale of 2.0 makes a viewport offset * 2.0, which gives it the effect
-		/// of appearing like it's in front of / above everything.
-		
-	float alpha=1.0; /// layer transparency (0.0 transparent, 1.0 opaque)
-	
-	this(string _name, string bitmapPath, float _scale=1.0) 	/// "just load the damn thing"
-		{
+	float scale;
+	/// 1x = 1:1.  
+	/// 2x scale = half the pixels per dimension?
+	/// 0.5x scale = twice the pixels?
+
+	/// scale of 2.0 makes a viewport offset * 2.0, which gives it the effect
+	/// of appearing like it's in front of / above everything.
+
+	float alpha = 1.0; /// layer transparency (0.0 transparent, 1.0 opaque)
+
+	this(string _name, string bitmapPath, float _scale = 1.0) /// "just load the damn thing"
+	{
 		name = _name;
 		data = getBitmap(bitmapPath);
 		//data = al_create_bitmap(cast(int)mapSize.w, cast(int)mapSize.h);
 		scale = _scale;
 		/// "just load the damn thing"
-		}
-	
-	this(string name, string path, idimen mapSize, float _scale=1.0)
-		{
-//		data = getBitmap(path);
+	}
+
+	this(string name, string path, idimen mapSize, float _scale = 1.0) {
+		//		data = getBitmap(path);
 		//data = al_create_bitmap(cast(int)mapSize.w, cast(int)mapSize.h);
-	//	scale = _scale;
+		//	scale = _scale;
 		assert(false);
-		}
-		
-	this(string name, idimen mapSize, idimen bitmapSize)
-		{
+	}
+
+	this(string name, idimen mapSize, idimen bitmapSize) {
 		assert(mapSize.w / bitmapSize.w == mapSize.h / bitmapSize.h, "parallax map doesn't scale evenly with map size!");
 		scale = mapSize.w / bitmapSize.w; // bigger bitmap, smaller 'scale'
-		data = al_create_bitmap(cast(int)bitmapSize.w, cast(int)bitmapSize.h);
+		data = al_create_bitmap(cast(int) bitmapSize.w, cast(int) bitmapSize.h);
 		assert(false, "SHOULDNT BE CALLING THIS");
-		}
-		
-	void onDraw(viewport v)
-		{
-		if(alpha == 0.0)
-			{
-			drawBitmap(data, pair(	0 + v.x - v.ox*scale, 
-									0 + v.y - v.oy*scale));
-			}else{
-			drawTintedBitmap(data,
-								color(1.0, 1.0, 1.0, alpha),
-								pair(	0 + v.x - v.ox*scale, 
-										0 + v.y - v.oy*scale),
-										);
-			}
- 		}
 	}
-	
+
+	void onDraw(viewport v) {
+		if (alpha == 0.0) {
+			drawBitmap(data, pair(0 + v.x - v.ox * scale,
+					0 + v.y - v.oy * scale));
+		} else {
+			drawTintedBitmap(data,
+				color(1.0, 1.0, 1.0, alpha),
+				pair(0 + v.x - v.ox * scale,
+					0 + v.y - v.oy * scale),
+			);
+		}
+	}
+}
+
 /// Pixel-based map
 /+
 	note: support for parallax layers
@@ -326,162 +320,171 @@ struct layer
 /// for using .w(idth) and .h(eight) of a 2d array (THESE CLASH WITH BITMAP .W .H)
 /// these might collide with the bitmap thing. Also what if we have an ARRAY of BITMAPS? .w for bitmap or array?
 // ---> variable arrays only!
-size_t width(T)(T[][] array2d) { return array2d[0].length; }
-size_t height(T)(T[][] array2d) { return array2d.length; } 
+size_t width(T)(T[][] array2d) {
+	return array2d[0].length;
+}
 
-class byteMap
-	{
-	uint w=0, h=0;
+size_t height(T)(T[][] array2d) {
+	return array2d.length;
+}
+
+class byteMap {
+	uint w = 0, h = 0;
 	ubyte[] data;
 
-	void onDraw(viewport v)
-		{
+	void onDraw(viewport v) {
 		auto screen = al_get_backbuffer(al_display);
 		al_lock_bitmap(screen, ALLEGRO_PIXEL_FORMAT.ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
-//		for(int j = cast(int)v.oy; j < SCREEN_H + cast(int)v.oy; j++)
-//		for(int i = cast(int)v.ox; i < SCREEN_W + cast(int)v.ox; i++)
-		int vox = cast(int)v.ox;
-		int voy = cast(int)v.oy;
-		for(int j = voy; j < voy + 200; j++)
-		for(int i = vox; i < vox + 200; i++)
-			{
-			color c;
-			if(get(i,j) == 0)c = black;
-			else c = white;
-			al_draw_pixel(i, j, c);
+		//		for(int j = cast(int)v.oy; j < SCREEN_H + cast(int)v.oy; j++)
+		//		for(int i = cast(int)v.ox; i < SCREEN_W + cast(int)v.ox; i++)
+		int vox = cast(int) v.ox;
+		int voy = cast(int) v.oy;
+		for (int j = voy; j < voy + 200; j++)
+			for (int i = vox; i < vox + 200; i++) {
+				color c;
+				if (get(i, j) == 0)
+					c = black;
+				else
+					c = white;
+				al_draw_pixel(i, j, c);
 			}
 		al_unlock_bitmap(screen);
-		}
+	}
 
-	void drawRectangle(irect r, ubyte val)
-		{
-		with(r)
-			{
+	void drawRectangle(irect r, ubyte val) {
+		with (r) {
 			assert(x >= 0);
 			assert(y >= 0);
 			assert(x < this.w);
 			assert(y < this.h);
-			for(int j = y; j < y + h; j++)
-			for(int i = x; i < x + w; i++)
-				{
-				set(ipair(i,j), val);
+			for (int j = y; j < y + h; j++)
+				for (int i = x; i < x + w; i++) {
+					set(ipair(i, j), val);
 				}
-			}
 		}
-		
-	void drawCircle(ipair pos, int r, ubyte val)
-		{
+	}
+
+	void drawCircle(ipair pos, int r, ubyte val) {
 		import std.math : sqrt;
-		if(r > 1)
-			{
-			for(float i = -r; i < r; i++)
-			for(float j = -r; j < r; j++)
-				{
-				if(sqrt(i^^2 + j^^2) <= r)set(cast(uint)(pos.i + i), cast(uint)(pos.j + j), val);
+
+		if (r > 1) {
+			for (float i = -r; i < r; i++)
+				for (float j = -r; j < r; j++) {
+					if (sqrt(i ^^ 2 + j ^^ 2) <= r)
+						set(cast(uint)(pos.i + i), cast(uint)(pos.j + j), val);
 				}
-			}
-		if(r == 1)
-			{
-			set(pos, val);
-			}
 		}
-	
+		if (r == 1) {
+			set(pos, val);
+		}
+	}
+
 	this(string path) /// load From Bitmap
-		{
+	{
 		bitmap* b = getBitmap(path);
 		assert(b !is null);
 		w = b.w;
 		h = b.h;
-		data = new ubyte[w*h];
-	
+		data = new ubyte[w * h];
+
 		al_lock_bitmap(b, al_get_bitmap_format(b), ALLEGRO_LOCK_READONLY);
-		
-		for(int i = 0; i < b.w; i++)
-		for(int j = 0; j < b.h; j++)
-			{
-			color c = al_get_pixel(b,i,j);
-			set(i,j, cast(ubyte)(c.r*256));
+
+		for (int i = 0; i < b.w; i++)
+			for (int j = 0; j < b.h; j++) {
+				color c = al_get_pixel(b, i, j);
+				set(i, j, cast(ubyte)(c.r * 256));
 			}
 		al_unlock_bitmap(b);
-		}
-	
-	this(uint _w, uint _h)
-		{
+	}
+
+	this(uint _w, uint _h) {
 		w = _w;
 		h = _h;
 		assert(w > 0);
 		assert(h > 0);
-		data = new ubyte[w*h];
-		}
-	
-//	import std.range : chunks;
-//		return chunks(data, w); // this would return the whoel chunk...
-
-	ubyte get(ipair pos     ){return data[pos.i + pos.j*w];}
-	ubyte get(uint i, uint j){return data[i + j*w];}
-		
-	final void set(ipair pos     , ubyte val){data[pos.i + pos.j*w] = val;}
-	final void set(uint i, uint j, ubyte val){data[i + j*w] = val;}
+		data = new ubyte[w * h];
 	}
 
-class pixelMap : mapBase
-	{
-	string name="test";
+	//	import std.range : chunks;
+	//		return chunks(data, w); // this would return the whoel chunk...
+
+	ubyte get(ipair pos) {
+		return data[pos.i + pos.j * w];
+	}
+
+	ubyte get(uint i, uint j) {
+		return data[i + j * w];
+	}
+
+	final void set(ipair pos, ubyte val) {
+		data[pos.i + pos.j * w] = val;
+	}
+
+	final void set(uint i, uint j, ubyte val) {
+		data[i + j * w] = val;
+	}
+}
+
+class pixelMap : mapBase {
+	string name = "test";
 	//ubyte[][] data;
 	byteMap data;
 	layer[] layers;
-	
+
 	// with large or huge maps, we'll actually have to scroll the minimap itself
 	// also we're doing no object drawing. Could be as simple as a list traversal
 	// with colored circles. Not even sure if this feature is needed so for now
 	// it's just more of a debug tool.
-	void drawMinimap(pair screenPos, float scale=1/16.0) // use implied viewport?
-		{
+	void drawMinimap(pair screenPos, float scale = 1 / 16.0) // use implied viewport?
+	{
 		auto v = IMPLIED_VIEWPORT;
 		float cx = screenPos.x; // (dialog position on screen)
 		float cy = screenPos.y;
-		float offx = v.ox*scale; //offset into x/y
-		float offy = v.oy*scale;
-		float cw = v.w*scale;
-		float ch = v.h*scale;
+		float offx = v.ox * scale; //offset into x/y
+		float offy = v.oy * scale;
+		float cw = v.w * scale;
+		float ch = v.h * scale;
 		// <- add drawing black transparent background?
 		al_draw_filled_rectangle(
-			cx, 
-			cy, 
-			cx + dim.w*scale,
-			cy + dim.h*scale,
-			color(.25,.25,.25,.50));
+			cx,
+			cy,
+			cx + dim.w * scale,
+			cy + dim.h * scale,
+			color(.25, .25, .25, .50));
 		al_draw_scaled_bitmap2(layers[1].data, cx, cy, scale, scale, 0);
 		al_draw_rectangle(
-			cx + offx, 
-			cy + offy, 
-			cx + offx + cw, 
-			cy + offy + ch, 
+			cx + offx,
+			cy + offy,
+			cx + offx + cw,
+			cy + offy + ch,
 			white, 1);
 		// draw a rectangle at this scale factor too.
-		}
-		
+	}
+
 	bool isValidMovement(pair pos) /// Checks for both physical obstructions, as well as map boundaries
-		{
+	{
 		import std.stdio : writeln;
-		if(pos.x < 0 || pos.y < 0)return false;
-		if(pos.x >= dim.h || pos.y >= dim.h)return false;
+
+		if (pos.x < 0 || pos.y < 0)
+			return false;
+		if (pos.x >= dim.h || pos.y >= dim.h)
+			return false;
 
 		// holy shit this is slow
-	//	color c = al_get_pixel(layers[1].data, cast(int)pos.x, cast(int)pos.y);
-//		if(c.g == 0)
-	
-// if we're using ARRAY DATA:	
-		if(data.get(ipair(pos)) == 0) // kinda ugly, but it is a clear "recast" to int if you know the api
-			{
-//			writeln("0");
+		//	color c = al_get_pixel(layers[1].data, cast(int)pos.x, cast(int)pos.y);
+		//		if(c.g == 0)
+
+		// if we're using ARRAY DATA:	
+		if (data.get(ipair(pos)) == 0) // kinda ugly, but it is a clear "recast" to int if you know the api
+		{
+			//			writeln("0");
 			return true;
-			}else{
-	//		writeln("1");
+		} else {
+			//		writeln("1");
 			return false;
-			}
 		}
-	
+	}
+
 	/+
 		NOTE: Scrolling layers. clouds basically. But our "shimmer" layer 
 		(see below) with the shaders could also apply. Make water, or gold 
@@ -517,13 +520,12 @@ class pixelMap : mapBase
 			Or, we could just have two separate lists. Background layers and
 			foreground layers. Simple enough.
 	+/
-	
-	this(idimen _dim)
-		{
+
+	this(idimen _dim) {
 		dim = _dim;
-//		data = new byteMap(2048, 2048); 
+		//		data = new byteMap(2048, 2048); 
 		data = new byteMap("./data/maps/map1layer1.png");
-/+		layers ~= layer("sky", idimen(2000, 2000), 1); 
+		/+		layers ~= layer("sky", idimen(2000, 2000), 1); 
 		layers ~= layer("background", idimen(2000, 2000), 1);  /// distant fake mountains
 		layers ~= layer("tunnel", idimen(2000, 2000), 1);
 		layers ~= layer("foreground", idimen(2000, 2000), 1);
@@ -532,161 +534,177 @@ class pixelMap : mapBase
 		layers ~= layer("terrain", "./data/maps/map1layer1.png", 1);
 		layers ~= layer("terrain", "./data/maps/map1layer2.png", 2);
 		layers[2].alpha = .5;
-		}
-		
+	}
+
 	void onTick() /// physics
-		{
-		}
-	
+	{
+	}
+
 	void onDraw(viewport v) //split to onDrawBackground onDrawForeground for before/after objects
- 		{
-		foreach(l; layers)
-			{
+	{
+		foreach (l; layers) {
 			l.onDraw(v);
-			}
+		}
 		//data.draw(v);
 		// drawing a shit ton of pixels will be slow in OpenGL/D3D.
 		// But we can dump them to a bitmap, and then draw to those bitmaps 
 		// only on updates.
-		
+
 		// the only thing that's kind of annoying is ALLEGRO_BITMAPS are likely 
 		// way slow for massive simple array access with all kinds of checks
 		// for stupid stuff like sub-bitmaps and color conversions.
-		
+
 		// We could have an array of source data for the pixels. And, when the 
 		// pixel array is updated, we also update the associated bitmaps (if
 		// there are multiple)
-		}
 	}
+}
 
 /// Tile map
-class tileMap : mapBase
-	{
-	immutable uint w=256, h=256;
-	idimen size=idimen(w,h);
+class tileMap : mapBase {
+	immutable uint w = 256, h = 256;
+	idimen size = idimen(w, h);
 	uint[w][h] data;
-		
-	void drawRectangle(irect r, ubyte val){
-		with(r){
+
+	void drawRectangle(irect r, ubyte val) {
+		with (r) {
 			assert(x >= 0);
 			assert(y >= 0);
 			assert(x < this.w);
 			assert(y < this.h);
-			for(int j = y; j < y + h; j++)
-			for(int i = x; i < x + w; i++){
-				set(ipair(i,j), val);
+			for (int j = y; j < y + h; j++)
+				for (int i = x; i < x + w; i++) {
+					set(ipair(i, j), val);
 				}
-			}
 		}
-		
-	void drawCircle(pair pos, int r, ubyte mapIndexVal){
+	}
+
+	void drawCircle(pair pos, int r, ubyte mapIndexVal) {
 		import std.math : sqrt;
-		for(int i = -r+1; i < r; i++)
-		for(int j = -r+1; j < r; j++){
-			if(sqrt(cast(float)i^^2 + cast(float)j^^2) < r - 1.0 + 0.4){
-				int ci = cast(uint)pos.x/TILE_W + i;
-				int cj = cast(uint)pos.y/TILE_W + j;
-				set(ipair(ci,cj), mapIndexVal); 
-			//	writeln(ci, " ", cj, " - ", sqrt(cast(float)i^^2 + cast(float)j^^2), " < ", r);
+
+		for (int i = -r + 1; i < r; i++)
+			for (int j = -r + 1; j < r; j++) {
+				if (sqrt(cast(float) i ^^ 2 + cast(float) j ^^ 2) < r - 1.0 + 0.4) {
+					int ci = cast(uint) pos.x / TILE_W + i;
+					int cj = cast(uint) pos.y / TILE_W + j;
+					set(ipair(ci, cj), mapIndexVal);
+					//	writeln(ci, " ", cj, " - ", sqrt(cast(float)i^^2 + cast(float)j^^2), " < ", r);
 				}
 			}
-		}
-	
-	this()
-		{
+	}
+
+	this() {
 		import std.random : uniform;
+
 		int z = 0;
-		for(int i = 0; i < dim.w; i++)
-			for(int j = 0; j < dim.h; j++){
+		for (int i = 0; i < dim.w; i++)
+			for (int j = 0; j < dim.h; j++) {
 				data[i][j] = 0;
 				z++;
-				
+
 				import std.math : sin, sqrt;
-				
-				if(z>15){z=0; data[i][j] = 1; continue; } // horizontal bands
-				
-				if(j > 24) data[i][j] = uniform!"[]"(1,6);
-				if(sqrt((j-30)^^2 + sin(i/2/3.14159)*10^^2) < 10)data[i][j] = 2;
+
+				if (z > 15) {
+					z = 0;
+					data[i][j] = 1;
+					continue;
+				} // horizontal bands
+
+				if (j > 24)
+					data[i][j] = uniform!"[]"(1, 6);
+				if (sqrt((j - 30) ^^ 2 + sin(i / 2 / 3.14159) * 10 ^^ 2) < 10)
+					data[i][j] = 2;
 
 				drawRectangle(irect(20, 10, 100, 1), 5);
 				drawRectangle(irect(20, 15, 100, 1), 5);
 				drawRectangle(irect(20, 20, 100, 1), 5);
 
-				}
-		}
-
-	bool set(ipair pos, ubyte val){
-		if(pos.i >= 0 && pos.i < 256 && 
-		   pos.j >= 0 && pos.j < 256)
-			{
-			data[pos.i][pos.j] = val; 
-			return true;
 			}
-		return false;
+	}
+
+	bool set(ipair pos, ubyte val) {
+		if (pos.i >= 0 && pos.i < 256 &&
+			pos.j >= 0 && pos.j < 256) {
+			data[pos.i][pos.j] = val;
+			return true;
 		}
-	
-	void onDraw(viewport v){
+		return false;
+	}
+
+	void onDraw(viewport v) {
 		float x = 0, y = 0;
-		int iMin = capLow (cast(int)v.ox/TILE_W, 0);
-		int jMin = capLow (cast(int)v.oy/TILE_W, 0);		
-		int iMax = capHigh(SCREEN_W/TILE_W + cast(int)v.ox/TILE_W + 1, MAP_W-1);
-		int jMax = capHigh(SCREEN_H/TILE_W + cast(int)v.oy/TILE_W + 1, MAP_H-1);
+		int iMin = capLow(cast(int) v.ox / TILE_W, 0);
+		int jMin = capLow(cast(int) v.oy / TILE_W, 0);
+		int iMax = capHigh(SCREEN_W / TILE_W + cast(int) v.ox / TILE_W + 1, MAP_W - 1);
+		int jMax = capHigh(SCREEN_H / TILE_W + cast(int) v.oy / TILE_W + 1, MAP_H - 1);
 
 		import main : tints, timeIndex;
+
 		al_set_shader_float_vector("tint", 3, &tints[0], 1);
 		al_set_shader_float("timeIndex", timeIndex);
-//https://www.allegro.cc/manual/5/al_hold_bitmap_drawing
-//		writeln(" - ", pair(iMax, jMax));
+		//https://www.allegro.cc/manual/5/al_hold_bitmap_drawing
+		//		writeln(" - ", pair(iMax, jMax));
 		al_hold_bitmap_drawing(true);
-		for(int i = iMin; i <= iMax; i++) // FIX WARNING, this shouldn't need +1 !!! are we rounding down?
-			for(int j = jMin; j <= jMax; j++){ // actually +1 hits array bounds!
-				x = i*TILE_W;
-				y = j*TILE_W;
-				
+		for (int i = iMin; i <= iMax; i++) // FIX WARNING, this shouldn't need +1 !!! are we rounding down?
+			for (int j = jMin; j <= jMax; j++) { // actually +1 hits array bounds!
+				x = i * TILE_W;
+				y = j * TILE_W;
+
 				auto val = data[i][j];
 				bitmap* b = null;
-				if(val == 0)b = ah2["grass"];
-				if(val == 1)b = ah2["sand"];
-				if(val == 2)b = ah2["brick"];
-				if(val == 3)b = ah2["wood"];
-				if(val == 4)b = ah2["wall"];
-				if(val == 5)b = ah2["reinforcedwall"];
-				if(val == 6)b = ah2["lava"];
-				if(val == 7)b = ah2["water"];
+				if (val == 0)
+					b = ah2["grass"];
+				if (val == 1)
+					b = ah2["sand"];
+				if (val == 2)
+					b = ah2["brick"];
+				if (val == 3)
+					b = ah2["wood"];
+				if (val == 4)
+					b = ah2["wall"];
+				if (val == 5)
+					b = ah2["reinforcedwall"];
+				if (val == 6)
+					b = ah2["lava"];
+				if (val == 7)
+					b = ah2["water"];
 				assert(b != null);
-				
-				drawBitmap(b, pair(x-v.ox, y-v.oy), 0);
+
+				drawBitmap(b, pair(x - v.ox, y - v.oy), 0);
 
 				(*stats["tiles"]).drawn++;
-				}
+			}
 		al_hold_bitmap_drawing(false);
-		}
-		
-	void onTick(){
-		}
-	
-	bool isValidMovement(pair pos){ /// Checks for both physical obstructions, as well as map boundaries
+	}
+
+	void onTick() {
+	}
+
+	bool isValidMovement(pair pos) { /// Checks for both physical obstructions, as well as map boundaries
 		import std.stdio : writeln;
-//		writeln(pos);
-		if(pos.x < 0 || pos.y < 0)return false;
-		if(pos.x/TILE_W >= w || pos.y/TILE_W >= h)return false;
+
+		//		writeln(pos);
+		if (pos.x < 0 || pos.y < 0)
+			return false;
+		if (pos.x / TILE_W >= w || pos.y / TILE_W >= h)
+			return false;
 
 		// holy shit this is slow
-	//	color c = al_get_pixel(layers[1].data, cast(int)pos.x, cast(int)pos.y);
-//		if(c.g == 0)
-	
-// if we're using ARRAY DATA:	
+		//	color c = al_get_pixel(layers[1].data, cast(int)pos.x, cast(int)pos.y);
+		//		if(c.g == 0)
+
+		// if we're using ARRAY DATA:	
 		auto p = ipair(pos);
-		with(p)
-		if(data[i/TILE_W][j/TILE_W] == 0){ // kinda ugly, but it is a clear "recast" to int if you know the api
-//			writeln("0");
-			return true;
-			}else{
-	//		writeln("1");
-			return false;
+		with (p)
+			if (data[i / TILE_W][j / TILE_W] == 0) { // kinda ugly, but it is a clear "recast" to int if you know the api
+				//			writeln("0");
+				return true;
+			} else {
+				//		writeln("1");
+				return false;
 			}
-		}
 	}
+}
 
 /// Requirements: 
 ///  - flat. Does not have any map heights. Just tiles + objects
@@ -694,136 +712,145 @@ class tileMap : mapBase
 /// also if we have 3d coordinates all a sudden, we've got TRIPLETS instead of PAIRS.
 /// unless we throw Z on a separate variable which is ugly but allows all other code to work for now.
 
-pair mapToScreenSpace(pair pos){ /// note: float pair in case we want to go from 1.5 tile to screen space
-	return pair((pos.x - pos.y) * ISOTILE_W/2, (pos.x + pos.y) * ISOTILE_H/2);
+pair mapToScreenSpace(pair pos) { /// note: float pair in case we want to go from 1.5 tile to screen space
+	return pair((pos.x - pos.y) * ISOTILE_W / 2, (pos.x + pos.y) * ISOTILE_H / 2);
 	// https://clintbellanger.net/articles/isometric_math/
-	}
+}
 
-pair screenToMapSpace(pair screen){
-	pair map = pair
-		(
-			(screen.x / (ISOTILE_W/2) + screen.y / (ISOTILE_H/2)) /2,
-			(screen.y / (ISOTILE_H/2) -(screen.x / (ISOTILE_W/2))) /2
-		);
+pair screenToMapSpace(pair screen) {
+	pair map = pair(
+		(screen.x / (ISOTILE_W / 2) + screen.y / (ISOTILE_H / 2)) / 2,
+		(screen.y / (ISOTILE_H / 2) - (screen.x / (ISOTILE_W / 2))) / 2
+	);
 	return map;
-	}
+}
 
 const int ISOTILE_W = 64;
 const int ISOTILE_H = 32;
-class isometricFlatMap : mapBase{
+class isometricFlatMap : mapBase {
 	import std.random : uniform;
+
 	int[256][256] data;
-	
-	override void load(string path)
-		{
+
+	override void load(string path) {
 		import toml;
 		import std.file : read;
-		auto tomldata = parseTOML(cast(string)read(path));
+
+		auto tomldata = parseTOML(cast(string) read(path));
 		//writeln(data["objects"]);
-//		pragma(msg, typeof(tomldata["map"]["layer1"]));
-		foreach(idx,o; tomldata["map"]["layer1"].array)
-			{
+		//		pragma(msg, typeof(tomldata["map"]["layer1"]));
+		foreach (idx, o; tomldata["map"]["layer1"].array) {
 			writeln("----", o);
-			for(int j = 0; j < 10; j++)
-				{
-				data[idx+16][j+16] = cast(int)o[j].integer;
-				}
+			for (int j = 0; j < 10; j++) {
+				data[idx + 16][j + 16] = cast(int) o[j].integer;
 			}
-		return;
 		}
+		return;
+	}
 
-	this()
-		{
+	this() {
 		load("./data/maps/map3d.toml");
-//		for(int i = 0; i < 256; i++)data[i][i] = 5;
+		//		for(int i = 0; i < 256; i++)data[i][i] = 5;
 
-/+
+		/+
 		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 1;
 		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 2;
 		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 3;
 		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 4;
 		for(int i = 0; i < 1000; i++)data[uniform!"[]"(0,255)][uniform!"[]"(0,255)] = 5; // wall+/
-//		writeln(data);
-//		assert(0);
-		}
-		
-	void onDraw(viewport v)
-		{
+		//		writeln(data);
+		//		assert(0);
+	}
+
+	void onDraw(viewport v) {
 		// we need to cycle through possible slanted values on our screen, and lookup each one
 		// and draw them. So that we're back-of-screen order first.
 		// however, how do we decide a width and height?	
-		
-		pair minValue = pair(999,999);
-		pair maxValue = pair(-999,-999);
+
+		pair minValue = pair(999, 999);
+		pair maxValue = pair(-999, -999);
 
 		// we could find screenspace min/max of all tile corners.
 		import std.algorithm : min, max;
-		int wide=32;
-		int tall=32;
-		for(int j = tall; j > 0; j--)
-			for(int i = wide; i > 0; i--)
-				{
+
+		int wide = 32;
+		int tall = 32;
+		for (int j = tall; j > 0; j--)
+			for (int i = wide; i > 0; i--) {
 				bitmap* bmp;
-				pair  pt  = screenToMapSpace(pair(i*ISOTILE_W,j*ISOTILE_H));
+				pair pt = screenToMapSpace(pair(i * ISOTILE_W, j * ISOTILE_H));
 				ipair ipt = ipair(pt); // round it off
-//				writeln(pt);
+				//				writeln(pt);
 				float rowOffsetX = 0;
 				float rowOffsetY = 0;
-//				writeln(i," ",j,pt, ipt);
+				//				writeln(i," ",j,pt, ipt);
 				minValue.x = min(ipt.i, minValue.x);
 				minValue.y = min(ipt.j, minValue.y);
 				maxValue.x = max(ipt.i, maxValue.x);
 				maxValue.y = max(ipt.j, maxValue.y);
-				if(ipt.i > 255 || ipt.j > 255)continue;
-				if(ipt.i < 0   || ipt.j < 0)continue;
-	//			writeln(ipt, " ",data[ipt.i][ipt.j]);
-				switch(data[ipt.i][ipt.j])
-					{
-					case 0:
-						bmp = ah2["isotile01"]; break;
-					case 1:
-						bmp = ah2["isotile02"]; break;
-					case 2:
-						bmp = ah2["isotile03"]; break;
-					case 3:
-						bmp = ah2["isotile04"]; break;
-					case 4:
-						bmp = ah2["isotile05"]; break;
-					case 5:
-						bmp = ah2["isowall01"]; break;
-					default:
-						assert(0);
-						break;
-					}
-				
-				drawBitmap(bmp, 
-					pair(
-						ipt.i*ISOTILE_W/2 - v.ox + 300 + rowOffsetX, 
-						ipt.j*ISOTILE_H/2 - v.oy + 300 + rowOffsetY), 0);
+				if (ipt.i > 255 || ipt.j > 255)
+					continue;
+				if (ipt.i < 0 || ipt.j < 0)
+					continue;
+				//			writeln(ipt, " ",data[ipt.i][ipt.j]);
+				switch (data[ipt.i][ipt.j]) {
+				case 0:
+					bmp = ah2["isotile01"];
+					break;
+				case 1:
+					bmp = ah2["isotile02"];
+					break;
+				case 2:
+					bmp = ah2["isotile03"];
+					break;
+				case 3:
+					bmp = ah2["isotile04"];
+					break;
+				case 4:
+					bmp = ah2["isotile05"];
+					break;
+				case 5:
+					bmp = ah2["isowall01"];
+					break;
+				default:
+					assert(0);
+					break;
 				}
-		writeln("min/max map value coordinates:", minValue, "/", maxValue);
-		}
-	}
 
-class mapBase
-	{
+				drawBitmap(bmp,
+					pair(
+						ipt.i * ISOTILE_W / 2 - v.ox + 300 + rowOffsetX,
+						ipt.j * ISOTILE_H / 2 - v.oy + 300 + rowOffsetY), 0);
+			}
+		writeln("min/max map value coordinates:", minValue, "/", maxValue);
+	}
+}
+
+class mapBase {
 	idimen dim = idimen(256, 256); // we could call this dim.w dim.h for (dim)ensions?
 
-	void load(string path){};
-	void save(string path){};
+	void load(string path) {
+	};
+	void save(string path) {
+	};
 	bool isValidMovement(pair pos) = 0;
 
 	bool isInsideMap(pair pos) //external so others can use it.
-		{
-		if(pos.x < 0             || pos.y < 0)return false;
-		if(pos.x/TILE_W >= dim.w || pos.y/TILE_W >= dim.h)return false;
+	{
+		if (pos.x < 0 || pos.y < 0)
+			return false;
+		if (pos.x / TILE_W >= dim.w || pos.y / TILE_W >= dim.h)
+			return false;
 		return true;
-		}
-
-	bool isInsideMap(ipair pos) 
-		{
-		if(pos.i < 0      || pos.j < 0){return false;}
-		if(pos.i >= dim.w || pos.j >= dim.h){return false;}
-		return true;
-		}
 	}
+
+	bool isInsideMap(ipair pos) {
+		if (pos.i < 0 || pos.j < 0) {
+			return false;
+		}
+		if (pos.i >= dim.w || pos.j >= dim.h) {
+			return false;
+		}
+		return true;
+	}
+}

@@ -34,195 +34,206 @@ import main : shader;
 import datajack; // gamemodule
 import gui;
 
-class world_t{
+class world_t {
 	gridWindow grids;
-			
-//	pixelMap map;
+
+	//	pixelMap map;
 	tileMap map2;
-//	isometricFlatMap map3d;
+	//	isometricFlatMap map3d;
 	objectHandler oh;
 	player[] players;
 	team[] teams;
-				
+
 	import main : memoryPool;
-	static if(true){
+
+	static if (true) {
 		memoryPool!BaseObject objects; // other stuff
 		memoryPool!particle particles;
-	}else{
+	} else {
 		BaseObject[] objects; // other stuff TODO
 		particle[] particles;
 	}
 	unit[] units;
 	item[] items;
- 	structure[] structures; // should all structures be owned by a planet? are there 'free floating' structures we'd have? an asteroid structure that's just a structure?
+	structure[] structures; // should all structures be owned by a planet? are there 'free floating' structures we'd have? an asteroid structure that's just a structure?
 	Bullet[] bullets;
-//	meteor[] meteors;
+	//	meteor[] meteors;
 	rainWeatherHandler rain;
 
-	this()
-		{
-//		grid = new dragAndDropGrid;
+	this() {
+		//		grid = new dragAndDropGrid;
 		grids = new gridWindow(pair(550, 150));
-			
+
 		players ~= new player(); //CHICKEN OR EGG.
 		players[0].myTeam = 0; // teams[0];
 
-//		map = new pixelMap(idimen(4096, 4096));
+		//		map = new pixelMap(idimen(4096, 4096));
 		map2 = new tileMap();
 		//map3d = new isometricFlatMap();
-		
+
 		oh = new objectHandler("./data/maps/objectmap.toml"); //NYI
-		
+
 		import datajack, aimod;
-		
+
 		// UNITS
 		// -------------------------------------------------------
-		{	auto u = cast(unit)new runner(pair(730, 420)); // what is this for?
+		{
+			auto u = cast(unit) new runner(pair(730, 420)); // what is this for?
 			u.isDebugging = true;
 			units ~= u;
 		}
-		
+
 		// OBJECTS
 		// -------------------------------------------------------
-		{	auto t = new dude(pair(740, 420));
+		{
+			auto t = new dude(pair(740, 420));
 			t.isDebugging = true;
 			objects ~= t;
 		}
-		{	auto t = new cow(pair(750, 420));
+		{
+			auto t = new cow(pair(750, 420));
 			objects ~= t;
 		}
-		{	auto t = new dude(pair(740, 420));
+		{
+			auto t = new dude(pair(740, 420));
 			t.usingAI = true;
 			objects ~= t;
 		}
-		{	auto t = new dude(pair(780, 320));
+		{
+			auto t = new dude(pair(780, 320));
 			t.usingAI = true;
 			objects ~= t;
 		}
-		
-		for(int i=0; i<1500;i++){
-			auto t = new bigMeteor(pair(uniform(1,1000), uniform(1,100)));
+
+		for (int i = 0; i < 1500; i++) {
+			auto t = new bigMeteor(pair(uniform(1, 1000), uniform(1, 100)));
 			objects ~= t;
 		}
-		for(int i=0; i<10;i++){
-			auto t = new blimp(pair(uniform(1,1000), uniform(200,300)));
+		for (int i = 0; i < 10; i++) {
+			auto t = new blimp(pair(uniform(1, 1000), uniform(200, 300)));
 			objects ~= t;
 		}
-		for(int i = 0; i < 2; i++)
-			{
-			auto u = cast(unit)new bug(pair(uniform(1,1000), uniform(1,1000)));
+		for (int i = 0; i < 2; i++) {
+			auto u = cast(unit) new bug(pair(uniform(1, 1000), uniform(1, 1000)));
 			units ~= u;
-			}
-		
+		}
+
 		con.log("hello love 2023");
 
 		//structures ~= new structure(700, 400, bh["fountain"]);
-		
-		graphs ~= new intrinsicGraph!float("Draw (ms) ", g.stats.nsDraw , 100, 150, COLOR(1,0,0,1), 1_000_000);
-		graphs ~= new intrinsicGraph!float("Logic (ms)", g.stats.nsLogic, 100, 260, COLOR(1,0,0,1), 1_000_000);
-		graphs ~= new intrinsicGraph!float("Allocations", g.stats["objects"].allocationsPerSecond, 100, 370, COLOR(1,0,0,1), 1);
-				
+
+		graphs ~= new intrinsicGraph!float("Draw (ms) ", g.stats.nsDraw, 100, 150, COLOR(1, 0, 0, 1), 1_000_000);
+		graphs ~= new intrinsicGraph!float("Logic (ms)", g.stats.nsLogic, 100, 260, COLOR(1, 0, 0, 1), 1_000_000);
+		graphs ~= new intrinsicGraph!float("Allocations", g.stats["objects"].allocationsPerSecond, 100, 370, COLOR(1, 0, 0, 1), 1);
+
 		viewports[0] = new viewport(0, 0, g.SCREEN_W, g.SCREEN_H, 0, 0);
-		assert(units[0] !is null);
-		assert(objects[0] !is null);
+		assert(units[0]!is null);
+		assert(objects[0]!is null);
 		viewports[0].attach(&objects[0]);
 		setViewport2(viewports[0]);
 
 		stats.swLogic = StopWatch(AutoStart.no);
 		stats.swDraw = StopWatch(AutoStart.no);
-		
+
 		stats.swGameStart = StopWatch(AutoStart.yes);
+	}
+
+	void onDraw(viewport v) {
+		stats.swDraw.start();
+
+		void drawStat3(T, U)(ref T obj, ref U stat) {
+			foreach (ref o; obj) {
+				if (o.onDraw(v)) {
+					stat.drawn++;
+				} else {
+					stat.clipped++;
+				}
+			}
 		}
 
-	void onDraw(viewport v)
-		{
-		stats.swDraw.start();
-	
-		void drawStat3(T, U)(ref T obj, ref U stat){
-			foreach(ref o; obj){
-				if(o.onDraw(v)){
-					stat.drawn++;
-					}else{
-					stat.clipped++;
-					}
-				}
-			}
-
-		void drawStat4(T)(ref T obj, string name){
+		void drawStat4(T)(ref T obj, string name) {
 			al_hold_bitmap_drawing(true);
-			foreach(ref o; obj){
-				if(o.onDraw(v)){
+			foreach (ref o; obj) {
+				if (o.onDraw(v)) {
 					stats[name].drawn++;
-					}else{
+				} else {
 					stats[name].clipped++;
-					}
 				}
+			}
 			al_hold_bitmap_drawing(false);
-			}
-		
-		import main:timeIndex;
-//		map.onDraw(viewports[0]);
-		timeIndex+=4;
-		if(timeIndex > 256)timeIndex = 0;
+		}
+
+		import main : timeIndex;
+
+		//		map.onDraw(viewports[0]);
+		timeIndex += 4;
+		if (timeIndex > 256)
+			timeIndex = 0;
 		al_use_shader(shader);
-		
-		void setShaderFloat(const char* name, float value){
+
+		void setShaderFloat(const char* name, float value) {
 			assert(al_set_shader_float(name, value) == 0);
-			}
-		
+		}
+
 		al_set_shader_float("timeIndex", timeIndex);
-			map2.onDraw(viewports[0]);
+		map2.onDraw(viewports[0]);
 		al_use_shader(null);
 		//map3d.onDraw(viewports[0]);
 
-		drawStat4(bullets	, "bullets");
-		drawStat4(particles	, "particles");
-		drawStat4(units		, "units");
-		drawStat4(objects	, "objects"); 
+		drawStat4(bullets, "bullets");
+		drawStat4(particles, "particles");
+		drawStat4(units, "units");
+		drawStat4(objects, "objects");
 		drawStat4(structures, "structures");
-		drawStat4(items		, "items");		
+		drawStat4(items, "items");
 
-//		map.drawMinimap(pair(SCREEN_W-300,50));
+		//		map.drawMinimap(pair(SCREEN_W-300,50));
 
 		grids.onDraw(v);
 
-		foreach(g; graphs)g.onDraw(v);
+		foreach (g; graphs)
+			g.onDraw(v);
 		stats.swDraw.stop();
 		stats.nsDraw = stats.swDraw.peek.total!"nsecs";
 		stats.swDraw.reset();
-		}
-		
-	int timer=0;
-	void logic()
-		{
+	}
+
+	int timer = 0;
+	void logic() {
 		stats.swLogic.start();
-		foreach(g;graphs)g.onTick();
-		
+		foreach (g; graphs)
+			g.onTick();
+
 		viewports[0].onTick();
 		players[0].onTick();
-		
+
 		timer++;
-		if(timer > 200){
-			}
+		if (timer > 200) {
+		}
 
 		auto p = objects[0];
-		
+
 		// Note these are LEVEL triggers, not EDGE triggers! They will continue to fire as long as the key is down.
-		if(key_w_down)p.actionUp();
-		if(key_s_down)p.actionDown();
-		if(key_a_down)p.actionLeft();
-		if(key_d_down)p.actionRight();
-		
-		if(key_m_down){
+		if (key_w_down)
+			p.actionUp();
+		if (key_s_down)
+			p.actionDown();
+		if (key_a_down)
+			p.actionLeft();
+		if (key_d_down)
+			p.actionRight();
+
+		if (key_m_down) {
 			import aimod;
-			for(int i = 1; i<units.length;i++){
+
+			for (int i = 1; i < units.length; i++) {
 				message m;
-				m.isSoundEvent=true;
+				m.isSoundEvent = true;
 				m.pos = pair(viewports[0].ox + mouse_x, viewports[0].oy + mouse_y);
 				units[i].ai.messages ~= m;
-				}
 			}
-/+
+		}
+		/+
 		if(key_i_down)viewports[0].oy += 2;
 		if(key_k_down)viewports[0].oy -= 2;
 		if(key_j_down)viewports[0].ox -= 2;
@@ -235,33 +246,36 @@ class world_t{
 		tick(objects);
 		tick(items);
 		th.onTick();
-			
+
 		prune(units);
 		prune(particles);
 		prune(bullets);
 		prune(objects);
 		prune(items);
-		
+
 		stats.swLogic.stop();
 		stats.nsLogic = stats.swLogic.peek.total!"nsecs";
 		stats.swLogic.reset();
-		}
-		
-	void tick(T)(ref T obj){
-		foreach(ref o; obj){
-			o.onTick();
-			}
-		}
+	}
 
-	//prune ready-to-delete entries (copied from g)
-	void prune(T)(ref T obj){
-		import std.algorithm : remove;
-		for(size_t i = obj.length ; i-- > 0 ; ){
-			if(obj[i].isDead)obj = obj.remove(i); continue;
-			}
-		//see https://forum.dlang.org/post/sagacsjdtwzankyvclxn@forum.dlang.org
+	void tick(T)(ref T obj) {
+		foreach (ref o; obj) {
+			o.onTick();
 		}
 	}
+
+	//prune ready-to-delete entries (copied from g)
+	void prune(T)(ref T obj) {
+		import std.algorithm : remove;
+
+		for (size_t i = obj.length; i-- > 0;) {
+			if (obj[i].isDead)
+				obj = obj.remove(i);
+			continue;
+		}
+		//see https://forum.dlang.org/post/sagacsjdtwzankyvclxn@forum.dlang.org
+	}
+}
 
 /+ dlawn/asteroid version
 class world_t

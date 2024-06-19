@@ -25,54 +25,82 @@ import atlasmod;
 import helper, g, atlasmod;
 import molto;
 import viewportsmod;
+import aimod;
+import datajack : movementStyle2;
 
-class SkierObject : BaseObject{
-    this(pair _pos){
-        super(_pos);
-        }
+class SkierObject : BaseObject {
+	this(pair _pos) {
+		super(_pos);
+	}
 }
 
-enum DIR2{
-        UP = 0, DOWN, LEFT, RIGHT,              // 4 dir
-        DOWNLEFT, DOWNRIGHT, UPLEFT, UPRIGHT,   // 8 dir
-        DOWNDOWNLEFT, DOWNDOWNRIGHT             // 10? dir (two extra turning ones)
-    }
+class BaseObject {
+	pair pos;
+	pair vel;
+	bitmap* bmp; /// placeholder one sprite
+	bitmap[]* bmps;
+	DIR direction;
+	string debugString;
+	aiType ai;
+	movementStyle2 style;
 
-class BaseObject{
-    pair pos;
-    pair vel;
-    bitmap* sprite; /// placeholder one sprite
-    bitmap[]* sprites;
+	this() {
+	}
 
-    this(pair _pos){
-        pos = _pos;
-        bmp = bh["blimp"];
-        }
-		
-	this(pair _pos, pair _vel, bitmap* _bmp){
-        pos = _pos;
+	this(pair _pos) {
+		pos = _pos;
+		bmp = bh["blimp"];
+	}
+
+	this(pair _pos, pair _vel, bitmap* _bmp) {
+		pos = _pos;
 		vel = _vel;
-        bmp = _bmp;
-        }
+		bmp = _bmp;
+	}
 
-    void onTick(){
-        }
-    
-    /// draw object: returns 1 if clipped
-    bool onDraw(viewport v){
-        return 0;
-        }
+	this(pair _pos, movementStyle2 _style) {
+		pos = _pos;
+		style = _style;
+	}
 
-    void actionUp(){}
-    void actionDown(){}
-    void actionLeft(){}
-    void actionRight(){}
+	void onTick() {
+	}
 
-    void actionFire(){}
-    void actionJump(){}
-    void actionSelect(){}
-    void actionButton4(){}
-/+
+	/// draw object: returns 1 if clipped
+	bool onDraw(viewport v) {
+		return 0;
+	}
+
+	void onHit(BaseObject by) {
+	}
+
+	void onMapCollision(pair _pos, DIR direction) {
+	}
+
+	void actionUp() {
+	}
+
+	void actionDown() {
+	}
+
+	void actionLeft() {
+	}
+
+	void actionRight() {
+	}
+
+	void actionFire() {
+	}
+
+	void actionJump() {
+	}
+
+	void actionSelect() {
+	}
+
+	void actionButton4() {
+	}
+	/+
     void actionButton5(){} // L button
     void actionButton6(){} // R button
     void actionButton7(){} // start
@@ -84,12 +112,11 @@ class BaseObject{
     // L/R trigger axis 2x
 +/
 
-    }
-
+}
 
 // we should organize this at some point. game mechanic constants.
 float STAT_WALK_SPEED = 1245;
-float STAT_RUN_SPEED  = 1245;
+float STAT_RUN_SPEED = 1245;
 float STAT_JUMP_VEL = 123;
 float STAT_GRAVITY_ACCEL = 235;
 float STAT_ACCEL = .1;
@@ -101,35 +128,51 @@ float stat_meteor_damage = 23;
 // also combined meteors
 
 import toml;
-class item : BaseObject{this(){}};
-class unit : BaseObject{this(){}};
-class structure : BaseObject{this(){}};
+
+class item : BaseObject {
+	this() {
+		super();
+	}
+}
+
+class unit : BaseObject {
+	this() {
+		super();
+	}
+}
+
+class structure : BaseObject {
+	this() {
+		super();
+	}
+}
+
 class objectHandler /// load a MAP format full of objects. could be in objects.d
-	{
+{
 	unit data; //baseobject, or unit? or (T)
-	this(string path)
-		{
+	this(string path) {
 		load(path);
-		}
-	
-	void load(string path)
-		{
+	}
+
+	void load(string path) {
 		// https://github.com/dlang-community/toml
 		// https://toml.dpldocs.info/v2.0.1/toml.toml.TOMLValue.html
 		import std.file : read;
-		auto data = parseTOML(cast(string)read(path));
+
+		auto data = parseTOML(cast(string) read(path));
 		//writeln(data["objects"]);
-//		pragma(msg, typeof(data["objects"]));
-		foreach(o;data["objects"].array)
-			{
+		//		pragma(msg, typeof(data["objects"]));
+		foreach (o; data["objects"].array) {
 			writeln(o); // how do we parse object types? This is a pretty specialized handler then?
-			}
-//		import core.stdc.stdlib : exit; exit(0);
 		}
-	void save(){}
+		//		import core.stdc.stdlib : exit; exit(0);
 	}
-	
-	/+
+
+	void save() {
+	}
+}
+
+/+
 	stuff
 	
 	- sun casts scorching rays

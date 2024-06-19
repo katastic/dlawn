@@ -19,7 +19,7 @@
     recursiveLibPaths = []
     libs = [ "toml" ]
     includePaths = ['C:\git\dlawn\src\', 'C:\git\dlawn\toml\src\', 'C:\git\dlawn\'] # we could auto add the normal source directory
-    intermediatePath = 'C:\git\masterBuilDer\temp\' # where to store obj files for incremental build
+    intermediatePath = 'C:\git\dlawn\temp\' # where to store obj files for incremental build
 
 [linux] ## FIX ME
     sourcePaths = [ 'C:\git\dlawn\src', 'C:\git\dlawn\toml\src\toml' ]

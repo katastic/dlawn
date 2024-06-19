@@ -9,35 +9,28 @@ import atlasmod;
 
 // DETECT DUPLICATES ERROR
 
-class virtualManager
-	{
+class virtualManager {
 	atlasHandler[] atlases; // all potential atlases register with us and use a common interface
 	string[] deps;
 	bool[] depSatisfied;
-	
-	bool checkAllDeps()
-		{
-		bool allGood=true;
-		foreach(d; deps)
-			{
-			if(!isSatisfied(d))
-				{
-				allGood=false;
-				}
+
+	bool checkAllDeps() {
+		bool allGood = true;
+		foreach (d; deps) {
+			if (!isSatisfied(d)) {
+				allGood = false;
 			}
+		}
 		return allGood;
-		}
-	
-	bool isSatisfied(string assetName)
-		{
-		bool hasFound=false;
-		foreach(a; atlases)
-			{
-			if(a.hasResource(assetName))
-				{
-				hasFound = true;
-				}
-			}
-		return hasFound;
-		}
 	}
+
+	bool isSatisfied(string assetName) {
+		bool hasFound = false;
+		foreach (a; atlases) {
+			if (a.hasResource(assetName)) {
+				hasFound = true;
+			}
+		}
+		return hasFound;
+	}
+}

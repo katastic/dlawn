@@ -92,239 +92,225 @@ import std.stdio;
 
 // do we stack rectangles too since we have a viewport? Do we clip each rectangle always or just sometimes?
 struct coordStack // do we store end result, or combine them all every time?
-	{ // fastest would be end result, and subtract it each time.
+{ // fastest would be end result, and subtract it each time.
 	coord currentCoord; //cached end result
 	coord[] coords;
-	
-	void push(coord c)
-		{
+
+	void push(coord c) {
 		currentCoord.x += c.x;
 		currentCoord.y += c.y;
 		coords ~= c;
-		}
-	
-	coord get()
-		{
-		return currentCoord;
-		}
-	
-	void pop()
-		{
-		currentCoord.x -= coords[$-1].x;
-		currentCoord.y -= coords[$-1].y;
-		coords = coords[0..$-2];
-		}
 	}
 
-struct coord
-	{
-	float x, y;
+	coord get() {
+		return currentCoord;
 	}
+
+	void pop() {
+		currentCoord.x -= coords[$ - 1].x;
+		currentCoord.y -= coords[$ - 1].y;
+		coords = coords[0 .. $ - 2];
+	}
+}
+
+struct coord {
+	float x, y;
+}
 
 // how to handle drag and drop? 
 // icons? can also system shock 2 style inventory grid
 // - how do we handle PIXEL PERFECT (or bounding box) matching of an item vs mouse touching the background tile? (if wanted)
 // - sort feature
 // we need an UNDO feature if the placement is invalid or cancelled. 
-class gridWindow
-	{
-	bool isDirty=false; //TODO <--------
+class gridWindow {
+	bool isDirty = false; //TODO <--------
 	bitmap cacheBitmap; // <----------
-	
+
 	rect canvas;
 	dragAndDropGrid[] grids;
 
 	bool areWeCarryingAnItem = false;
 	draggableItem itemWereCarrying = null;
-	
+
 	// todo: move into separate gui element. encapsulate mouseClick, mouseOver, etc for universal use
 	float titleBarSpace = 24;
 	string title;
-	
-	void drawTitleBar()
-		{
+
+	void drawTitleBar() {
 		drawRectangle(rect(canvas.x, canvas.y, canvas.w, titleBarSpace), white, 1);
 		drawText(pair(canvas), white, title);
-		}
+	}
 
 	bool onDraw(viewport v) // WARN: We have no z-ordering here
-		{
-		drawFilledRectangle(canvas, black.alpha(.25)); 
+	{
+		drawFilledRectangle(canvas, black.alpha(.25));
 		drawTitleBar();
-		foreach(gr; grids)
-			{
+		foreach (gr; grids) {
 			gr.onDraw(v);
-			}
-		return true;
 		}
-
-	bool checkMouseInside(pair screenPos)
-		{
-		if(screenPos.x - canvas.x < 0 ||
-		   screenPos.y - canvas.y < 0 ||
-		   screenPos.x - canvas.x > canvas.w ||
-		   screenPos.y - canvas.y > canvas.h)return false;
 		return true;
-		}
+	}
 
-	void onClickTitleBar()
-		{
+	bool checkMouseInside(pair screenPos) {
+		if (screenPos.x - canvas.x < 0 ||
+			screenPos.y - canvas.y < 0 ||
+			screenPos.x - canvas.x > canvas.w ||
+			screenPos.y - canvas.y > canvas.h)
+			return false;
+		return true;
+	}
+
+	void onClickTitleBar() {
 		// do something;
-		canvas.x-=10;
-		}
+		canvas.x -= 10;
+	}
 
 	// should rename onClick()
 	void onClick(pair pos) /// if any sub-elements, forward the event
-		{
+	{
 		// this is screenpos right? we really need subelements to
 		// use relative coordinates and not handle mouse scans themselves.
 		// worst case, send event with RELATIVE mouse position to sub-elements down the chain.
-		if(pos.x >= canvas.x && pos.x <= canvas.x + canvas.w &&
-		   pos.y >= canvas.y && pos.y <= canvas.y + titleBarSpace)
-			{
+		if (pos.x >= canvas.x && pos.x <= canvas.x + canvas.w &&
+			pos.y >= canvas.y && pos.y <= canvas.y + titleBarSpace) {
 			onClickTitleBar();
-			}
-			
-		foreach(gr; grids)
-			{
-			if(gr.checkMouseInside(pos))
-				{
-				gr.eventClickAt(pos);
-				}
-			}
 		}
 
-	void eventHandleMouse(pair pos) /// if any sub-elements, forward the event
-		{
-		foreach(gr; grids)
-			{
-			if(gr.checkMouseInside(pos))
-				{
-				gr.eventHandleMouseMovement(pos);
-				}else{
-				gr.eventMouseOutside(); // notify mouse is outside for cleanup functions
-				}
+		foreach (gr; grids) {
+			if (gr.checkMouseInside(pos)) {
+				gr.eventClickAt(pos);
 			}
 		}
-		
-	this(pair pos)
-		{
+	}
+
+	void eventHandleMouse(pair pos) /// if any sub-elements, forward the event
+	{
+		foreach (gr; grids) {
+			if (gr.checkMouseInside(pos)) {
+				gr.eventHandleMouseMovement(pos);
+			} else {
+				gr.eventMouseOutside(); // notify mouse is outside for cleanup functions
+			}
+		}
+	}
+
+	this(pair pos) {
 		title = "INVENTORY";
 		canvas.x = pos.x;
 		canvas.y = pos.y;
 		canvas.w = 450;
 		canvas.h = 200;
-			
-		dragAndDropGrid dg = new dragAndDropGrid(this, pair(0, 0 + titleBarSpace+1), ipair(10,4));
+
+		dragAndDropGrid dg = new dragAndDropGrid(this, pair(0, 0 + titleBarSpace + 1), ipair(10, 4));
 		grids ~= dg;
-		dragAndDropGrid dg2 = new dragAndDropGrid(this, pair(0, 130 + titleBarSpace+1), ipair(2,2));
+		dragAndDropGrid dg2 = new dragAndDropGrid(this, pair(0, 130 + titleBarSpace + 1), ipair(2, 2));
 		grids ~= dg2;
-		dragAndDropGrid dg3 = new dragAndDropGrid(this, pair(330, 0 + titleBarSpace+1), ipair(3,3));
+		dragAndDropGrid dg3 = new dragAndDropGrid(this, pair(330, 0 + titleBarSpace + 1), ipair(3, 3));
 		grids ~= dg3;
-		
-		dg.items ~= new draggableItem(ipair(0,0), ipair(1,3), dg, bh["wrench"], "Wrench", "a useful tool to do wrenching jobs");
-		dg.items ~= new draggableItem(ipair(1,0), ipair(1,1), dg, bh["ammo"], "Ammo", "Silver-tipped .32 JHP specially crafted for werewolves.");
-		dg.items ~= new draggableItem(ipair(2,0), ipair(1,1), dg, bh["hypo"], "Hypo", "A medical hypo full of a strange concontion");
-		dg.items ~= new draggableItem(ipair(3,0), ipair(1,1), dg, bh["disk"], "Disk", "A data disk full of all your diary entries");
 
-		dg3.items ~= new draggableItem(ipair(0,0), ipair(1,3), dg3, bh["laserpistol"], "Laser Pistol", "The Apollo H4 Argon-Suspension Laser Pistol is a weapon in System Shock 2, and is the most basic Energy Weapon. This weapon relies on refracted light to damage its target, while the energy bolt projectile shown in-game is fast and small.");
-		dg3.items ~= new draggableItem(ipair(1,2), ipair(1,1), dg3, bh["implant1"], "Implant", "a useful implant");
-		dg3.items ~= new draggableItem(ipair(2,2), ipair(1,1), dg3, bh["implant2"], "Implant2", "a useful implant2");
-		dg3.items ~= new draggableItem(ipair(1,0), ipair(2,2), dg3, bh["armor"], "Armor", "Fiber-reinforced metal pieces wrapped in canvas.");
-		}
+		dg.items ~= new draggableItem(ipair(0, 0), ipair(1, 3), dg, bh["wrench"], "Wrench", "a useful tool to do wrenching jobs");
+		dg.items ~= new draggableItem(ipair(1, 0), ipair(1, 1), dg, bh["ammo"], "Ammo", "Silver-tipped .32 JHP specially crafted for werewolves.");
+		dg.items ~= new draggableItem(ipair(2, 0), ipair(1, 1), dg, bh["hypo"], "Hypo", "A medical hypo full of a strange concontion");
+		dg.items ~= new draggableItem(ipair(3, 0), ipair(1, 1), dg, bh["disk"], "Disk", "A data disk full of all your diary entries");
+
+		dg3.items ~= new draggableItem(ipair(0, 0), ipair(1, 3), dg3, bh["laserpistol"], "Laser Pistol", "The Apollo H4 Argon-Suspension Laser Pistol is a weapon in System Shock 2, and is the most basic Energy Weapon. This weapon relies on refracted light to damage its target, while the energy bolt projectile shown in-game is fast and small.");
+		dg3.items ~= new draggableItem(ipair(1, 2), ipair(1, 1), dg3, bh["implant1"], "Implant", "a useful implant");
+		dg3.items ~= new draggableItem(ipair(2, 2), ipair(1, 1), dg3, bh["implant2"], "Implant2", "a useful implant2");
+		dg3.items ~= new draggableItem(ipair(1, 0), ipair(2, 2), dg3, bh["armor"], "Armor", "Fiber-reinforced metal pieces wrapped in canvas.");
 	}
+}
 
-class dragAndDropGrid
-	{
+class dragAndDropGrid {
 	gridWindow owner;
 	rect canvas; /// x,y screen coords, then w/h .. w/h are DERIVED from gridDim. this WILL BE RELATIVE coords when I finish changing it
 	draggableItem[] items;
 	int gridSize = 32; /// in pixels
-	int numHiddenColumns=3;
+	int numHiddenColumns = 3;
 	bool isDrawingMouseOverlay = false;
 	draggableItem mouseOverlayItem = null;
 	pair mouseOverlayScreenPos;
 
-	bool checkMouseInside(pair screenPos)
-		{
-		if(screenPos.x - canvas.x < 0 ||
-		   screenPos.y - canvas.y < 0 ||
-		   screenPos.x - canvas.x > canvas.w ||
-		   screenPos.y - canvas.y > canvas.h)return false;
+	bool checkMouseInside(pair screenPos) {
+		if (screenPos.x - canvas.x < 0 ||
+			screenPos.y - canvas.y < 0 ||
+			screenPos.x - canvas.x > canvas.w ||
+			screenPos.y - canvas.y > canvas.h)
+			return false;
 		return true;
-		}
-		
+	}
+
 	int charWidth = 9;
 	int charHeight = 17;
 
-	void drawMouseOverItemName(pair pos, draggableItem i){
-		float r=4;
+	void drawMouseOverItemName(pair pos, draggableItem i) {
+		float r = 4;
 		int textBoxWidth = 250;
 		pair offset = owner.canvas.chop();
 
 		drawRoundedFilledRectangle(
 			rect(
-				pair(pos,-r+offset.x,-r+offset.y), 
-				pair(textBoxWidth+r*2, (cast(float)charHeight)+r*2)), 
-			grey(.7).alpha(.60), 
-			r/2
-			);
-		
-		drawFilledRectangle(rect(pair(pos, offset), pair(textBoxWidth, cast(float)charHeight)), black); 
+				pair(pos, -r + offset.x, -r + offset.y),
+				pair(textBoxWidth + r * 2, (cast(float) charHeight) + r * 2)),
+			grey(.7).alpha(.60),
+			r / 2
+		);
+
+		drawFilledRectangle(rect(pair(pos, offset), pair(textBoxWidth, cast(float) charHeight)), black);
 		drawText(pair(pos, offset), white, i.name);
-		}
-		
-	void drawMouseOverItemDescription(pair pos, draggableItem i){
-		float r=4;
+	}
+
+	void drawMouseOverItemDescription(pair pos, draggableItem i) {
+		float r = 4;
 		int textBoxWidth = 250;
 		string[] strings = splitStringArrayAtWidth3(i.description, textBoxWidth);
 		pair offset = owner.canvas.chop();
-		
-		drawRoundedFilledRectangle(
-			rect(pair(pos,-r+offset.x,-r+offset.y), pair(textBoxWidth+r*2, (cast(float)charHeight*strings.length)+r*2)), 
-			grey(.7).alpha(.60), //white ish
-			r/2
-			);
-		
-		drawFilledRectangle(rect(pair(pos, offset), pair(textBoxWidth, cast(float)charHeight*strings.length)), black); 
-		drawTextArray(pair(pos, offset), white, strings);
-		}
 
-	void eventHandleMouseMovement(pair screenPos){ /// every mouse movement we tell dialog to check if we're inside. Otherwise we could have some sort of dialog handler ONLY send events when inside. 
-		if(checkMouseInside(screenPos)){
+		drawRoundedFilledRectangle(
+			rect(pair(pos, -r + offset.x, -r + offset.y), pair(textBoxWidth + r * 2, (
+				cast(float) charHeight * strings.length) + r * 2)),
+			grey(.7).alpha(.60), //white ish
+			r / 2
+		);
+
+		drawFilledRectangle(rect(pair(pos, offset), pair(textBoxWidth, cast(float) charHeight * strings
+				.length)), black);
+		drawTextArray(pair(pos, offset), white, strings);
+	}
+
+	void eventHandleMouseMovement(pair screenPos) { /// every mouse movement we tell dialog to check if we're inside. Otherwise we could have some sort of dialog handler ONLY send events when inside. 
+		if (checkMouseInside(screenPos)) {
 			auto r = findItemsGivenClick(screenPos);
-			if(r){
+			if (r) {
 				isDrawingMouseOverlay = true;
 				mouseOverlayItem = r;
 				mouseOverlayScreenPos = screenPos;
-				}else{
+			} else {
 				isDrawingMouseOverlay = false;
-				}
-			}else{
-			isDrawingMouseOverlay = false;
 			}
+		} else {
+			isDrawingMouseOverlay = false;
 		}
-	
-	this(gridWindow _owner,pair pos, ipair gridDim){
+	}
+
+	this(gridWindow _owner, pair pos, ipair gridDim) {
 		owner = _owner;
-//		gridDim = ipair(10, 4);
-		canvas = rect(pair(pos), pair(gridDim.i*gridSize, gridDim.j*gridSize)); //getWidthHeightFromGridSize(gridDim));
-		}
+		//		gridDim = ipair(10, 4);
+		canvas = rect(pair(pos), pair(gridDim.i * gridSize, gridDim.j * gridSize)); //getWidthHeightFromGridSize(gridDim));
+	}
 
-	ipair screenToGrid(pair screenPos)
-		{
-		return ipair((screenPos - canvas.chop)/gridSize);
-		}
+	ipair screenToGrid(pair screenPos) {
+		return ipair((screenPos - canvas.chop) / gridSize);
+	}
 
-	bool attemptPlaceAt(pair screenPos)
-		{
+	bool attemptPlaceAt(pair screenPos) {
 		writeln("attemptPlaceAt ", screenPos);
-		if(canWePlaceAt(screenPos))
-			{
+		if (canWePlaceAt(screenPos)) {
 			import std.algorithm.mutation : remove;
-			owner.itemWereCarrying.owner.items = owner.itemWereCarrying.owner.items.remove!(a => a == owner.itemWereCarrying); // remove us from old list
+
+			owner.itemWereCarrying.owner.items = owner.itemWereCarrying.owner.items.remove!(
+				a => a == owner.itemWereCarrying); // remove us from old list
 			// FYI this is O(n) removal. It detects multiple and will not terminate early on first match.
-			
+
 			owner.itemWereCarrying.owner = this; // reset tracking variable
 			owner.itemWereCarrying.owner.items ~= owner.itemWereCarrying; // add us to new list
 
@@ -332,191 +318,170 @@ class dragAndDropGrid
 			owner.itemWereCarrying.isPickedUp = false;
 			owner.areWeCarryingAnItem = false;
 			return true;
-			}
-		return false;
 		}
+		return false;
+	}
 
-	bool attemptSwapAt(pair screenPos, draggableItem result)
-		{
+	bool attemptSwapAt(pair screenPos, draggableItem result) {
 		writeln("attemptSwapAt ", screenPos);
-		if(canWePlaceAt(screenPos))
-			{
+		if (canWePlaceAt(screenPos)) {
 			owner.itemWereCarrying.gridPosition = screenToGrid(screenPos);
 			owner.itemWereCarrying.isPickedUp = false;
-			
+
 			owner.itemWereCarrying = result;
 			owner.itemWereCarrying.isPickedUp = true;
 			return true;
-			}
+		}
 		return false;
-		}
+	}
 
-	bool canWePlaceAt(pair screenPos)
-		{
-		if(screenPos.x - canvas.x < 0 ||
-		   screenPos.y - canvas.y < 0 ||
-		   screenPos.x - canvas.x > canvas.w ||
-		   screenPos.y - canvas.y > canvas.h)return false;
+	bool canWePlaceAt(pair screenPos) {
+		if (screenPos.x - canvas.x < 0 ||
+			screenPos.y - canvas.y < 0 ||
+			screenPos.x - canvas.x > canvas.w ||
+			screenPos.y - canvas.y > canvas.h)
+			return false;
 		return true;
-		}
+	}
 
-	void eventMouseOutside()
-		{
+	void eventMouseOutside() {
 		isDrawingMouseOverlay = false;
-		}
+	}
 
-	bool eventClickAt(pair screenPos)
-		{
+	bool eventClickAt(pair screenPos) {
 		writeln("eventClickAt(", screenPos, ")");
 
-		if(!owner.areWeCarryingAnItem)
-			{
+		if (!owner.areWeCarryingAnItem) {
 			writeln("2 PICKUP");
 			// check if we're touching a new item to pickup
 			auto result = findItemsGivenClick(screenPos);
-			if(result !is null)
-				{
-	//			result.eventActivate();
+			if (result !is null) {
+				//			result.eventActivate();
 				result.actionPickUp();
 				owner.itemWereCarrying = result;
 				owner.areWeCarryingAnItem = true;
 				return true;
-				}
-			}else{ // if we ARE carrying an item:  check if there's a spot clear at the point
-				// THE ISSUE. what if we're taking up more than one spot?
-				// we gotta search all spots.
-				// AND, if we only have ONE replacement, we replace it.
-				// HOWEVER, if more than ONE we just reject the placement.
+			}
+		} else { // if we ARE carrying an item:  check if there's a spot clear at the point
+			// THE ISSUE. what if we're taking up more than one spot?
+			// we gotta search all spots.
+			// AND, if we only have ONE replacement, we replace it.
+			// HOWEVER, if more than ONE we just reject the placement.
 			auto result = findItemsGivenClick(screenPos);
 			writeln("3 CARRYING");
-			if(result is null)// if no item is there, we can place it
-				{
+			if (result is null) // if no item is there, we can place it
+			{
 				writeln("4 EMPTY DROP");
-	//			result.eventActivate();
+				//			result.eventActivate();
 				attemptPlaceAt(screenPos);
 				return true;
-				}else {					
+			} else {
 				writeln("5 ATTEMPT SWAP");
-				if(result == owner.itemWereCarrying)
-					{
+				if (result == owner.itemWereCarrying) {
 					owner.itemWereCarrying.isPickedUp = false;
 					owner.areWeCarryingAnItem = false;
 					// NOTE: This fails if we're trying to MOVE a 2x2 one space over (by clicking inside itself but not the 0x0 position)
-					}else{
-					int val=0;
-					for(int i=0; i<=owner.itemWereCarrying.bulkSize.i;i++)
-						for(int j=0; j<=owner.itemWereCarrying.bulkSize.j;j++)
-							{
+				} else {
+					int val = 0;
+					for (int i = 0; i <= owner.itemWereCarrying.bulkSize.i; i++)
+						for (int j = 0; j <= owner.itemWereCarrying.bulkSize.j; j++) {
 							writeln("i,j", i, ",", j);
-							auto t = findItemsGivenClick(pair(screenPos, i*gridSize, j*gridSize)); // logic bug: this should only ever equal one or zero unless we have overlaps
-							if(t !is null && t !is owner.itemWereCarrying) //if we find an item in a bulkslot that isn't us, increment val
+							auto t = findItemsGivenClick(pair(screenPos, i * gridSize, j * gridSize)); // logic bug: this should only ever equal one or zero unless we have overlaps
+							if (t !is null && t !is owner.itemWereCarrying) //if we find an item in a bulkslot that isn't us, increment val
 								val++;
-								
+
 							// does this FAIL if we drop an item on itself?
-							}
-					if(val == 1)
-						{
+						}
+					if (val == 1) {
 						attemptSwapAt(screenPos, result);
-						}else{
+					} else {
 						writeln("REJECTED NUMBER OF ITEMS (error if==0):", val);
 						assert(val != 0, "REJECT ITEMS");
-						}
 					}
 				}
 			}
-		return false;
 		}
-	
-	draggableItem findItemsGivenClick(pair hitCanvasPos)
-		{
+		return false;
+	}
+
+	draggableItem findItemsGivenClick(pair hitCanvasPos) {
 		import helper : isWithin;
 
-		foreach(it; items)
-			{
+		foreach (it; items) {
 			writeln("searching:", it.name);
 			pair itemMousePosition = it.getMousePosition();
-//			writeln("hitCanvasPos ", hitCanvasPos, " vs ", "itemMousePosition ", itemMousePosition);
-			if(
-				hitCanvasPos.isWithin(itemMousePosition, 
-					pair(itemMousePosition, 
-						gridSize*it.bulkSize.i, 
-						gridSize*it.bulkSize.j))
-				){
+			//			writeln("hitCanvasPos ", hitCanvasPos, " vs ", "itemMousePosition ", itemMousePosition);
+			if (
+				hitCanvasPos.isWithin(itemMousePosition,
+					pair(itemMousePosition,
+					gridSize * it.bulkSize.i,
+					gridSize * it.bulkSize.j))
+				) {
 				con.log(it.name ~ " was found");
 				return it;
-				}
 			}
+		}
 		con.log("none found");
 		return null;
-		}
+	}
 
-	pair getWidthHeightFromGridSize(ipair grid)
-		{
-		return pair(gridSize*grid.i,gridSize*grid.j);
-		}
-		
-	void drawBackground(pair offsetPos)
-		{
-		with(canvas)
-			{
+	pair getWidthHeightFromGridSize(ipair grid) {
+		return pair(gridSize * grid.i, gridSize * grid.j);
+	}
+
+	void drawBackground(pair offsetPos) {
+		with (canvas) {
 			rect offsetCanvas = rect(pair(chop(canvas), offsetPos), w, h); // write helper function?
 			drawFilledRectangle(offsetCanvas, grey(.2).alpha(.8));
-			}
 		}
-		
-	void drawGrid(pair offsetPos)
-		{
-		int w = cast(int)canvas.w/gridSize - numHiddenColumns;
-		int h = cast(int)canvas.h/gridSize;
-		for(int i = 0; i < w+1; i++)
-			{
+	}
+
+	void drawGrid(pair offsetPos) {
+		int w = cast(int) canvas.w / gridSize - numHiddenColumns;
+		int h = cast(int) canvas.h / gridSize;
+		for (int i = 0; i < w + 1; i++) {
 			al_draw_line(
-						offsetPos.x + canvas.x + gridSize*(i), 
-						offsetPos.y + canvas.y, 
-						offsetPos.x + canvas.x + gridSize*(i), 
-						offsetPos.y + canvas.y + canvas.h, white.alpha(.75), 1.0f);
-			}
-		for(int i = w; i < w+1+numHiddenColumns; i++) // special columns
-			{
-			al_draw_line(
-						offsetPos.x + canvas.x + gridSize*(i), 
-						offsetPos.y + canvas.y, 
-						offsetPos.x + canvas.x + gridSize*(i), 
-						offsetPos.y + canvas.y + canvas.h, green.alpha(.75), 1.0f);
-			}
-		for(int j = 0; j < h+1; j++)
-			{
-			al_draw_line(
-						offsetPos.x + canvas.x             ,
-						offsetPos.y + canvas.y + gridSize*(j), 
-						offsetPos.x + canvas.x + canvas.w, 
-						offsetPos.y + canvas.y + gridSize*(j), white.alpha(.75), 1.0f);
-			}
+				offsetPos.x + canvas.x + gridSize * (i),
+				offsetPos.y + canvas.y,
+				offsetPos.x + canvas.x + gridSize * (i),
+				offsetPos.y + canvas.y + canvas.h, white.alpha(.75), 1.0f);
 		}
-	
-	void onDraw(viewport v)
+		for (int i = w; i < w + 1 + numHiddenColumns; i++) // special columns
 		{
+			al_draw_line(
+				offsetPos.x + canvas.x + gridSize * (i),
+				offsetPos.y + canvas.y,
+				offsetPos.x + canvas.x + gridSize * (i),
+				offsetPos.y + canvas.y + canvas.h, green.alpha(.75), 1.0f);
+		}
+		for (int j = 0; j < h + 1; j++) {
+			al_draw_line(
+				offsetPos.x + canvas.x,
+				offsetPos.y + canvas.y + gridSize * (j),
+				offsetPos.x + canvas.x + canvas.w,
+				offsetPos.y + canvas.y + gridSize * (j), white.alpha(.75), 1.0f);
+		}
+	}
+
+	void onDraw(viewport v) {
 		auto offsetPos = chop(owner.canvas);
 		drawBackground(offsetPos);
 		drawGrid(offsetPos);
-		foreach(i; items)
-			{
+		foreach (i; items) {
 			i.onDraw(canvas, v, offsetPos);
-			}
-	
-		if(isDrawingMouseOverlay)
-			{
+		}
+
+		if (isDrawingMouseOverlay) {
 			drawMouseOverItemName(pair(mouseOverlayScreenPos, 48, 0), mouseOverlayItem);
 			drawMouseOverItemDescription(pair(mouseOverlayScreenPos, 48, 25), mouseOverlayItem);
-			}
 		}
-	
 	}
+
+}
 
 // when we [[release]] do we reset on failure, or simply keep holding it until a valid is placed?
 // maybe it depends on the event. pressing [escape] or [right click] is reset for example.
-class draggableItem
-	{
+class draggableItem {
 	dragAndDropGrid owner; // for requesting deletion, and drawing gridsize, and canvas dim.
 
 	ipair gridPosition; // where in inventory is it if it's placed. top-left
@@ -530,258 +495,232 @@ class draggableItem
 
 	bool hasBeenActivated = false;
 	bool isPickedUp; // if true, mouse coordinates can float to follow mouse and when set 
-					// back we update to table coordinates, on fail to set, we reset back to mouseX, mouseY
-	
-//		float tableMouseX, tableMouseY; //screen/mouse position of our top-left point in table FROM gridPosition
-//		float floatingMouseX, floatingMouseY; // are these TABLE RELATIVE though or SCREEN RELATIVE? What if we're dragging between windows or out of window!
-//		float mouseWidth, mouseHeight; /// pixel width/height of graphic. Could also just use image->w,h
-	
-	bool actionPickUp()
-		{
+	// back we update to table coordinates, on fail to set, we reset back to mouseX, mouseY
+
+	//		float tableMouseX, tableMouseY; //screen/mouse position of our top-left point in table FROM gridPosition
+	//		float floatingMouseX, floatingMouseY; // are these TABLE RELATIVE though or SCREEN RELATIVE? What if we're dragging between windows or out of window!
+	//		float mouseWidth, mouseHeight; /// pixel width/height of graphic. Could also just use image->w,h
+
+	bool actionPickUp() {
 		isPickedUp = true;
 		return true;
-		}
+	}
 
 	bool actionPlaceAtGrid(ipair _gridPosition) // this should be in grid???
-		{
+	{
 		writeln("actionPlaceAtGrid: ", _gridPosition);
 		isPickedUp = false;
 		gridPosition = _gridPosition;
 		return true;
-		}
-	
-	bool eventActivate()
-		{
+	}
+
+	bool eventActivate() {
 		hasBeenActivated = !hasBeenActivated;
 		con.log(name ~ " has been activated!");
 		return true;
-		} /// double click or right-click activate
+	} /// double click or right-click activate
 	// do we want other event options? right-click drop down options like SS1 change burst type, or ammo type?	
-	
-	bool eventDropIntoWorld()
-		{
+
+	bool eventDropIntoWorld() {
 		return true;
-		}
-	
-	bool eventTrash()
-		{
+	}
+
+	bool eventTrash() {
 		return true;
 		// delete me?
-		}
-	
-	pair getMousePosition()
-		{
+	}
+
+	pair getMousePosition() {
 		auto p = pair(
-			owner.canvas.x + gridPosition.i*owner.gridSize, 
-			owner.canvas.y + gridPosition.j*owner.gridSize); // this can't be right?
+			owner.canvas.x + gridPosition.i * owner.gridSize,
+			owner.canvas.y + gridPosition.j * owner.gridSize); // this can't be right?
 		writeln("getMousePosition = ", p, " grid:", gridPosition.i, ",", gridPosition.j);
 		return p;
-		}
+	}
 
-	this(ipair _gridPosition, ipair _bulkSize, dragAndDropGrid _owner, bitmap* _b, string _name, string _description)
-		{
+	this(ipair _gridPosition, ipair _bulkSize, dragAndDropGrid _owner, bitmap* _b, string _name, string _description) {
 		owner = _owner;
 		gridPosition = _gridPosition;
 		bulkSize = _bulkSize;
 		image = _b;
 		name = _name;
 		description = _description;
-		}
-		
-	void pickUp()
-		{
-		isPickedUp=true;
-		}
+	}
 
-	void attemptPlace(pair goalPosition)
-		{
-		isPickedUp=false;
-		if(isOutsideWindow(goalPosition))
-			{
+	void pickUp() {
+		isPickedUp = true;
+	}
+
+	void attemptPlace(pair goalPosition) {
+		isPickedUp = false;
+		if (isOutsideWindow(goalPosition)) {
 			dropItemIntoWorld(); // call drop item or whatever.
 			removeMeFromList();
 			return;
-			} else if (canMoveTo(goalPosition))
-			{
+		} else if (canMoveTo(goalPosition)) {
 			moveItemTo(goalPosition);
-			} else {
+		} else {
 			return; // do nothing
-			}
 		}
-		
-	bool canMoveTo(pair goal)
-		{
+	}
+
+	bool canMoveTo(pair goal) {
 		// grid owner should be doing this.
 		assert(false);
 		return false;
-		}
-		
-	void moveItemTo(pair goal)
-		{
+	}
+
+	void moveItemTo(pair goal) {
 		// grid owner should be doing this.
 		assert(false);
-		}
-		
-	void cancelPlace()
-		{
-		isPickedUp = false;
-		}
-		
-	bool isOutsideWindow(pair testPos)
-		{
-		rect dim = owner.canvas;
-		return (testPos.x < dim.x || testPos.x > dim.x+dim.w-1 ||
-				testPos.y < dim.y || testPos.y > dim.y+dim.y-1)
-			? true : false;
-		}
-		
-	void dropItemIntoWorld(){}
-	void removeMeFromList(){}
+	}
 
-	void onDraw(rect canvas, viewport v, pair offsetPos)
-		{
-		if(!isPickedUp)
-			{
-			drawBitmap(image, 
-				pair(offsetPos.x + v.x + canvas.x + gridPosition.i*owner.gridSize, 
-					 offsetPos.y + v.y + canvas.y + gridPosition.j*owner.gridSize), hasBeenActivated);
-			}
-		else
-			{
+	void cancelPlace() {
+		isPickedUp = false;
+	}
+
+	bool isOutsideWindow(pair testPos) {
+		rect dim = owner.canvas;
+		return (testPos.x < dim.x || testPos.x > dim.x + dim.w - 1 ||
+				testPos.y < dim.y || testPos.y > dim.y + dim.y - 1)
+			? true : false;
+	}
+
+	void dropItemIntoWorld() {
+	}
+
+	void removeMeFromList() {
+	}
+
+	void onDraw(rect canvas, viewport v, pair offsetPos) {
+		if (!isPickedUp) {
+			drawBitmap(image,
+				pair(offsetPos.x + v.x + canvas.x + gridPosition.i * owner.gridSize,
+					offsetPos.y + v.y + canvas.y + gridPosition.j * owner.gridSize), hasBeenActivated);
+		} else {
 			// draw half transparent
-/+			drawTintedBitmap(image, 
+			/+			drawTintedBitmap(image, 
 				color(1.0,1.0,1.0,0.25),
 				pair(v.x + canvas.x + gridPosition.i*owner.gridSize, 
 					 v.y + canvas.y + gridPosition.j*owner.gridSize), hasBeenActivated);
 +/
 			// draw following mouse (note: using absolute screen coordinates)
-			drawBitmap(image, 
+			drawBitmap(image,
 				pair(mouse_x, mouse_y), hasBeenActivated);
-			}
 		}
 	}
+}
 
 /// of all areas on screen, given Z order, a mouse click, drag, etc command goes to that zone owner.
 /// a window would have a window on bottom, a title bar above that, and window buttons on top of that	
 class mouseZone // name
-	{
+{
 	// dimen/idimen, or rect/irect whats' the difference
 	dimen dim;
 	void* componentOwner; // window, canvas, titlebar, button, etc
-	}
+}
 
-class viewBox
-	{
+class viewBox {
 	pair pos;
 	idimen size;
-	float alpha=1.0;
-	string title="";
-	size_t selectedGraph=0;
+	float alpha = 1.0;
+	string title = "";
+	size_t selectedGraph = 0;
 	intrinsicGraph!float[] graphs;
-	
-	void drawTitle()
-		{
+
+	void drawTitle() {
 		drawText(pos.x, pos.y, white, "asdlgknasdglkgands");
-		}
-		
-	void drawDialog()
-		{
+	}
+
+	void drawDialog() {
 		al_draw_filled_rectangle(pos.x, pos.y, pos.x + size.w, pos.y + size.h, red);
-		}
-	
-	void onDraw(viewport v)
-		{
+	}
+
+	void onDraw(viewport v) {
 		drawTitle();
 		drawDialog();
-		if(graphs.length > 0)
-			{
+		if (graphs.length > 0) {
 			graphs[selectedGraph].drawInterally(v, pos, size);
-			}
-		}
-
-	void updateTitleText()
-		{
-		title = format("graph %d / %d - %s", selectedGraph+1, graphs.length, graphs[selectedGraph].name);
-		}
-		
-	void actionPrevious()
-		{
-		selectedGraph--;
-		if(selectedGraph < 0)selectedGraph = cast(int)graphs.length - 1;
-		if(graphs.length == 0)selectedGraph = 0;
-		updateTitleText();
-		}
-		
-	void actionNext()
-		{
-		selectedGraph++;
-		if(selectedGraph > cast(int)graphs.length-1)selectedGraph = 0;
-		if(graphs.length == 0)selectedGraph = 0;
-		updateTitleText();
 		}
 	}
 
-class element
-	{
+	void updateTitleText() {
+		title = format("graph %d / %d - %s", selectedGraph + 1, graphs.length, graphs[selectedGraph]
+				.name);
+	}
+
+	void actionPrevious() {
+		selectedGraph--;
+		if (selectedGraph < 0)
+			selectedGraph = cast(int) graphs.length - 1;
+		if (graphs.length == 0)
+			selectedGraph = 0;
+		updateTitleText();
+	}
+
+	void actionNext() {
+		selectedGraph++;
+		if (selectedGraph > cast(int) graphs.length - 1)
+			selectedGraph = 0;
+		if (graphs.length == 0)
+			selectedGraph = 0;
+		updateTitleText();
+	}
+}
+
+class element {
 	irect dim; // i hate this name conflict with dimen/idimen
 	//pair pos;
 	//idimen size;
-	bool isInside(pair pos)
-		{
+	bool isInside(pair pos) {
 		return true;
-		}
-
-	void eventOnClick(pair pos)
-		{
-		}
 	}
-	
-class windowElement : element
-	{
+
+	void eventOnClick(pair pos) {
+	}
+}
+
+class windowElement : element {
 	string title;
 	element[] elements;
-	
-	override void eventOnClick(pair pos)
-		{
-		foreach(e; elements)
-			{
-			if(e.isInside(pos))e.eventOnClick(pos);
-			}
+
+	override void eventOnClick(pair pos) {
+		foreach (e; elements) {
+			if (e.isInside(pos))
+				e.eventOnClick(pos);
 		}
 	}
+}
 
-class button : element
-	{
-	void onClick(){}
-	void onRelease(){}
+class button : element {
+	void onClick() {
 	}
-	
-class dialogBox : element
-	{
+
+	void onRelease() {
+	}
+}
+
+class dialogBox : element {
 	string text;
 	button[] buttons;
-	}
+}
 
 class yesNoDialog : dialogBox /// modal dialog
-	{
+{
 	// yes/no  , okay/cancel
-	this(string _text)
-		{
+	this(string _text) {
 		text = _text;
 		buttons ~= new button;
 		buttons ~= new button;
-		}
 	}
-	
-class okDialog : dialogBox
-	{
-	this(string _text)
-		{
-		text = _text;
-		buttons ~= new button;
-		}
-	}
+}
 
-class guiType
-	{
+class okDialog : dialogBox {
+	this(string _text) {
+		text = _text;
+		buttons ~= new button;
 	}
+}
+
+class guiType {
+}

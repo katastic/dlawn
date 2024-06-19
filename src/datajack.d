@@ -1,11 +1,11 @@
 import molto : angle;
 import viewportsmod;
 import atlasmod;
-
+import g, helper, objects, molto : pair, bitmap;
+import toml;
 
 // GANGS OF SHERWOOD
 // ==========================================================================
-
 /+
 gladiator. warcraft 1, 2. heroes of might magic
 
@@ -276,248 +276,15 @@ import std.stdio;
 
 +/
 
-struct anim
-	{
-	int currentFrame;
-	int numDirections;
-	int numFramesPerDirection;
-	
-	int numFramesTotal() // function because this should be single-responsibility principle (SRP)
-		{
-		return numFramesPerDirection * numDirections;
-		}
-		
-	bitmap*[] frames;
-	}
-
-class animationHandler
-	{
-	void loadAnimationMeta(string path)
-		{
-		import std.file : read;
-		auto data = parseTOML(cast(string)read(path));
-		//writeln(data["objects"]);
-//		pragma(msg, typeof(data["objects"]));
-		foreach(o;data["objects"].array)
-			{
-			writeln(o);
-			}
-		}
-	
-	anim[const char*] anims;
-
-	bitmap* get(const char *name, int frame, int direction)
-		{
-		assert(name in anims);
-		with(anims[name])
-			{
-			assert(direction < numDirections);
-			assert(frame < numFramesTotal());
-			return frames[currentFrame];
-			}
-		}
-
-	bitmap* getNext(const char *name, int direction)
-		{
-		assert(name in anims);
-		with(anims[name])
-			{
-			assert(direction < numDirections);
-			currentFrame = capReset(currentFrame, numFramesTotal()-1, 0); 
-			return frames[currentFrame];
-			}
-		}
-	}
 
 /+
 	is there ANYWAY to integrate optional triplets into pair code?
 +/
 
-class movementStyle2
-	{
-	unit myObject;
-	@disable this();
-	
-	this(unit _myObject)
-		{
-		assert(_myObject !is null);
-		myObject = _myObject;
-		}
-	
-	bool tryToMove(pair posDifference){return true;}
-	void onTick(){}; // why can't this be = 0; instead of requiring override???
-	}
-
-class planeStyle : movementStyle2
-	{
-	// "I want to move up/down/left/right"
-	override bool tryToMove(pair posDifference) // not used?
-		{
-		// "Yes"
-		//return true
-		
-		alias p = posDifference; // set animation direction.
-		if		(p.x < 0 && p.y < 0){ myObject.direction = 0; }
-		else if	(p.x > 0 && p.y < 0){ myObject.direction = 1; }
-		else if	(p.x < 0 && p.y > 0){ myObject.direction = 2; }
-		else if	(p.x > 0 && p.y > 0){ myObject.direction = 3; }
-		myObject.pos += posDifference;
-		
-		return true;
-		// "No"
-		//notifyCollisions(); // we hit some stuff
-	//	return false; 
-		}
-	
-	this(unit _myObject)
-		{
-		super(_myObject);
-		}
-		
-	override void onTick()
-		{
-		with(myObject)
-			pos += vel;
-		}
-	}
-
-import helper : isInsideRadius;
-class fallingObjectStyle : movementStyle2
-	{
-	bool doesCollide=true; // does it collide with objects  NYI
-	
-	override void onTick()
-		{
-		with(myObject)
-			{
-			if(world.map2.isValidMovement(pair(pos, vel)))
-				{
-				vel.y += 0.05;
-				pos += vel;
-				}else{
-				vel.y = 0;
-				onMapCollision(DIR.DOWN);
-				}
-			
-			foreach(o; g.world.objects)
-				{
-				if(o.OBJTYPE == 1 && isInsideRadius(pos, o.pos, 20))
-					{
-					onObjectCollision(o);
-					break;
-					}
-				}			
-			}
-		}
-
-	override bool tryToMove(pair posDifference) // should this be in movementStyle for user actions
-		{
-		assert(false, "NYI");
-		return true;
-		}
-	
-	this(unit _myObject)
-		{
-		super(_myObject);
-		}
-		
-	}
-	
-class floatingObjectStyle : movementStyle2 /// like a blimp (do we want velocity?)
-	{
-	bool doesCollide=true; // does it collide with objects  NYI
-	
-	override void onTick()
-		{
-		with(myObject)
-			{
-			if(world.map2.isValidMovement(pair(pos, vel)))
-				{
-				pos += vel;
-				if(pos.x < 0)pos.x = 0;
-				if(pos.x > 1005)pos.x = 1005; //fixme
-				}else{
-				onMapCollision(DIR.DOWN);
-				}
-			
-			if(doesCollide) foreach(o; g.world.objects)
-				{
-				if(o.OBJTYPE == 1 && isInsideRadius(pos, o.pos, 20))
-					{
-					onObjectCollision(o);
-					break;
-					}
-				}			
-			}
-		}
-
-	override bool tryToMove(pair posDifference)
-		{
-		alias p = posDifference; // set animation direction.
-		if		(p.x < 0 && p.y < 0){ myObject.direction = 0; }
-		else if	(p.x > 0 && p.y < 0){ myObject.direction = 1; }
-		else if	(p.x < 0 && p.y > 0){ myObject.direction = 2; }
-		else if	(p.x > 0 && p.y > 0){ myObject.direction = 3; }
-		myObject.pos += posDifference;
-		
-		return true;
-		}
-
-	this(unit _myObject)
-		{
-		super(_myObject);
-		}
-		
-	}
-
 // class flatWalkerStyle(T) : movementStyle2(T)
 // template functions are NON-VIRTUAL and cannot be inhereted from!
 // or is that an old post from 2012?
 	
-class flatWalkerStyle : movementStyle2
-	{
-	bool isGrounded=0;
-	bool isJumping=0;
-		
-	// "I want to move up/down/left/right"
-	override bool tryToMove(pair posDifference)
-		{
-		// "Yes"
-		//return true
-		
-		alias p = posDifference; // set animation direction.
-		if		(p.x < 0 && p.y < 0){ myObject.direction = 0; }
-		else if	(p.x > 0 && p.y < 0){ myObject.direction = 1; }
-		else if	(p.x < 0 && p.y > 0){ myObject.direction = 2; }
-		else if	(p.x > 0 && p.y > 0){ myObject.direction = 3; }
-		myObject.pos += posDifference;
-		
-		return true;
-		// "No"
-		//notifyCollisions(); // we hit some stuff
-	//	return false; 
-		}
-	
-	this(unit _myObject)
-		{
-		super(_myObject);
-		}
-		
-	override void onTick()
-		{
-		with(myObject)
-			{
-			if(world.map2.isValidMovement(pair(pos, vel)))
-				{
-				vel.y += 0.05;
-				pos += vel;
-				}else{
-				pos -= vel;
-				vel.y = 0;
-				}
-			}
-		}
-	}
 
 import aimod;
 class unit : baseObject /// Physics operating generic object
@@ -723,3 +490,207 @@ struct gunType // what about gunmods
 	float recoil;
 	}
 +/
+
+class flatWalkerStyle : movementStyle2{
+	bool isGrounded=0;
+	bool isJumping=0;
+		
+	// "I want to move up/down/left/right"
+	override bool tryToMove(pair posDifference)
+		{
+		// "Yes"
+		//return true
+		
+		alias p = posDifference; // set animation direction.
+		if		(p.x < 0 && p.y < 0){ myObject.direction = DIR.UP; } // fix me
+		else if	(p.x > 0 && p.y < 0){ myObject.direction = DIR.DOWN; }
+		else if	(p.x < 0 && p.y > 0){ myObject.direction = DIR.LEFT; }
+		else if	(p.x > 0 && p.y > 0){ myObject.direction = DIR.RIGHT; }
+		myObject.pos += posDifference;
+		
+		return true;
+		// "No"
+		//notifyCollisions(); // we hit some stuff
+	//	return false; 
+		}
+	
+	this(BaseObject _myObject)
+		{
+		super(_myObject);
+		}
+		
+	override void onTick()
+		{
+		with(myObject)
+			{
+			if(world.map2.isValidMovement(pair(pos, vel))){
+				vel.y += 0.05;
+				pos += vel;
+				}else{
+				pos -= vel;
+				vel.y = 0;
+				}
+			}
+		}
+	}
+
+
+class movementStyle2{
+	BaseObject myObject;
+	@disable this();
+	
+	this(BaseObject _myObject){
+		assert(_myObject !is null);
+		myObject = _myObject;
+		}
+	
+	bool tryToMove(pair posDifference){return true;}
+	void onTick(){}; // why can't this be = 0; instead of requiring override???
+	}
+
+class planeStyle : movementStyle2{
+	// "I want to move up/down/left/right"
+	override bool tryToMove(pair posDifference){ // not used?
+		// "Yes"
+		//return true
+		
+		alias p = posDifference; // set animation direction.
+		if		(p.x < 0 && p.y < 0){ myObject.direction = DIR.UP; }
+		else if	(p.x > 0 && p.y < 0){ myObject.direction = DIR.DOWN; }
+		else if	(p.x < 0 && p.y > 0){ myObject.direction = DIR.LEFT; }
+		else if	(p.x > 0 && p.y > 0){ myObject.direction = DIR.RIGHT; }
+		myObject.pos += posDifference;
+		
+		return true;
+		// "No"
+		//notifyCollisions(); // we hit some stuff
+	//	return false; 
+		}
+	
+	this(BaseObject _myObject){
+		super(_myObject);
+		}
+		
+	override void onTick(){
+		with(myObject)
+			pos += vel;
+		}
+	}
+
+import helper : isInsideRadius;
+class fallingObjectStyle : movementStyle2{
+	bool doesCollide=true; // does it collide with objects  NYI
+	
+	override void onTick(){
+		with(myObject){
+			if(world.map2.isValidMovement(pair(pos, vel))){
+				vel.y += 0.05;
+				pos += vel;
+				}else{
+				vel.y = 0;
+				onMapCollision(DIR.DOWN);
+				}
+			
+			foreach(o; g.world.objects){
+				if(o.OBJTYPE == 1 && isInsideRadius(pos, o.pos, 20)){
+					onObjectCollision(o);
+					break;
+					}
+				}			
+			}
+		}
+
+	override bool tryToMove(pair posDifference) { // should this be in movementStyle for user actions
+		assert(false, "NYI");
+		return true;
+		}
+	
+	this(BaseObject _myObject){
+		super(_myObject);
+		}
+		
+	}
+	
+class floatingObjectStyle : movementStyle2 /// like a blimp (do we want velocity?)
+	{
+	bool doesCollide=true; // does it collide with objects  NYI
+	
+	override void onTick(){
+		with(myObject){
+			if(world.map2.isValidMovement(pair(pos, vel))){
+				pos += vel;
+				if(pos.x < 0)pos.x = 0;
+				if(pos.x > 1005)pos.x = 1005; //fixme
+				}else{
+				onMapCollision(DIR.DOWN);
+				}
+			
+			if(doesCollide) foreach(o; g.world.objects){
+				if(o.OBJTYPE == 1 && isInsideRadius(pos, o.pos, 20))
+					{
+					onObjectCollision(o);
+					break;
+					}
+				}			
+			}
+		}
+
+	override bool tryToMove(pair posDifference){
+		alias p = posDifference; // set animation direction.
+		if		(p.x < 0 && p.y < 0){ myObject.direction = DIR.UP; }
+		else if	(p.x > 0 && p.y < 0){ myObject.direction = DIR.DOWN; }
+		else if	(p.x < 0 && p.y > 0){ myObject.direction = DIR.LEFT; }
+		else if	(p.x > 0 && p.y > 0){ myObject.direction = DIR.RIGHT; }
+		myObject.pos += posDifference;
+		
+		return true;
+		}
+
+	this(BaseObject _myObject){
+		super(_myObject);
+		}
+	}
+
+struct anim{
+	int currentFrame;
+	int numDirections;
+	int numFramesPerDirection;
+	
+	int numFramesTotal(){ // function because this should be single-responsibility principle (SRP)
+		return numFramesPerDirection * numDirections;
+		}
+		
+	bitmap*[] frames;
+	}
+
+class animationHandler{
+	void loadAnimationMeta(string path){
+		import std.file : read;
+		auto data = parseTOML(cast(string)read(path));
+		//writeln(data["objects"]);
+//		pragma(msg, typeof(data["objects"]));
+		foreach(o;data["objects"].array){
+			writeln(o);
+			}
+		}
+	
+	anim[const char*] anims;
+
+	bitmap* get(const char *name, int frame, int direction){
+		assert(name in anims);
+		with(anims[name]){
+			assert(direction < numDirections);
+			assert(frame < numFramesTotal());
+			return frames[currentFrame];
+			}
+		}
+
+	bitmap* getNext(const char *name, int direction){
+		assert(name in anims);
+		with(anims[name]){
+			assert(direction < numDirections);
+			currentFrame = capReset(currentFrame, numFramesTotal()-1, 0); 
+			return frames[currentFrame];
+			}
+		}
+	}
