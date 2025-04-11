@@ -6,6 +6,7 @@
     
 [options]
     automaticallyAddOutputExtension = true   # main for linux, main.exe for windows
+    runProgramAfterward = false # should this be in mbConfig?
 
 [windows]
     sourcePaths = [ 'C:\git\dlawn\src\' ]
@@ -19,21 +20,30 @@
     recursiveLibPaths = []
     libs = [ "toml" ]
     includePaths = ['C:\git\dlawn\src\', 'C:\git\dlawn\toml\src\', 'C:\git\dlawn\'] # we could auto add the normal source directory
-    intermediatePath = 'C:\git\dlawn\temp\' # where to store obj files for incremental build
+    intermediatePath = 'C:\git\masterBuilDer\temp\' # where to store obj files for incremental build
+    outputPath = ''
+    projectRootPath = ''
 
 [linux] ## FIX ME
-    sourcePaths = [ 'C:\git\dlawn\src', 'C:\git\dlawn\toml\src\toml' ]
+    sourcePaths = [ 
+        '/home/novous/Desktop/git/dlawn/src', 
+        '/home/novous/Desktop/git/dlawn/toml/src/' ]
     recursiveSourcePaths = [ ]
     libPaths = [
         '.',
-        'C:\git\dlawn\winbuilddeps\lib\', 
-        'C:\git\dlawn\winbuilddeps\dallegro5', 
-        'C:\git\dlawn\toml',
-        'C:\git\dlawn\src'] 
+        '/home/novous/Desktop/git/dlawn/lib/', 
+        '/home/novous/Desktop/git/dlawn/dallegro5', 
+        '/home/novous/Desktop/git/dlawn/toml',
+        '/home/novous/Desktop/git/dlawn/src'] 
     recursiveLibPaths = []
     libs = [ "toml" ]
-    includePaths = ['C:\git\dlawn\toml\src\toml', 'C:\git\dlawn\allegro5']
-    intermediatePath = '.\temp\' # where to store obj files for incremental build
+    includePaths = [
+        '/home/novous/Desktop/git/dlawn/src',
+        '/home/novous/Desktop/git/dlawn/toml/src',
+        '/home/novous/Desktop/git/dlawn/allegro5']
+    intermediatePath = './temp/' # where to store obj files for incremental build
+    outputPath = ''
+    projectRootPath = ''
 
 [setupCode]
     getDeps = ["git submodule init", "git submodule init"]

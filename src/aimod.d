@@ -126,7 +126,7 @@ class bugAi : aiType {
 	float fleeAngle = 0; // opposite of what we're fleeing from
 	float currentAngle = 0;
 
-	this(BaseO _owner) {
+	this(BaseObject _owner) {
 		super(_owner);
 		//		assert(myOwner !is null);
 	}

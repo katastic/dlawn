@@ -33,7 +33,7 @@ version (Windows) {
 	int SCREEN_W = 1920;
 	int SCREEN_H = 1080;
 }
-version (Linux) {
+version (linux) {
 	int SCREEN_W = 1300;
 	int SCREEN_H = 768;
 }

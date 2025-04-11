@@ -19,8 +19,8 @@ import std.datetime.stopwatch : benchmark, StopWatch, AutoStart;
 //extern (C) int pthread_yield(); //does this ... work? No errors yet I can't tell if it changes anything...
 //------------------------------
 
-version(LDC)		{pragma(msg, "using LDC version of dallegro"); pragma(lib, "dallegro5ldc"); }
-version(DigitalMars){pragma(msg, "using DMD version of dallegro"); pragma(lib, "dallegro5dmd"); }
+version(LDC)		{pragma(msg, "using LDC version of dallegro \n"); pragma(lib, "dallegro5ldc"); }
+version(DigitalMars){pragma(msg, "using DMD version of dallegro \n"); pragma(lib, "dallegro5dmd"); }
 
 version(ALLEGRO_NO_PRAGMA_LIB){}else{
 	pragma(lib, "allegro");
@@ -209,7 +209,7 @@ static if (false) // MULTISAMPLING. Not sure if helpful.
 		return true;
 		}
 
-version(Linux){
+version(linux){
 	string psource = r"/data/shaders/ex_shader_pixel.glsl";
 	string vsource = r"/data/shaders/ex_shader_vertex.glsl";
 }

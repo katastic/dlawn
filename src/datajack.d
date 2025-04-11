@@ -588,14 +588,14 @@ class fallingObjectStyle : movementStyle2{
 				pos += vel;
 				}else{
 				vel.y = 0;
-				onMapCollision(DIR.DOWN);
+				//onMapCollision(DIR.DOWN);
 				}
 			
 			foreach(o; g.world.objects){
-				if(o.OBJTYPE == 1 && isInsideRadius(pos, o.pos, 20)){
-					onObjectCollision(o);
-					break;
-					}
+			//	if(o.OBJTYPE == 1 && isInsideRadius(pos, o.pos, 20)){
+			//		onObjectCollision(o);
+			//		break;
+			//		}
 				}			
 			}
 		}
@@ -622,14 +622,14 @@ class floatingObjectStyle : movementStyle2 /// like a blimp (do we want velocity
 				if(pos.x < 0)pos.x = 0;
 				if(pos.x > 1005)pos.x = 1005; //fixme
 				}else{
-				onMapCollision(DIR.DOWN);
+				//onMapCollision(DIR.DOWN);
 				}
 			
 			if(doesCollide) foreach(o; g.world.objects){
-				if(o.OBJTYPE == 1 && isInsideRadius(pos, o.pos, 20))
+				//if(o.OBJTYPE == 1 && isInsideRadius(pos, o.pos, 20))
 					{
-					onObjectCollision(o);
-					break;
+				//	onObjectCollision(o);
+				//	break;
 					}
 				}			
 			}
@@ -669,6 +669,7 @@ class animationHandler{
 		auto data = parseTOML(cast(string)read(path));
 		//writeln(data["objects"]);
 //		pragma(msg, typeof(data["objects"]));
+import std.stdio;
 		foreach(o;data["objects"].array){
 			writeln(o);
 			}
